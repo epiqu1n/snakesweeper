@@ -1,0 +1,19 @@
+{
+  "name": "fullstack-template",
+  "version": "0.1.0",
+  "description": "Fullstack project template",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Test\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/epiqu1n/fullstack-template.git"
+  },
+  "author": "Eric Wells",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/epiqu1n/fullstack-template/issues"
+  },
+  "homepage": "https://github.com/epiqu1n/fullstack-template#readme"
+}
