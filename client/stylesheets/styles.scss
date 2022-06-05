@@ -1,0 +1,56 @@
+:root {
+  $color-blue: rgb(63, 63, 137);
+}
+
+@mixin no-select {
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+	cursor: default;
+}
+
+@mixin center-bg($size: contain) {
+	background-size: $size;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+@mixin flex-center {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+@mixin bright-hover($hover: 1.15, $active: 0.9) {
+	&:hover {
+		filter: brightness($hover);
+	}
+	@if $active != none {
+		&:active {
+			filter: brightness($active);
+		}
+	}
+}
+
+* {
+	box-sizing: border-box;
+	font-family: 'cardo-regular';
+	position: relative;
+	cursor: default;
+	font-weight: normal;
+}
+
+html {
+	height: 100vh;
+	width: 100vw;
+	position: relative;
+	font-size: 16px;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+	margin: 0;
+}
