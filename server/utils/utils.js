@@ -24,6 +24,17 @@ export class ServerError extends Error {
 }
 
 /**
+ * "Zips" together 2 arrays in an alternating fashion.  
+ * e.g. `zip([1,3], [2,4]) == [1,2,3,4]`
+ * @param {any[]} a 
+ * @param {any[]} b 
+ * @returns {any[]}
+ */
+export function zip(a, b) { 
+  return (a.length ? [a[0], ...zip(b, a.slice(1))] : b)
+}
+
+/**
  * Logs an error to the console in red
  * @param {*} message
  * @param  {...any} optionalParams 
