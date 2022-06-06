@@ -1,0 +1,3 @@
+{
+  "databaseUri": "postgres://eric@localhost:5432/example_db"
+}
