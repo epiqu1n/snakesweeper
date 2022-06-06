@@ -38,7 +38,7 @@ app.all('*', function(req, res) {
 function globalErrorHandler(info, req, res, next) {
   const err = (info instanceof Error ? info : info.err);
   const message = (info instanceof Error ? 'An unknown server error occurred' : info.msg);
-  const code = info.err?.code || 500;
+  const code = (typeof info.err?.code === 'number' ? info.err.code : 500);
   
   error(err);
   return res.status(code).send(message);
