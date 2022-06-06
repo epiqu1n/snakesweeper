@@ -11,7 +11,7 @@ modelController.getAllExamples = async function (req, res, next) {
   `;
 
   try {
-    res.locals.examples = await query(getQuery);
+    res.locals.examples = (await query(getQuery)).rows;
     return next();
   } catch (err) {
     return next({
