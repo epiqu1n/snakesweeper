@@ -5,7 +5,7 @@ const modelController = {};
  * Retrieves all Examples from database and stores into `res.locals.examples`
  * @type {import("express").RequestHandler}
  */
- modelController.getAllExamples = async function (req, res, next) {
+modelController.getAllExamples = async function (req, res, next) {
   const getQuery = sql`
     SELECT * FROM Examples
   `;

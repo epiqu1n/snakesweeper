@@ -37,7 +37,7 @@ export function sql(strings, ...variables) {
   if (lines.length > 2) {
     const indent_0 = lines[1].search(/\S|$/m);
     const pattern = new RegExp(`^\\s{0,${indent_0}}`, 'm');
-    for (let l = 1; l<lines.length; l++) {
+    for (let l = 1; l < lines.length; l++) {
       lines[l] = lines[l].replace(pattern, '');
     }
   }
