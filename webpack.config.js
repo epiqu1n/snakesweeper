@@ -7,73 +7,63 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default {
-  entry: [
-    // entry point of our app
-    './client/index.js',
-  ],
+  entry: './client/index.tsx',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    publicPath: '/',
     filename: 'bundle.js',
+    publicPath: '/'
   },
-  devtool: 'eval-source-map',
-  mode: 'development',
+  devtool: 'eval-source-map', // inline-source-map?
+  mode: process.env.NODE_ENV,
   devServer: {
     host: 'localhost',
     port: 8080,
-    // enable HMR on the devServer
     hot: true,
-    // fallback to root for other urls
-    historyApiFallback: true,
-
+    // historyApiFallback: true,
     static: {
-      // match the output path
       directory: path.resolve(__dirname, 'dist'),
-      // match the output 'publicPath'
-      publicPath: '/',
+      publicPath: '/'
     },
-
-    headers: { 'Access-Control-Allow-Origin': '*' },
-    /**
-     * proxy is required in order to make api calls to
-     * express server while using hot-reload webpack server
-     * routes api fetch requests from localhost:8080/api/* (webpack dev server)
-     * to localhost:3000/api/* (where our Express server is running)
-     */
+    // headers: { 'Access-Control-Allow-Origin': '*' },
     proxy: {
       '/api/**': {
         target: 'http://localhost:3000/',
-        secure: false,
+        secure: false
       },
       '/assets/**': {
         target: 'http://localhost:3000/',
-        secure: false,
-      },
-    },
+        secure: false
+      }
+    }
   },
   module: {
     rules: [
       {
-        test: /.(js|jsx)$/,
+        test: /\.jsx?$/,
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader',
-        },
+          loader: 'babel-loader'
+        }
       },
       {
-        test: /.(css|scss)$/,
+        test: /\.s?css$/,
         exclude: /node_modules/,
-        use: ['style-loader', 'css-loader'],
+        use: ['style-loader', 'css-loader', 'sass-loader']
+      },
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        // Use babel-loader w/ @babel/preset-typescript & react?
+        exclude: /node_modules/
       }
-    ],
+    ]
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './client/index.html',
-    }),
+      template: './client/index.html'
+    })
   ],
   resolve: {
-    // Enable importing JS / JSX files without specifying their extension
-    extensions: ['.js', '.jsx'],
-  },
+    extensions: ['.tsx', '.ts', '.jsx', '.js'],
+  }
 };
