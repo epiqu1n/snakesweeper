@@ -27,6 +27,17 @@ export function query(queryString, params, log = false) {
 }
 
 /**
+ * Queries the database and returns the first result or null
+ * @param {string} queryString
+ * @param {any[]} params
+ * @param {boolean} log Whether or not to log the query to the console. Default `false`
+ * @returns {Promise<any?>}
+ */
+export function queryOne(queryString, params, log = false) {
+  return query(queryString, params, log).then((result) => result.rows[0] || null);
+}
+
+/**
  * Tagged template function which removes excess indentation from a multiline template literal
  * @param {TemplateStringsArray} strings 
  * @param  {...any[]} variables 
