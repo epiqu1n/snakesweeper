@@ -9,7 +9,7 @@ import fs from 'fs/promises';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const _config = JSON.parse(await fs.readFile(path.join(__dirname, './models.config.json')));
 
-// Database schema: https://app.dbdesigner.net/designer/schema/532196
+// Database schema: https://app.dbdesigner.net/designer/schema/532865
 // Initialize pool
 const pool = new pg.Pool({
   connectionString: _config.databaseUri
