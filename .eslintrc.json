@@ -18,7 +18,8 @@
     "indent": ["warn", 2, {
       "ignoreComments": true,
       "SwitchCase": 1,
-      "MemberExpression": 0
+      "MemberExpression": 0,
+      "flatTernaryExpressions": true
     }],
     "no-unused-vars": ["off", { "vars": "local" }],
     "no-case-declarations": "off",
