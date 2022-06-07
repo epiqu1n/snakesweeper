@@ -57,3 +57,7 @@ export function sql(strings, ...variables) {
     
   return lines.join('\n');
 }
+
+export const codes = {
+  DUPLICATE_KEY: 23505
+};

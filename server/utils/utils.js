@@ -6,13 +6,13 @@ export class CustomError extends Error {
   /**
    * @param {string} message
    * @param {string} className
-   * @param {number} code
+   * @param {number} statusCode
    */
-  constructor(message, className = 'CustomError', code = 500) {
+  constructor(message, className = 'CustomError', statusCode = 500) {
     super(message);
     this.name = className;
     this.stack = this.cleanStacktrace(this.stack);
-    this.code = code;
+    this.statusCode = statusCode;
   }
   
     /**
@@ -29,20 +29,20 @@ export class CustomError extends Error {
 export class ServerError extends CustomError {
   /**
    * @param {string} message
-   * @param {number} code
+   * @param {number} statusCode
    */
-  constructor(message, code = 500) {
-    super(message, 'ServerError', code);
+  constructor(message, statusCode = 500) {
+    super(message, 'ServerError', statusCode);
   }
 }
 
 export class ClientError extends CustomError {
   /**
    * @param {string} message
-   * @param {number} code
+   * @param {number} statusCode
    */
-  constructor(message, code = 400) {
-    super(message, 'ClientError', code);
+  constructor(message, statusCode = 400) {
+    super(message, 'ClientError', statusCode);
   }
 }
 

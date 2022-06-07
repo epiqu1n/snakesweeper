@@ -3,7 +3,7 @@ import apiRouter from './routes/api.js';
 import fs from 'fs/promises';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { error, warn } from './utils/utils.js';
+import { CustomError, error, warn } from './utils/utils.js';
 
 ///Initialization
 // Initialize config
@@ -33,15 +33,19 @@ app.all('*', function(req, res) {
 // Global error handler
 /**
  * @type {express.ErrorRequestHandler}
- * @param {Error | {msg: string, err?: Error}} info
+ * @param {Error | {msg: string, err?: Error, code?: number}} info
  */ 
 function globalErrorHandler(info, req, res, next) {
   const err = (info instanceof Error ? info : info.err);
   const message = (info instanceof Error ? 'An unknown server error occurred' : info.msg);
-  const code = (typeof info.err?.code === 'number' ? info.err.code : 500);
+  const code = (
+    typeof info.code === 'number' ? info.code
+    : info.err instanceof CustomError ? info.err.statusCode
+    : 500
+  );
   
   error(err);
-  return res.status(code).send(message);
+  return res.status(code).send({ error: message });
 }
 app.use(globalErrorHandler);
 /*
