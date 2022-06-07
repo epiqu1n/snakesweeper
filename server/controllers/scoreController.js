@@ -5,18 +5,19 @@ const scoreController = {};
 /** @typedef {import("express").RequestHandler} RequestHandler */
 
 /**
- * Retrieves all Examples from database and stores into `res.locals.examples`
+ * Retrieves all scores from database and stores into `res.locals.scores`
  * @type {RequestHandler}
  */
 scoreController.getTopScores = async function (req, res, next) {
-  const getQuery = sql`
-    SELECT * FROM User_Scores
-    ORDER BY time_seconds ASC
+  const scoreQuery = sql`
+    SELECT Users.name, US.time_seconds, US.submitted_at FROM User_Scores US
+    LEFT JOIN Users ON Users.id = US.user_id
+    ORDER BY US.time_seconds ASC
     LIMIT 10
   `;
 
   try {
-    res.locals.scores = (await query(getQuery)).rows;
+    res.locals.scores = (await query(scoreQuery)).rows;
     return next();
   } catch (err) {
     return next({
@@ -27,7 +28,44 @@ scoreController.getTopScores = async function (req, res, next) {
 };
 
 /**
- * Adds an Example to the database
+ * Retrieves a user's scores from database and stores into `res.locals.scores`
+ * @type {RequestHandler}
+ */
+scoreController.getUserScores = async function (req, res, next) {
+  const { username } = req.params;
+
+  if (!username) {
+    return next({
+      msg: 'Invalid URL parameters',
+      err: 'Invalid URL parameters',
+      code: 400
+    });
+  }
+
+  const scoreQuery = sql`
+    SELECT Users.name, US.time_seconds, US.submitted_at FROM User_Scores US
+    LEFT JOIN Users ON Users.id = US.user_id
+    WHERE LOWER(Users.name) = LOWER($1)
+    ORDER BY US.time_seconds ASC
+    LIMIT 10
+  `;
+  const scoreParams = [username];
+
+  try {
+    res.locals.scores = (await query(scoreQuery, scoreParams)).rows;
+    return next();
+  } catch (err) {
+    return next({
+      msg: 'An error occurred retrieving top scores',
+      err: err
+    });
+  }
+};
+
+
+
+/**
+ * Adds a score submission to the database
  * @type {RequestHandler}
  */
 scoreController.addScore = async function (req, res, next) {
@@ -57,7 +95,8 @@ scoreController.addScore = async function (req, res, next) {
     const userResult = await queryOne(userIDQuery, userParams);
     if (!userResult) return next({
       msg: 'Failed to locate user for score submission',
-      err: `Could not locate user "${body.username}" for score submission`
+      err: `Could not locate user "${body.username}" for score submission`,
+      code: 400
     });
     scoreParams = [userResult.id, body.score];
     await query(scoreInsQuery, scoreParams);
