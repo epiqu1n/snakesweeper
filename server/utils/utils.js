@@ -54,7 +54,7 @@ export class ClientError extends CustomError {
  * @returns {any[]}
  */
 export function zip(a, b) { 
-  return (a.length ? [a[0], ...zip(b, a.slice(1))] : b)
+  return (a.length ? [a[0], ...zip(b, a.slice(1))] : b);
 }
 
 /**
