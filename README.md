@@ -1,2 +1,2 @@
-# fullstack-template
-Generic template for building a fullstack project
+# Minesweeper Solo Project
+React Minesweeper clone

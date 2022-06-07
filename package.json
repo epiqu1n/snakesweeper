@@ -1,7 +1,7 @@
 {
-  "name": "fullstack-template",
+  "name": "minesweeper-solo",
   "version": "0.1.0",
-  "description": "Fullstack project template",
+  "description": "React Minesweeper clone",
   "main": "server/server.js",
   "type": "module",
   "scripts": {
@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/epiqu1n/fullstack-template.git"
+    "url": "git+https://github.com/epiqu1n/minesweeper-solo.git"
   },
   "author": "Eric Wells",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/epiqu1n/fullstack-template/issues"
+    "url": "https://github.com/epiqu1n/minesweeper-solo/issues"
   },
-  "homepage": "https://github.com/epiqu1n/fullstack-template#readme",
+  "homepage": "https://github.com/epiqu1n/minesweeper-solo#readme",
   "devDependencies": {
     "@babel/core": "^7.18.2",
     "@babel/preset-env": "^7.18.2",
