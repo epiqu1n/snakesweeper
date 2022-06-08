@@ -22,12 +22,12 @@ export default function TopScores() {
     getTopScores().catch(err => console.error(err));
   }, []);
 
-  const scoreComps = scores.map((score, i) => <ScoreRow {...score} key={`Score_${score.username}_${i}`} />);
+  const scoreRows = scores.map((score, i) => <ScoreRow {...score} key={`Score_${score.username}_${i}`} />);
 
   return (
-  <section>
+  <section className="scores">
     <h2>Top Scores</h2>
-    <div>{scoreComps}</div>
+    <table>{scoreRows}</table>
   </section>
   );
 }

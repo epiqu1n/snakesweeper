@@ -57,3 +57,33 @@ body {
   height: 100%;
 	margin: 0;
 }
+
+.gameBoard {
+  $squareSize: 50px;
+
+  border: 1px solid black;
+  display: grid;
+  grid-template-columns: repeat(9, $squareSize);
+  grid-auto-rows: $squareSize;
+  width: min-content;
+  height: min-content;
+  user-select: none;
+
+  > div {
+    width: $squareSize;
+    height: $squareSize;
+    background-color: gray;
+    border: 1px ridge black;
+    @include flex-center();
+
+    &.hidden {
+      background-color: rgba(173, 173, 173, 0.995);
+    }
+  }
+}
+
+.scores {
+  @include flex-center();
+  width: fit-content;
+  flex-flow: column;
+}

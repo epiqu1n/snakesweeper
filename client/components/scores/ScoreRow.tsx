@@ -9,10 +9,10 @@ type ScoreRowProps = {
 export default function ScoreRow(props: ScoreRowProps) {
   const { username, time_seconds, submitted_at } = props;
   return (
-    <div>
-      <span>{username}</span>&emsp;
-      <span>{time_seconds}s</span>&emsp;
-      <span>{new Date(submitted_at).toLocaleString()}</span>
-    </div>
+    <tr>
+      <td>{username}</td>&emsp;
+      <td>{time_seconds}s</td>&emsp;
+      <td>{new Date(submitted_at).toLocaleString()}</td>
+    </tr>
   );
 }
