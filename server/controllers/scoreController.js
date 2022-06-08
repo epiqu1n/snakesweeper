@@ -10,7 +10,7 @@ const scoreController = {};
  */
 scoreController.getTopScores = async function (req, res, next) {
   const scoreQuery = sql`
-    SELECT Users.name, US.time_seconds, US.submitted_at FROM User_Scores US
+    SELECT Users.name AS username, US.time_seconds, US.submitted_at FROM User_Scores US
     LEFT JOIN Users ON Users.id = US.user_id
     ORDER BY US.time_seconds ASC
     LIMIT 10
@@ -43,7 +43,7 @@ scoreController.getUserScores = async function (req, res, next) {
   }
 
   const scoreQuery = sql`
-    SELECT Users.name, US.time_seconds, US.submitted_at FROM User_Scores US
+    SELECT Users.name AS username, US.time_seconds, US.submitted_at FROM User_Scores US
     LEFT JOIN Users ON Users.id = US.user_id
     WHERE LOWER(Users.name) = LOWER($1)
     ORDER BY US.time_seconds ASC
@@ -65,7 +65,7 @@ scoreController.getUserScores = async function (req, res, next) {
 
 
 /**
- * Adds a score submission to the database
+ * Adds a score submission to the database and updates that user's high score if applicable
  * @type {RequestHandler}
  */
 scoreController.addScore = async function (req, res, next) {
@@ -79,6 +79,7 @@ scoreController.addScore = async function (req, res, next) {
     });
   }
 
+  // Form queries
   const userIDQuery = sql`
     SELECT id FROM Users
     WHERE name = ($1)
@@ -91,6 +92,14 @@ scoreController.addScore = async function (req, res, next) {
   `;
   let scoreParams; // [userId, body.score]
 
+  const highScoreUpdQuery = sql`
+    UPDATE Users
+    SET best_time = LEAST(best_time, $1)
+    WHERE id = $2
+  `;
+  let highScoreParams; // [body.score, userId]
+
+  // Run queries
   try {
     const userResult = await queryOne(userIDQuery, userParams);
     if (!userResult) return next({
@@ -99,7 +108,11 @@ scoreController.addScore = async function (req, res, next) {
       code: 400
     });
     scoreParams = [userResult.id, body.score];
-    await query(scoreInsQuery, scoreParams);
+    highScoreParams = [body.score, userResult.id];
+    await Promise.all([
+      query(scoreInsQuery, scoreParams),
+      query(highScoreUpdQuery, highScoreParams)
+    ]);
 
     return next();
   } catch (err) {

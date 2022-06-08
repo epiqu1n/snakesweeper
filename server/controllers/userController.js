@@ -1,4 +1,4 @@
-import { query, sql } from '../models/model.js'; 
+import { query, queryOne, sql } from '../models/model.js'; 
 import { getBodyProps } from '../utils/utils.js';
 const userController = {};
 
@@ -32,5 +32,33 @@ userController.addUser = async function(req, res, next) {
     });
   }
 };
+
+/** @type {RequestHandler} */
+userController.getUser = async function(req, res, next) {
+  const { username } = req.params;
+  if (!username) return next({
+    msg: 'Invalid URL parameters',
+    err: 'Invalid URL parameters',
+    code: 400
+  });
+
+  // json_agg(json_build_object(''))
+  const userQuery = sql`
+    SELECT "name", best_time FROM Users
+    WHERE name = $1
+  `;
+  const userParams = [username];
+
+  try {
+    res.locals.user = await queryOne(userQuery, userParams);
+    return next();
+  } catch (err) {
+    return next({
+      msg: 'An error occurred getting user information',
+      err: err
+    });
+  }
+};
+
 
 export default userController;

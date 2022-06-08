@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,700;1,400;1,700&family=Oswald:wght@400;700&display=swap');
+
 :root {
   $color-blue: rgb(63, 63, 137);
 }
@@ -36,7 +38,7 @@
 
 * {
 	box-sizing: border-box;
-	font-family: 'cardo-regular';
+	font-family: 'Nunito';
 	position: relative;
 	cursor: default;
 	font-weight: normal;
@@ -47,6 +49,7 @@ html {
 	width: 100vw;
 	position: relative;
 	font-size: 16px;
+  background-color: slategray;
 }
 
 body {
