@@ -27,7 +27,14 @@ export default function TopScores() {
   return (
   <section className="scores">
     <h2>Top Scores</h2>
-    <table>{scoreRows}</table>
+    <table>
+      <thead><tr>
+        <th>Player</th>
+        <th>Time</th>
+        <th>Date</th>
+        </tr></thead>
+      <tbody>{scoreRows}</tbody>
+    </table>
   </section>
   );
 }

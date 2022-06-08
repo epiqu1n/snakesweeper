@@ -58,6 +58,10 @@ body {
 	margin: 0;
 }
 
+h1, h2 {
+  font-weight: bold;
+}
+
 .gameBoard {
   $squareSize: 50px;
 
@@ -86,4 +90,12 @@ body {
   @include flex-center();
   width: fit-content;
   flex-flow: column;
+
+  td, th {
+    padding: 0.25em 1rem;
+  }
+
+  th {
+    font-weight: bold;
+  }
 }
