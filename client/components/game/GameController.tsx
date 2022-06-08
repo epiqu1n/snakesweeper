@@ -15,6 +15,7 @@ export default function GameController() {
   const [grid, setGrid] = React.useState<GridObject[]>([]);
   const [remaining, setRemaining] = React.useState(size[0] * size[1]);
   const [numMines, setNumMines] = React.useState(1);
+  const [startTime, setStartTime] = React.useState<number>(-1);
 
   // TODO: Prevent user losing on first click
   /**
@@ -23,6 +24,10 @@ export default function GameController() {
    */
   const handleSquareClick = (index: number, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     console.log('Clicked square', index, ':', grid[index].content);
+    // Start timer if first click
+    if (startTime <= 0) {
+      setStartTime(Date.now());
+    }
 
     // Update grid state
     const newGrid = [ ...grid ];
@@ -49,15 +54,20 @@ export default function GameController() {
       startNewGame();
     }
     else if (newRemaining === numMines) {
+      const totalTime = Math.floor((Date.now() - startTime) / 1000);
       console.log('Player won!');
-      alert('You win! :D');
+      alert(`You win! :D\nIt took you ${totalTime} seconds`);
       startNewGame();
     }
   };
 
+  /**
+   * Resets the grid, remaining squares, and start time
+   */
   const startNewGame = () => {
     setGrid(genGrid(size[0], size[1], numMines));
     setRemaining(size[0] * size[1]);
+    setStartTime(-1);
   }
 
   // Reset grid on grid size change
@@ -118,7 +128,7 @@ function genGrid(width: number, height: number, numMines: number) {
     newGrid[i].content = countAdjacentMines(row, col).toString();
   }
 
-  console.log(newGrid);
+  console.log('New grid:', newGrid);
   return newGrid;
 }
 
