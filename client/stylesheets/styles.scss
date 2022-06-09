@@ -77,11 +77,38 @@ h1, h2 {
     width: $squareSize;
     height: $squareSize;
     background-color: gray;
-    border: 1px ridge black;
+    border: 2px solid rgb(88, 88, 88);
+    font-weight: bold;
     @include flex-center();
 
     &.hidden {
+      border: 2px ridge gray;
       background-color: rgba(173, 173, 173, 0.995);
+    }
+
+    &.n1 {
+      color: blue;
+    }
+    &.n2 {
+      color: green;
+    }
+    &.n3 {
+      color: red;
+    }
+    &.n4 {
+      color: purple;
+    }
+    &.n5 {
+      color: black;
+    }
+    &.n6 {
+      color: rgb(76, 76, 76);
+    }
+    &.n7 {
+      color: maroon;
+    }
+    &.n8 {
+      color: turquoise;
     }
   }
 }
