@@ -8,10 +8,14 @@ export type GridObject = {
   isFlagged: boolean
 };
 
+type GameControllerProps = {
+  onScoreSubmit: () => void
+}
+
 // Beginner: 9 × 9 board with 10 mines
 // Intermediate: 16 × 16 board with 40 mines
 // Expert: 16 × 30 board with 99 mines
-export default function GameController() {
+export default function GameController({ onScoreSubmit }: GameControllerProps) {
   const [size, setSize] = React.useState<[x: number, y: number]>([9, 9]);
   const [grid, setGrid] = React.useState<GridObject[]>([]);
   const [remaining, setRemaining] = React.useState(size[0] * size[1]);
@@ -96,7 +100,7 @@ export default function GameController() {
 
       setTimeout(() => {
         const username = prompt(`You win! :D\nIt took you ${totalTime} seconds\nEnter your name:`);
-        if (username && typeof username === 'string') submitScore(username, totalTime);
+        if (username && typeof username === 'string') submitScore(username, totalTime).then(onScoreSubmit);
       }, 1);
       // startNewGame(); // DEBUG
     }

@@ -1,6 +1,11 @@
 import * as React from 'react';
+import { UserScore } from '../../App';
 import TopScores from './TopScores';
 
-export default function ScoresDisplay() {
-  return <TopScores />;
+type ScoresDisplayProps = {
+  topScores: UserScore[]
+};
+
+export default function ScoresDisplay({ topScores }: ScoresDisplayProps) {
+  return <TopScores scores={topScores} />;
 }
