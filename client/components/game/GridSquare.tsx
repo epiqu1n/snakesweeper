@@ -18,9 +18,10 @@ export default function GridSquare({ index, content, isRevealed, isFlagged, onCl
     : isFlagged ? 'F'
     : ''
   );
+  const className = `n${content} ` + (isRevealed ? '' : 'hidden');
 
   return (
-    <div onContextMenu={(event) => handleClick(index, event)} onClick={(event) => handleClick(index, event)} className={isRevealed ? '' : 'hidden'}>
+    <div onContextMenu={(event) => handleClick(index, event)} onClick={(event) => handleClick(index, event)} className={className}>
       {display}
     </div>
   );
