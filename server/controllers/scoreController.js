@@ -10,7 +10,7 @@ const scoreController = {};
  */
 scoreController.getTopScores = async function (req, res, next) {
   const scoreQuery = sql`
-    SELECT Users.name AS username, US.time_seconds, US.submitted_at FROM User_Scores US
+    SELECT Users.name AS username, US.time_seconds, US.submitted_at, US.id AS score_id FROM User_Scores US
     LEFT JOIN Users ON Users.id = US.user_id
     ORDER BY US.time_seconds ASC
     LIMIT 10
@@ -43,7 +43,7 @@ scoreController.getUserScores = async function (req, res, next) {
   }
 
   const scoreQuery = sql`
-    SELECT Users.name AS username, US.time_seconds, US.submitted_at FROM User_Scores US
+    SELECT Users.name AS username, US.time_seconds, US.submitted_at, US.id AS score_id FROM User_Scores US
     LEFT JOIN Users ON Users.id = US.user_id
     WHERE LOWER(Users.name) = LOWER($1)
     ORDER BY US.time_seconds ASC
@@ -61,8 +61,6 @@ scoreController.getUserScores = async function (req, res, next) {
     });
   }
 };
-
-
 
 /**
  * Adds a score submission to the database and updates that user's high score if applicable
@@ -118,6 +116,42 @@ scoreController.addScore = async function (req, res, next) {
   } catch (err) {
     return next({
       msg: 'An error occurred during score submission',
+      err: err
+    });
+  }
+};
+
+
+/**
+ * Clears a score for a user, or all scores if no specific score id is provided
+ * @type {RequestHandler}
+ */
+scoreController.removeScore = async function(req, res, next) {
+  const { username, scoreId } = req.params;
+  if (typeof username !== 'string' || (scoreId && isNaN(scoreId))) return next({
+    msg: 'Invalid URL parameters',
+    err: 'scoreController.clearUserScore: Invalid URL parameters',
+    code: 400
+  });
+  console.log(username, scoreId);
+
+  const delQuery = sql`
+    DELETE FROM User_Scores US
+    WHERE user_id = (
+      SELECT id FROM Users
+      WHERE name = $1
+    ) ${scoreId && 'AND US.id = $2'}
+    RETURNING US.id AS score_id
+  `;
+  const delParams = [username];
+  if (scoreId) delParams.push(scoreId);
+
+  try {
+    res.locals.deletedIds = await query(delQuery, delParams).then(res => res.rows.map(row => row.score_id));
+    return next();
+  } catch (err) {
+    return next({
+      msg: 'An error occurred removing scores',
       err: err
     });
   }
