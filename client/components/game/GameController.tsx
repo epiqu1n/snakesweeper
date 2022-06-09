@@ -1,5 +1,6 @@
 import * as React from "react";
 import GameBoard from "./GameBoard";
+import TimeDisplay from "./TimeDisplay";
 
 export type GridObject = {
   content: string,
@@ -11,12 +12,14 @@ export type GridObject = {
 // Intermediate: 16 × 16 board with 40 mines
 // Expert: 16 × 30 board with 99 mines
 export default function GameController() {
-  const [size, setSize] = React.useState([3, 3]);
+  const [size, setSize] = React.useState<[x: number, y: number]>([9, 9]);
   const [grid, setGrid] = React.useState<GridObject[]>([]);
   const [remaining, setRemaining] = React.useState(size[0] * size[1]);
-  const [numMines, setNumMines] = React.useState(1);
+  const [numMines, setNumMines] = React.useState(3);
   const [startTime, setStartTime] = React.useState<number>(-1);
+  const [gameActive, setGameActive] = React.useState(false);
 
+  /// Event handlers
   // TODO: Prevent user losing on first click
   /**
    * On square click, set new grid state and check if player hit a mine or has won
@@ -25,8 +28,9 @@ export default function GameController() {
   const handleSquareClick = (index: number, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     console.log('Clicked square', index, ':', grid[index].content);
     // Start timer if first click
-    if (startTime <= 0) {
+    if (!gameActive) {
       setStartTime(Date.now());
+      setGameActive(true);
     }
 
     // Update grid state
@@ -44,49 +48,125 @@ export default function GameController() {
     if (event.type !== 'click') return;
 
     // Decrement remaining squares
-    const newRemaining = remaining - 1;
-    setRemaining(newRemaining);
 
     // Check for win or loss
     if (grid[index].content === 'M') {
       console.log('Player lost');
-      alert('You lose :(');
-      startNewGame();
+      setGameActive(false);
+      setTimeout(() => {
+        alert('You lose :(');
+      }, 1);
+      // startNewGame(); // DEBUG
     }
-    else if (newRemaining === numMines) {
-      const totalTime = Math.floor((Date.now() - startTime) / 1000);
-      console.log('Player won!');
-      alert(`You win! :D\nIt took you ${totalTime} seconds`);
-      startNewGame();
+    else if (grid[index].content === '0') {
+      // Clear adjacent empty squares
+      const newGrid = [...grid];
+      const revealed = cascadeEmpties(newGrid, index, ...size);
+      setGrid(newGrid);
+      setRemaining((prev) => prev - revealed);
+    }
+    else {
+      setRemaining(prev => prev - 1);
     }
   };
 
+  /// Methods
   /**
    * Resets the grid, remaining squares, and start time
    */
   const startNewGame = () => {
-    setGrid(genGrid(size[0], size[1], numMines));
+    setGrid(genGrid(...size, numMines));
     setRemaining(size[0] * size[1]);
     setStartTime(-1);
   }
 
+  /// Effects
   // Reset grid on grid size change
   React.useEffect(() => {
-    setGrid(genGrid(size[0], size[1], numMines));
-    setRemaining(size[0] * size[1]);
+    startNewGame();
   }, [size]);
 
+  // Check if player has won when remaining number of mines changes
+  React.useEffect(() => {
+    // console.log('Remaining:', remaining);
+    if (remaining === numMines) {
+      const totalTime = Math.floor((Date.now() - startTime) / 1000);
+      setGameActive(false);
+      console.log('Player won!');
+
+      setTimeout(() => {
+        const username = prompt(`You win! :D\nIt took you ${totalTime} seconds\nEnter your name:`);
+        if (username && typeof username === 'string') submitScore(username, totalTime);
+      }, 1);
+      // startNewGame(); // DEBUG
+    }
+  }, [remaining])
+
+  /// Render
   return (
-    <GameBoard
-      grid={grid}
-      width={size[0]}
-      height={size[1]}
-      onSquareClick={handleSquareClick}
-    />
+    <section>
+      <TimeDisplay startTime={startTime} gameActive={gameActive}  />
+      <GameBoard
+        grid={grid}
+        width={size[0]}
+        height={size[1]}
+        onSquareClick={handleSquareClick}
+      />
+    </section>
   );
 }
 
 /// Auxiliary functions
+
+
+function cascadeEmpties(grid: GridObject[], index: number, width: number, height: number, checked: Set<number> = new Set()) {
+  // console.log(index, ':', grid[index].content, ':', grid[index].isRevealed);
+  grid[index] = {
+    ...grid[index],
+    isRevealed: true
+  };
+  checked.add(index);
+  if (grid[index].content !== '0') return;
+  const row = Math.floor(index / width), col = index % width;
+  
+  // Iterate around adjacent squares
+  for (let x = -1; x <= 1; x++) {
+    const checkCol = col + x;
+    if (checkCol < 0 || checkCol >= width) continue; // Prevent wrapping behavior
+
+    for (let y = -1; y <= 1; y++) {
+      const checkRow = row + y;
+      if (x === 0 && y === 0 || checkRow < 0 || checkRow >= height) continue; // Prevent same square being checked and wrapping behavior
+
+      const checkIndex = checkRow * width + checkCol;
+      if (!checked.has(checkIndex) && !grid[checkIndex].isRevealed) cascadeEmpties(grid, checkIndex, width, height, checked);
+    }
+  }
+
+  return checked.size;
+}
+
+async function submitScore(username: string, time: number) {
+  try {
+    const response = await fetch('/api/scores', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: username,
+        score: time
+      })
+    })
+    .then(res => res.json());
+
+    if (response.error) throw new Error(response.error);
+  } catch (err) {
+    console.error(err);
+    alert('Uh oh, something went wrong submitting your score D:');
+  }
+}
+
 function genGrid(width: number, height: number, numMines: number) {
   const newGrid = Array.from({ length: width * height }, () => ({ content: '-', isRevealed: false, isFlagged: false }));
   const available = Object.keys(newGrid);
@@ -94,13 +174,11 @@ function genGrid(width: number, height: number, numMines: number) {
   // For num mines, randomly assign to a grid location that has not been occupied yet
   for (let i = 0; i < numMines; i++) {
     const randIndex = Math.floor(Math.random() * available.length);
-    available.splice(randIndex, 1);
-    newGrid[randIndex].content = 'M';
+    const targetIndex = parseInt(available.splice(randIndex, 1)[0]);
+    newGrid[targetIndex].content = 'M';
   }
 
   function countAdjacentMines(row: number, col: number) {
-    
-
     let mineCount = 0;
     // Iterate around adjacent squares
     for (let x = -1; x <= 1; x++) {
