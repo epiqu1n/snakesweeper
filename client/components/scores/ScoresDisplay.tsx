@@ -3,9 +3,10 @@ import { UserScore } from '../../App';
 import TopScores from './TopScores';
 
 type ScoresDisplayProps = {
-  topScores: UserScore[]
+  topScores: UserScore[],
+  mode: string
 };
 
-export default function ScoresDisplay({ topScores }: ScoresDisplayProps) {
-  return <TopScores scores={topScores} />;
+export default function ScoresDisplay({ topScores, mode }: ScoresDisplayProps) {
+  return <TopScores scores={topScores} mode={mode} />;
 }

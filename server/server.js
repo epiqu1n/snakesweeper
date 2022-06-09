@@ -43,7 +43,7 @@ function globalErrorHandler(info, req, res, next) {
     : info.err instanceof CustomError ? info.err.statusCode
     : 500
   );
-  
+  error(message);
   error(err);
   return res.status(code).send({ error: message });
 }

@@ -62,53 +62,116 @@ h1, h2 {
   font-weight: bold;
 }
 
+#root {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: flex-start;
+  
+  & > section {
+    margin: 2rem;
+  }
+
+  & > h1 {
+    width: 100%;
+    text-align: center
+  }
+} 
+
+.gameContainer {
+  @include flex-center();
+  flex-flow: column nowrap;
+  width: fit-content;
+
+  select.difficulty {
+    width: 10em;
+    text-align: center;
+    font-size: 1.1em;
+  }
+
+  & > * {
+    margin: 0.5rem 0;
+  }
+}
+
+.boardContainer {
+  border: 4px outset #cacaca;
+  
+  .gameBar {
+    width: 100%;
+    @include flex-center();
+    background-color: gray;
+    border-bottom: 4px outset #cacaca;
+
+    & > .timer {
+      font-size: 1.8em;
+      color: red;
+      font-family: monospace;
+      background-color: rgba(0, 0, 0, 0.75);
+      padding: 0.1em 0.5em;
+    }
+  }
+}
+
 .gameBoard {
-  $squareSize: 50px;
+  --square-size: 40px;
 
   border: 1px solid black;
+  border-top: 4px outset #cacaca;
   display: grid;
-  grid-template-columns: repeat(9, $squareSize);
-  grid-auto-rows: $squareSize;
+  grid-template-columns: repeat(9, var(--square-size));
+  grid-auto-rows: var(--square-size);
   width: min-content;
   height: min-content;
   user-select: none;
 
-  > div {
-    width: $squareSize;
-    height: $squareSize;
-    background-color: gray;
-    border: 2px solid rgb(88, 88, 88);
-    font-weight: bold;
+  & > div {
     @include flex-center();
+    @include center-bg(75%);
+
+    width: var(--square-size);
+    height: var(--square-size);
+    background-color: gray;
+    border: 1px solid rgb(88, 88, 88);
+
+    font-size: 1.4em;
+    font-weight: bold;
 
     &.hidden {
-      border: 2px ridge gray;
-      background-color: rgba(173, 173, 173, 0.995);
+      border: 3px outset #cacaca;
+      background-color: rgba(173, 173, 173);
     }
 
-    &.n1 {
+    &.s1 {
       color: blue;
     }
-    &.n2 {
+    &.s2 {
       color: green;
     }
-    &.n3 {
+    &.s3 {
       color: red;
     }
-    &.n4 {
+    &.s4 {
       color: purple;
     }
-    &.n5 {
+    &.s5 {
       color: black;
     }
-    &.n6 {
+    &.s6 {
       color: rgb(76, 76, 76);
     }
-    &.n7 {
+    &.s7 {
       color: maroon;
     }
-    &.n8 {
+    &.s8 {
       color: turquoise;
+    }
+    &.sM:not(.hidden) {
+      background-image: url('../assets/mine.png');
+      background-color: red;
+    }
+    &.F.hidden {
+      background-image: url('../assets/flag.png');
     }
   }
 }

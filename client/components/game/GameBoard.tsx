@@ -24,7 +24,7 @@ export default function GameBoard(props: GameBoardProps) {
     />
   );
   return (
-    <div className="gameBoard" style={{gridTemplateColumns: `repeat(${props.width}, 50px)`}}>
+    <div className="gameBoard" style={{gridTemplateColumns: `repeat(${props.width}, var(--square-size))`}}>
       {squares}
     </div>
   );

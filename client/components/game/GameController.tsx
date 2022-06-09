@@ -1,6 +1,7 @@
-import * as React from "react";
+import React from "react";
+import GameBar from "./GameBar";
 import GameBoard from "./GameBoard";
-import TimeDisplay from "./TimeDisplay";
+import { BoardOptions } from "../../App";
 
 export type GridObject = {
   content: string,
@@ -9,19 +10,21 @@ export type GridObject = {
 };
 
 type GameControllerProps = {
-  onScoreSubmit: () => void
+  onScoreSubmit: () => void,
+  onModeChange: (mode: string) => void,
+  children: JSX.Element[],
+  difficulty: BoardOptions
 }
 
-// Beginner: 9 × 9 board with 10 mines
-// Intermediate: 16 × 16 board with 40 mines
-// Expert: 16 × 30 board with 99 mines
-export default function GameController({ onScoreSubmit }: GameControllerProps) {
-  const [size, setSize] = React.useState<[x: number, y: number]>([9, 9]);
+export default function GameController({ onScoreSubmit, onModeChange, difficulty, children }: GameControllerProps) {
+  const size = difficulty.size;
+  const numMines = difficulty.mines;
+  
   const [grid, setGrid] = React.useState<GridObject[]>([]);
   const [remaining, setRemaining] = React.useState(size[0] * size[1]);
-  const [numMines, setNumMines] = React.useState(3);
   const [startTime, setStartTime] = React.useState<number>(-1);
   const [gameActive, setGameActive] = React.useState(false);
+
 
   /// Event handlers
   // TODO: Prevent user losing on first click
@@ -40,16 +43,15 @@ export default function GameController({ onScoreSubmit }: GameControllerProps) {
     // Update grid state
     const newGrid = [ ...grid ];
     const newSquare = { ...grid[index] };
-    if (event.type === 'click') newSquare.isRevealed = true;
-    else {
-      event.preventDefault();
-      newSquare.isFlagged = !newSquare.isFlagged;
-    }
+    const isLeftClick = event.nativeEvent.button === 0;
+    if (isLeftClick) newSquare.isRevealed = true;
+    else newSquare.isFlagged = !newSquare.isFlagged;
+
     newGrid[index] = newSquare;
     setGrid(newGrid);
 
     // No further logic if not a regular click
-    if (event.type !== 'click') return;
+    if (!isLeftClick) return;
 
     // Decrement remaining squares
 
@@ -57,10 +59,10 @@ export default function GameController({ onScoreSubmit }: GameControllerProps) {
     if (grid[index].content === 'M') {
       console.log('Player lost');
       setGameActive(false);
-      setTimeout(() => {
+      // setTimeout(() => {
         alert('You lose :(');
-      }, 1);
-      // startNewGame(); // DEBUG
+      // }, 1);
+      startNewGame(); // DEBUG
     }
     else if (grid[index].content === '0') {
       // Clear adjacent empty squares
@@ -98,24 +100,29 @@ export default function GameController({ onScoreSubmit }: GameControllerProps) {
       setGameActive(false);
       console.log('Player won!');
 
-      setTimeout(() => {
+      // setTimeout(() => {
         const username = prompt(`You win! :D\nIt took you ${totalTime} seconds\nEnter your name:`);
-        if (username && typeof username === 'string') submitScore(username, totalTime).then(onScoreSubmit);
-      }, 1);
-      // startNewGame(); // DEBUG
+        if (username && typeof username === 'string') submitScore(username, totalTime, difficulty.modeId).then(onScoreSubmit);
+      // }, 1);
+      startNewGame(); // DEBUG
     }
   }, [remaining])
 
   /// Render
   return (
-    <section>
-      <TimeDisplay startTime={startTime} gameActive={gameActive}  />
-      <GameBoard
-        grid={grid}
-        width={size[0]}
-        height={size[1]}
-        onSquareClick={handleSquareClick}
-      />
+    <section className="gameContainer">
+      <select onChange={(event) => onModeChange(event.target.value)} className='difficulty'>
+        {children}
+      </select>
+      <div className="boardContainer">
+        <GameBar startTime={startTime} gameActive={gameActive}  />
+        <GameBoard
+          grid={grid}
+          width={size[0]}
+          height={size[1]}
+          onSquareClick={handleSquareClick}
+        />
+      </div>
     </section>
   );
 }
@@ -150,7 +157,7 @@ function cascadeEmpties(grid: GridObject[], index: number, width: number, height
   return checked.size;
 }
 
-async function submitScore(username: string, time: number) {
+async function submitScore(username: string, time: number, modeId: number) {
   try {
     const response = await fetch('/api/scores', {
       method: 'POST',
@@ -159,7 +166,8 @@ async function submitScore(username: string, time: number) {
       },
       body: JSON.stringify({
         username: username,
-        score: time
+        score: time,
+        modeId: modeId
       })
     })
     .then(res => res.json());

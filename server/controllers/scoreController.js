@@ -1,5 +1,5 @@
 import { query, queryOne, sql } from '../models/model.js'; 
-import { getBodyProps } from '../utils/utils.js';
+import { ClientError, getBodyProps } from '../utils/utils.js';
 const scoreController = {};
 
 /** @typedef {import("express").RequestHandler} RequestHandler */
@@ -9,15 +9,24 @@ const scoreController = {};
  * @type {RequestHandler}
  */
 scoreController.getTopScores = async function (req, res, next) {
+  const modeId = parseInt(req.query.modeId);
+  if (modeId !== undefined && isNaN(modeId)) return next({
+    msg: 'Invalid query parameters',
+    err: new ClientError('Invalid query parameters')
+  });
+
   const scoreQuery = sql`
     SELECT Users.name AS username, US.time_seconds, US.submitted_at, US.id AS score_id FROM User_Scores US
     LEFT JOIN Users ON Users.id = US.user_id
+    ${modeId !== undefined && 'WHERE mode_id = $1'}
     ORDER BY US.time_seconds ASC
     LIMIT 10
   `;
+  const scoreParams = [];
+  if (modeId !== undefined) scoreParams.push(modeId);
 
   try {
-    res.locals.scores = (await query(scoreQuery)).rows;
+    res.locals.scores = (await query(scoreQuery, scoreParams)).rows;
     return next();
   } catch (err) {
     return next({
@@ -69,7 +78,7 @@ scoreController.getUserScores = async function (req, res, next) {
 scoreController.addScore = async function (req, res, next) {
   let body = {};
   try {
-    body = getBodyProps(req, { score: 'number', username: 'string' });
+    body = getBodyProps(req, { score: 'number', username: 'string', modeId: 'number' });
   } catch (err) {
     return next({
       msg: 'Invalid JSON parameters',
@@ -85,8 +94,8 @@ scoreController.addScore = async function (req, res, next) {
   const userParams = [body.username];
 
   const scoreInsQuery = sql`
-    INSERT INTO User_Scores (user_id, time_seconds)
-    VALUES ($1, $2)
+    INSERT INTO User_Scores (user_id, time_seconds, mode_id)
+    VALUES ($1, $2, $3)
   `;
   let scoreParams; // [userId, body.score]
 
@@ -105,7 +114,7 @@ scoreController.addScore = async function (req, res, next) {
       err: `Could not locate user "${body.username}" for score submission`,
       code: 400
     });
-    scoreParams = [userResult.id, body.score];
+    scoreParams = [userResult.id, body.score, body.modeId];
     highScoreParams = [body.score, userResult.id];
     await Promise.all([
       query(scoreInsQuery, scoreParams),

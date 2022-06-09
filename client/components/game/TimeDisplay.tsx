@@ -17,6 +17,7 @@ export default function TimeDisplay({ startTime, gameActive }: TimeDisplayProps)
       }, 1000);
       setIntervalId(newIntervalId);
     }
+    else setCurrTime(0);
 
     return () => {
       clearInterval(intervalId);
@@ -24,6 +25,6 @@ export default function TimeDisplay({ startTime, gameActive }: TimeDisplayProps)
   }, [startTime, gameActive]);
 
   return (
-    <div>{currTime} s</div>
+    <span className='timer'>{currTime} s</span>
   )
 }
