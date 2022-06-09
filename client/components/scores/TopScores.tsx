@@ -6,7 +6,8 @@ const { useState, useEffect } = React;
 type UserScore = {
   time_seconds: number,
   username: string,
-  submitted_at: string // Datetime
+  submitted_at: string, // Datetime
+  score_id: number
 };
 
 export default function TopScores() {
@@ -22,7 +23,7 @@ export default function TopScores() {
     getTopScores().catch(err => console.error(err));
   }, []);
 
-  const scoreRows = scores.map((score, i) => <ScoreRow {...score} key={`Score_${score.username}_${i}`} />);
+  const scoreRows = scores.map((score) => <ScoreRow {...score} key={`Score_${score.score_id}`} />);
 
   return (
   <section className="scores">
