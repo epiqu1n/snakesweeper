@@ -60,7 +60,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
       console.log('Player lost');
       setGameActive(false);
       // setTimeout(() => {
-        alert('You lose :(');
+        alert('Sssssssssss 🐍');
       // }, 1);
       startNewGame(); // DEBUG
     }

@@ -59,7 +59,7 @@ export default function App() {
   );
 
   return (<>
-    <h1>Minesweeper</h1>
+    <h1>Snakesweeper</h1>
     <GameController onScoreSubmit={handleScoreSubmit} onModeChange={handleModeChange} difficulty={difficulties[mode]}>
         {difficultyOpts}
     </GameController>
