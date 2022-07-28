@@ -14,13 +14,13 @@ const _config = JSON.parse(await fs.readFile(path.join(__dirname, './server.conf
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded());
-// app.use('/assets', express.static(path.resolve(__dirname, '../client')));
+app.use('/', express.static(path.resolve(__dirname, '../dist')));
 
 /// Routes
 app.use('/api', apiRouter);
 
 app.get('/', function(req, res) {
-  res.status(200).sendFile(path.join(__dirname, '../client/index.html'));
+  res.status(200).sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
 
