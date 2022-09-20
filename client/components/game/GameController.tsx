@@ -137,7 +137,7 @@ function cascadeEmpties(grid: GridObject[], index: number, width: number, height
     isRevealed: true
   };
   checked.add(index);
-  if (grid[index].content !== '0') return;
+  if (grid[index].content !== '0') return 0;
   const row = Math.floor(index / width), col = index % width;
   
   // Iterate around adjacent squares

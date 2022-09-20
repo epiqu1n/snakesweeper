@@ -6,7 +6,7 @@ type TimeDisplayProps = {
 };
 
 export default function TimeDisplay({ startTime, gameActive }: TimeDisplayProps) {
-  const [intervalId, setIntervalId] = useState<NodeJS.Timer>(null);
+  const [intervalId, setIntervalId] = useState<NodeJS.Timer | null>(null);
   const [currTime, setCurrTime] = useState(0);
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export default function TimeDisplay({ startTime, gameActive }: TimeDisplayProps)
     else setCurrTime(0);
 
     return () => {
-      clearInterval(intervalId);
+      if (intervalId !== null) clearInterval(intervalId);
     }
   }, [startTime, gameActive]);
 
