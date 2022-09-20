@@ -62,19 +62,19 @@ export function error(message: unknown = '', ...optionalParams: unknown[]) {
  * @param message
  * @param optionalParams 
  */
-export function warn(message = '', ...optionalParams: unknown[]) {
-  console.warn(colors.yellow(message), ...optionalParams.map(p => colors.yellow(typeof p === 'string' ? p : JSON.stringify(p))));
+export function warn(message: unknown = '', ...optionalParams: unknown[]) {
+  console.warn(colors.yellow(message as string), ...optionalParams.map(p => colors.yellow(typeof p === 'string' ? p : JSON.stringify(p))));
 }
 
 interface TypeMap {
   string: string,
   number: number,
   boolean: boolean,
-  symbol: Symbol,
+  symbol: symbol,
   undefined: undefined,
   object: object,
-  function: Function
-};
+  null: null
+}
 
 export type PropertyMap<PT extends Record<string, keyof TypeMap>> = {
   [Key in keyof PT]: TypeMap[PT[Key]]
