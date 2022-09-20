@@ -13,7 +13,7 @@ const Users: UsersModel = {
     `;
     const params = [name];
 
-    return queryOne(queryStr, params);
+    return queryOne(queryStr, params).then((res) => res.id);
   },
   UPDATE_HIGH_SCORE: (userId, time) => {
     const queryStr = sql`
