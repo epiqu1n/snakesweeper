@@ -7,6 +7,10 @@ type GridSquareProps = {
   isFlagged: boolean,
   onClick: (index: number, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void
 }
+
+// TODO: Tile hover effect
+// TODO: Prevent clicking flagged tile
+// TODO? Left + Right click to reveal adjacent tiles
 export default function GridSquare({ index, content, isRevealed, isFlagged, onClick }: GridSquareProps) {
   const handleClick = React.useCallback<typeof onClick>((index, event) => {
     event.preventDefault();

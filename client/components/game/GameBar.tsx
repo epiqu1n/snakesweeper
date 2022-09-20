@@ -6,6 +6,7 @@ type GameBarProps = {
   startTime: number
 };
 
+// TODO: Show mines remaining
 export default function GameBar({ startTime, gameActive }: GameBarProps) {
   return (
     <div className='gameBar'>
