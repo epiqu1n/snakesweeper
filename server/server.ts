@@ -1,24 +1,23 @@
-import express from 'express';
-import apiRouter from './routes/api.js';
-import fs from 'fs/promises';
-import path, { dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { CustomError, error, warn } from './utils/utils.js';
+import express, { ErrorRequestHandler } from 'express';
+import path from 'path';
+import { CustomError, error, warn } from './utils/utils';
+import scoreRouter from './routes/scores';
+import userRouter from './routes/users';
+import CONFIG from './server.config.json';
 
 ///Initialization
-// Initialize config
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const _config = JSON.parse(await fs.readFile(path.join(__dirname, './server.config.json')));
-
 // Set up application
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded());
 app.use('/', express.static(path.resolve(__dirname, '../dist')));
 
-/// Routes
-app.use('/api', apiRouter);
+/// API
+app.use('/api/scores', scoreRouter);
+app.use('/api/users', userRouter);
 
+
+/// Routes
 app.get('/', function(req, res) {
   res.status(200).sendFile(path.join(__dirname, '../dist/index.html'));
 });
@@ -31,11 +30,9 @@ app.all('*', function(req, res) {
 
 
 // Global error handler
-/**
- * @type {express.ErrorRequestHandler}
- * @param {Error | {msg: string, err?: Error, code?: number}} info
- */ 
-function globalErrorHandler(info, req, res, next) {
+type MiddlewareError = { msg: string, err?: Error | CustomError, code?: number };
+
+const globalErrorHandler: ErrorRequestHandler = (info: MiddlewareError, req, res, next) => {
   const err = (info instanceof Error ? info : info.err);
   const message = (info instanceof Error ? 'An unknown server error occurred' : info.msg);
   const code = (
@@ -59,6 +56,6 @@ app.use(globalErrorHandler);
 
 
 // Start server
-app.listen(_config.port, () => {
-  console.log(`Listening on port ${_config.port}`);
+app.listen(CONFIG.port, () => {
+  console.log(`Listening on port ${CONFIG.port}`);
 });
