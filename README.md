@@ -1,2 +1,2 @@
-# Minesweeper Solo Project
-React Minesweeper clone
+# Snakesweeper
+A React Minesweeper clone
