@@ -1,10 +1,7 @@
 /* eslint-disable no-unused-vars */
 import webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-import path, { dirname } from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
+import path from 'path';
 
 export default {
   entry: './client/index.tsx',
