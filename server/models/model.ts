@@ -1,7 +1,7 @@
 import pg from 'pg';
 import { zip } from '../utils/utils';
 import colors from 'colors';
-import CONFIG from './models.config.json';
+import CONFIG from './model.config.json';
 
 // Database schema: https://app.dbdesigner.net/designer/schema/532865
 // Initialize pool

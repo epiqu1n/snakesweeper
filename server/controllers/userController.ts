@@ -1,5 +1,6 @@
 import { RequestHandler } from 'express';
 import { query, queryOne, sql } from '../models/model'; 
+import Users from '../models/Users';
 import { extractBody, PropertyMap } from '../utils/utils';
 
 enum UserMethod {
@@ -21,14 +22,10 @@ const userController: UserController = {
       });
     }
 
-    const userInsQuery = sql`
-      INSERT INTO Users ("name")
-      VALUES ($1)
-    `;
-    const userParams = [body.username];
+    const { username } = body;
 
     try {
-      await query(userInsQuery, userParams);
+      await Users.CREATE_USER(username)
       return next();
     } catch (err) {
       return next({
@@ -45,15 +42,8 @@ const userController: UserController = {
       code: 400
     });
 
-    // json_agg(json_build_object(''))
-    const userQuery = sql`
-      SELECT "name", best_time FROM Users
-      WHERE name = $1
-    `;
-    const userParams = [username];
-
     try {
-      res.locals.user = await queryOne(userQuery, userParams);
+      res.locals.user = await Users.GET_USER(username);
       return next();
     } catch (err) {
       return next({

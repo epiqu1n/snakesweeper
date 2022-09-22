@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 import { query, queryOne, sql } from '../models/model'; 
 import Users from '../models/Users';
-import UserScores from '../models/UserScores';
+import Scores from '../models/Scores';
 import { ClientError, extractBody, isNum, PropertyMap, ServerError } from '../utils/utils';
 
 enum ScoreMethod {
@@ -22,7 +22,7 @@ const scoreController: ScoreController = {
     });
   
     try {
-      res.locals.scores = await UserScores.GET_ALL_SCORES(modeId, 10);
+      res.locals.scores = await Scores.GET_SCORES({ modeId, limit: 10 });
       return next();
     } catch (err) {
       return next({
@@ -44,17 +44,8 @@ const scoreController: ScoreController = {
       });
     }
 
-    const scoreQuery = sql`
-      SELECT Users.name AS username, US.time_seconds, US.submitted_at, US.id AS score_id FROM User_Scores US
-      LEFT JOIN Users ON Users.id = US.user_id
-      WHERE LOWER(Users.name) = LOWER($1)
-      ORDER BY US.time_seconds ASC
-      LIMIT 10
-    `;
-    const scoreParams = [username];
-
     try {
-      res.locals.scores = (await query(scoreQuery, scoreParams)).rows;
+      res.locals.scores = await Scores.GET_SCORES({ username });
       return next();
     } catch (err) {
       return next({
@@ -87,7 +78,7 @@ const scoreController: ScoreController = {
       });
       
       await Promise.all([
-        UserScores.INSERT_SCORE(userId, body.modeId, body.score),
+        Scores.INSERT_SCORE(userId, body.modeId, body.score),
         Users.UPDATE_HIGH_SCORE(userId, body.score)
       ]);
 
@@ -100,28 +91,17 @@ const scoreController: ScoreController = {
     }
   },
 
-  /** Clears a score for a user, or all scores if no specific score id is provided */
+  /** Clears a score for a user */
   async removeScore(req, res, next) {
     const { username, scoreId } = req.params;
-    if (typeof username !== 'string' || (scoreId && isNaN(parseInt(scoreId)))) return next({
+    if (typeof username !== 'string' || !isNum(scoreId)) return next({
       msg: 'Invalid URL parameters',
       err: 'scoreController.clearUserScore: Invalid URL parameters',
       code: 400
     });
 
-    const delQuery = sql`
-      DELETE FROM User_Scores US
-      WHERE user_id = (
-        SELECT id FROM Users
-        WHERE name = $1
-      ) ${scoreId && 'AND US.id = $2'}
-      RETURNING US.id AS score_id
-    `;
-    const delParams = [username];
-    if (scoreId) delParams.push(scoreId);
-
     try {
-      res.locals.deletedIds = await query(delQuery, delParams).then(res => res.rows.map(row => row.score_id));
+      res.locals.deletedIds = await Scores.DELETE_SCORE(username, parseInt(scoreId));
       return next();
     } catch (err) {
       return next({
