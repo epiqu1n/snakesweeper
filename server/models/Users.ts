@@ -39,7 +39,7 @@ const Users: UsersModel = {
   GET_USER: async (username) => {
     const userQuery = sql`
       SELECT "name", best_time FROM Users
-      WHERE name = $1::varchar
+      WHERE name = LOWER($1::varchar)
     `;
     const userParams = [username];
 
