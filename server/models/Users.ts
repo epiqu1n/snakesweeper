@@ -11,7 +11,7 @@ const Users: UsersModel = {
   GET_ID_BY_NAME: async (name) => {
     const queryStr = sql`
       SELECT id FROM Users
-      WHERE name = ($1::varchar)
+      WHERE name = LOWER($1::varchar)
     `;
     const params = [name];
 
