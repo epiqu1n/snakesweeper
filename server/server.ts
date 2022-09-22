@@ -9,7 +9,7 @@ import CONFIG from './server.config.json';
 // Set up application
 const app = express();
 app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
 app.use('/', express.static(path.resolve(__dirname, '../dist')));
 
 /// API
