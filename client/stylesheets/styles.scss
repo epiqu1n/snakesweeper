@@ -141,6 +141,13 @@ h1, h2 {
     &.hidden {
       border: 3px outset #cacaca;
       background-color: rgba(173, 173, 173);
+
+      &:hover {
+        filter: brightness(1.05);
+      }
+      &:active {
+        filter: brightness(0.9);
+      }
     }
 
     &.s1 {

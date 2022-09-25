@@ -8,7 +8,6 @@ type GameBarProps = {
   remainingFlags: number
 };
 
-// TODO: Show mines remaining
 export default function GameBar({ startTime, gameActive, remainingFlags: remaining }: GameBarProps) {
   return (
     <div className='gameBar'>
