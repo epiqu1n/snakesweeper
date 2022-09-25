@@ -234,8 +234,7 @@ function genGrid(width: number, height: number, numMines: number, clickIndex?: n
     newGrid[i].content = countAdjacentMines(row, col).toString();
   }
 
-  console.debug('New grid:', newGrid);
-  console.debug('clickIndex:', clickIndex)
+  // console.debug('New grid:', newGrid);
   return newGrid;
 }
 
