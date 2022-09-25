@@ -145,7 +145,7 @@ h1, h2 {
       &:hover {
         filter: brightness(1.05);
       }
-      &:active {
+      &:not(.F).active {
         filter: brightness(0.9);
       }
     }
