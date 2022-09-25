@@ -16,6 +16,8 @@ type GameControllerProps = {
   difficulty: BoardOptions
 }
 
+// TODO: Show all mines on loss
+// TODO: Have restart button instead of automatically restarting on win or loss
 export default function GameController({ onScoreSubmit, onModeChange, difficulty, children }: GameControllerProps) {
   const size = difficulty.size;
   const numMines = difficulty.mines;

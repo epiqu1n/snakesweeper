@@ -9,6 +9,8 @@ type GridSquareProps = {
 }
 
 // TODO? Left + Right click to reveal adjacent tiles
+// This is called "chording"
+// Left + right click causes all eight adjacent squares to be revealed if the chorded square has the right number of flags
 export default function GridSquare({ index, content, isRevealed, isFlagged, onClick }: GridSquareProps) {
   const handleClick = React.useCallback<typeof onClick>((index, event) => {
     event.preventDefault();
