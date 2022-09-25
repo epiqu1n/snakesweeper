@@ -72,6 +72,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
       console.log('Player lost');
       setGameActive(false);
       // setTimeout(() => {
+      setGrid(revealMines(newGrid))
       alert('Sssssssssss 🐍');
       // }, 1);
       startNewGame(); // DEBUG
@@ -193,6 +194,13 @@ async function submitScore(username: string, time: number, modeId: number) {
     console.error(err);
     alert('Uh oh, something went wrong submitting your score D:');
   }
+}
+
+function revealMines(grid: GridObject[]): GridObject[] {
+  for (const tile of grid) {
+    if (tile.content === 'M') tile.isRevealed = true;
+  }
+  return grid;
 }
 
 function genGrid(width: number, height: number, numMines: number, clickIndex?: number) {
