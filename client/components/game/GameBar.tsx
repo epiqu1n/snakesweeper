@@ -1,15 +1,18 @@
 import React from 'react';
+import FlagsDisplay from './MinesDisplay';
 import TimeDisplay from './TimeDisplay';
 
 type GameBarProps = {
   gameActive: boolean,
-  startTime: number
+  startTime: number,
+  remainingFlags: number
 };
 
 // TODO: Show mines remaining
-export default function GameBar({ startTime, gameActive }: GameBarProps) {
+export default function GameBar({ startTime, gameActive, remainingFlags: remaining }: GameBarProps) {
   return (
     <div className='gameBar'>
+      <FlagsDisplay remaining={remaining} />
       <TimeDisplay startTime={startTime} gameActive={gameActive} />
     </div>
   )

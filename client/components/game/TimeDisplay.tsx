@@ -10,7 +10,10 @@ export default function TimeDisplay({ startTime, gameActive }: TimeDisplayProps)
   const [currTime, setCurrTime] = useState(0);
 
   useEffect(() => {
-    if (intervalId) clearInterval(intervalId);
+    if (intervalId) {
+      clearInterval(intervalId);
+      setIntervalId(null);
+    }
     if (gameActive) {
       const newIntervalId = setInterval(() => {
         setCurrTime(Math.floor((Date.now() - startTime) / 1000));

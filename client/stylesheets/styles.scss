@@ -100,10 +100,11 @@ h1, h2 {
   .gameBar {
     width: 100%;
     @include flex-center();
+    justify-content: space-between;
     background-color: gray;
     border-bottom: 4px outset #cacaca;
 
-    & > .timer {
+    & > .timer, & > .flagsDisplay {
       font-size: 1.8em;
       color: red;
       font-family: monospace;
