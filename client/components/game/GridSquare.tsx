@@ -8,12 +8,15 @@ type GridSquareProps = {
   onClick: (index: number, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void
 }
 
-// TODO: Prevent clicking flagged tile
 // TODO? Left + Right click to reveal adjacent tiles
 export default function GridSquare({ index, content, isRevealed, isFlagged, onClick }: GridSquareProps) {
   const handleClick = React.useCallback<typeof onClick>((index, event) => {
     event.preventDefault();
-    if (isRevealed) return;
+
+    // Return if space is already revealed or if attempting to left click a flagged tile
+    const { button } = event.nativeEvent;
+    if (isRevealed || (isFlagged && button === 0)) return;
+
     onClick(index, event);
   }, [onClick, isRevealed]);
 
