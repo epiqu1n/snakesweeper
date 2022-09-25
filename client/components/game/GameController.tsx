@@ -21,9 +21,11 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
   const numMines = difficulty.mines;
   
   const [grid, setGrid] = React.useState<GridObject[]>([]);
-  const [remaining, setRemaining] = React.useState(size[0] * size[1]);
-  const [startTime, setStartTime] = React.useState<number>(-1);
+  /** Number of unrevealed tiles */
+  const [remainingTiles, setRemainingTiles] = React.useState(size[0] * size[1]);
+  const [startTime, setStartTime] = React.useState(-1);
   const [gameActive, setGameActive] = React.useState(false);
+  const [numFlags, setNumFlags] = React.useState(0);
 
 
   /// Event handlers
@@ -44,8 +46,14 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
     const newGrid = [ ...grid ];
     const newSquare = { ...grid[index] };
     const isLeftClick = event.nativeEvent.button === 0;
+
+    // If left flick, reveal square
+    // Else, flag square
     if (isLeftClick) newSquare.isRevealed = true;
-    else newSquare.isFlagged = !newSquare.isFlagged;
+    else {
+      newSquare.isFlagged = !newSquare.isFlagged;
+      setNumFlags((prev) => prev + (newSquare.isFlagged ? 1 : -1));
+    }
 
     newGrid[index] = newSquare;
     setGrid(newGrid);
@@ -60,7 +68,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
       console.log('Player lost');
       setGameActive(false);
       // setTimeout(() => {
-        alert('Sssssssssss 🐍');
+      alert('Sssssssssss 🐍');
       // }, 1);
       startNewGame(); // DEBUG
     }
@@ -69,10 +77,10 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
       const newGrid = [...grid];
       const revealed = cascadeEmpties(newGrid, index, ...size);
       setGrid(newGrid);
-      setRemaining((prev) => prev - revealed);
+      setRemainingTiles((prev) => prev - revealed);
     }
     else {
-      setRemaining(prev => prev - 1);
+      setRemainingTiles(prev => prev - 1);
     }
   };
 
@@ -81,9 +89,11 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
    * Resets the grid, remaining squares, and start time
    */
   const startNewGame = () => {
+    if (gameActive) setGameActive(false);
     setGrid(genGrid(...size, numMines));
-    setRemaining(size[0] * size[1]);
+    setRemainingTiles(size[0] * size[1]);
     setStartTime(-1);
+    setNumFlags(0);
   }
 
   /// Effects
@@ -95,7 +105,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
   // Check if player has won when remaining number of mines changes
   React.useEffect(() => {
     // console.log('Remaining:', remaining);
-    if (remaining === numMines) {
+    if (remainingTiles === numMines) {
       const totalTime = Math.floor((Date.now() - startTime) / 1000);
       setGameActive(false);
       console.log('Player won!');
@@ -106,7 +116,9 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
       // }, 1);
       startNewGame(); // DEBUG
     }
-  }, [remaining])
+  }, [remainingTiles]);
+
+  const remainingFlags = numMines - numFlags;
 
   /// Render
   return (
@@ -115,7 +127,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
         {children}
       </select>
       <div className="boardContainer">
-        <GameBar startTime={startTime} gameActive={gameActive}  />
+        <GameBar startTime={startTime} gameActive={gameActive} remainingFlags={remainingFlags} />
         <GameBoard
           grid={grid}
           width={size[0]}
