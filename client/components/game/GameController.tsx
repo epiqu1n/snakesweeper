@@ -20,7 +20,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
   const size = difficulty.size;
   const numMines = difficulty.mines;
   
-  const [grid, setGrid] = React.useState<GridObject[]>([]);
+  const [grid, setGrid] = React.useState<GridObject[]>([], );
   /** Number of unrevealed tiles */
   const [remainingTiles, setRemainingTiles] = React.useState(size[0] * size[1]);
   const [startTime, setStartTime] = React.useState(-1);
@@ -29,25 +29,27 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
 
 
   /// Event handlers
-  // TODO: Prevent user losing on first click
   /**
    * On square click, set new grid state and check if player hit a mine or has won
    * @param index 
    */
-  const handleSquareClick = (index: number, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const handleSquareClick = (index: number, event: React.MouseEvent<HTMLDivElement, MouseEvent>): void => {
     console.log('Clicked square', index, ':', grid[index].content);
     // Start timer if first click
+    let generatedGrid: GridObject[] | undefined;
     if (!gameActive) {
       setStartTime(Date.now());
       setGameActive(true);
+      generatedGrid = genGrid(...size, numMines, index);
+      setGrid(generatedGrid);
     }
 
     // Update grid state
-    const newGrid = [ ...grid ];
-    const newSquare = { ...grid[index] };
+    const newGrid = !gameActive ? generatedGrid! : [ ...grid ];
+    const newSquare = { ...newGrid[index] };
     const isLeftClick = event.nativeEvent.button === 0;
 
-    // If left flick, reveal square
+    // If left click, reveal square
     // Else, flag square
     if (isLeftClick) newSquare.isRevealed = true;
     else {
@@ -58,13 +60,13 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
     newGrid[index] = newSquare;
     setGrid(newGrid);
 
-    // No further logic if not a regular click
+    // No further logic if not a left click
     if (!isLeftClick) return;
 
     // Decrement remaining squares
 
     // Check for win or loss
-    if (grid[index].content === 'M') {
+    if (newGrid[index].content === 'M') {
       console.log('Player lost');
       setGameActive(false);
       // setTimeout(() => {
@@ -72,9 +74,8 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
       // }, 1);
       startNewGame(); // DEBUG
     }
-    else if (grid[index].content === '0') {
+    else if (newGrid[index].content === '0') {
       // Clear adjacent empty squares
-      const newGrid = [...grid];
       const revealed = cascadeEmpties(newGrid, index, ...size);
       setGrid(newGrid);
       setRemainingTiles((prev) => prev - revealed);
@@ -90,6 +91,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
    */
   const startNewGame = () => {
     if (gameActive) setGameActive(false);
+    // Set grid here just to fill out spaces when awaiting to start new game
     setGrid(genGrid(...size, numMines));
     setRemainingTiles(size[0] * size[1]);
     setStartTime(-1);
@@ -191,9 +193,9 @@ async function submitScore(username: string, time: number, modeId: number) {
   }
 }
 
-function genGrid(width: number, height: number, numMines: number) {
-  const newGrid = Array.from({ length: width * height }, () => ({ content: '-', isRevealed: false, isFlagged: false }));
-  const available = Object.keys(newGrid);
+function genGrid(width: number, height: number, numMines: number, clickIndex?: number) {
+  const newGrid = Array.from<unknown, GridObject>({ length: width * height }, () => ({ content: '-', isRevealed: false, isFlagged: false }));
+  const available = Object.keys(newGrid).filter((_, i) => i !== clickIndex);
 
   // For num mines, randomly assign to a grid location that has not been occupied yet
   for (let i = 0; i < numMines; i++) {
@@ -230,7 +232,8 @@ function genGrid(width: number, height: number, numMines: number) {
     newGrid[i].content = countAdjacentMines(row, col).toString();
   }
 
-  console.log('New grid:', newGrid);
+  console.debug('New grid:', newGrid);
+  console.debug('clickIndex:', clickIndex)
   return newGrid;
 }
 
