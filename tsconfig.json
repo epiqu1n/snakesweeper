@@ -12,5 +12,6 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "strictNullChecks": true
-  }
+  },
+  "include": ["types.d.ts"]
 }

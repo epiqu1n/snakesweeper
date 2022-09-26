@@ -52,6 +52,11 @@ export default {
         use: 'ts-loader',
         // Use babel-loader w/ @babel/preset-typescript & react?
         exclude: /node_modules/
+      },
+      {
+        test: /\.png$/,
+        use: 'url-loader',
+        exclude: /node_modules/
       }
     ]
   },
