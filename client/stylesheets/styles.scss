@@ -98,11 +98,28 @@ h1, h2 {
   border: 4px outset #cacaca;
   
   .gameBar {
+    $gamebar-height: 3rem;
     width: 100%;
-    @include flex-center();
-    justify-content: space-between;
+    height: $gamebar-height;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    justify-items: center;
     background-color: #a1a1a1;
     border-bottom: 4px outset #cacaca;
+
+    & > span:first-child {
+      margin-right: auto;
+    }
+    & > span:last-child {
+      margin-left: auto;
+    }
+
+    & > .reset {
+      height: 100%;
+      width: $gamebar-height;
+      background-image: url('../assets/restart.png');
+      @include center-bg(70%);
+    }
 
     & > .timer, & > .flagsDisplay {
       font-size: 1.8em;

@@ -16,8 +16,6 @@ type GameControllerProps = {
   difficulty: BoardOptions
 }
 
-// TODO: Show all mines on loss
-// TODO: Have restart button instead of automatically restarting on win or loss
 export default function GameController({ onScoreSubmit, onModeChange, difficulty, children }: GameControllerProps) {
   const size = difficulty.size;
   const numMines = difficulty.mines;
@@ -71,11 +69,8 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
     if (newGrid[index].content === 'M') {
       console.log('Player lost');
       setGameActive(false);
-      // setTimeout(() => {
       setGrid(revealMines(newGrid))
       alert('Sssssssssss 🐍');
-      // }, 1);
-      startNewGame(); // DEBUG
     }
     else if (newGrid[index].content === '0') {
       // Clear adjacent empty squares
@@ -115,11 +110,8 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
       setGameActive(false);
       console.log('Player won!');
 
-      // setTimeout(() => {
-        const username = prompt(`You win! :D\nIt took you ${totalTime} seconds\nEnter your name:`);
-        if (username && typeof username === 'string') submitScore(username, totalTime, difficulty.modeId).then(onScoreSubmit);
-      // }, 1);
-      startNewGame(); // DEBUG
+      const username = prompt(`You win! :D\nIt took you ${totalTime} seconds\nEnter your name:`);
+      if (username && typeof username === 'string') submitScore(username, totalTime, difficulty.modeId).then(onScoreSubmit);
     }
   }, [remainingTiles]);
 
@@ -132,7 +124,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
         {children}
       </select>
       <div className="boardContainer">
-        <GameBar startTime={startTime} gameActive={gameActive} remainingFlags={remainingFlags} />
+        <GameBar onResetClick={startNewGame} startTime={startTime} gameActive={gameActive} remainingFlags={remainingFlags} />
         <GameBoard
           grid={grid}
           width={size[0]}
