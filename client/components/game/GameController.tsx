@@ -38,12 +38,14 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
     // Start timer if first click
     let generatedGrid: GridObject[] | undefined;
     if (!gameActive) {
+      // TODO: If board hasn't been reset since last game, prevent clicks until reset
       setStartTime(Date.now());
       setGameActive(true);
       generatedGrid = genGrid(...size, numMines, index);
       setGrid(generatedGrid);
     }
 
+    // TODO: Prevent overplacement of flags
     // Update grid state
     const newGrid = !gameActive ? generatedGrid! : [ ...grid ];
     const newSquare = { ...newGrid[index] };
