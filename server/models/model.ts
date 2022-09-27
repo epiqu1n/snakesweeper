@@ -13,11 +13,11 @@ const pool = new pg.Pool({
  * Queries the database
  * @param log Whether or not to log the query to the console. Default `false`
  */
-export function query(queryString: string, params: unknown[], log = false) {
+export function query(queryString: string, params?: unknown[], log = false) {
   if (log) console.log('Running query:\n', colors.cyan(queryString));
 
   // Convert any NaN values to null to avoid parameterization issues
-  const safeParams = params.map((p) => Number.isNaN(p) ? null : p);
+  const safeParams = params?.map((p) => Number.isNaN(p) ? null : p);
 
   return pool.query(queryString, safeParams);
 }
@@ -26,7 +26,7 @@ export function query(queryString: string, params: unknown[], log = false) {
  * Queries the database and returns the first result or null
  * @param log Whether or not to log the query to the console. Default `false`
  */
-export const queryOne = (queryString: string, params: unknown[], log = false) => {
+export const queryOne = (queryString: string, params?: unknown[], log = false) => {
   return query(queryString, params, log).then((result) => result.rows[0] || null);
 }
 
