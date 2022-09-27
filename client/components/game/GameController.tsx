@@ -39,6 +39,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
     let generatedGrid: GridObject[] | undefined;
     if (!gameActive) {
       // TODO: If board hasn't been reset since last game, prevent clicks until reset
+      // TODO: Still show time after won/lost game
       setStartTime(Date.now());
       setGameActive(true);
       generatedGrid = genGrid(...size, numMines, index);
