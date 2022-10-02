@@ -16,6 +16,10 @@ type GameControllerProps = {
   difficulty: BoardOptions
 }
 
+// TODO: BUG: Occasional issues with negative mines and win condition not being met :/
+// TODO: BUG: Flag count and likely revealed tile count does not get reset if restarting by clicking the board
+// TODO: Remove game over popup - replace with some other kind of unobtrusive notification
+// TODO: Question mark option
 export default function GameController({ onScoreSubmit, onModeChange, difficulty, children }: GameControllerProps) {
   const size = difficulty.size;
   const numMines = difficulty.mines;
@@ -73,7 +77,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
       console.log('Player lost');
       setGameActive(false);
       setGrid(revealMines(newGrid))
-      alert('Sssssssssss 🐍');
+      // alert('Sssssssssss 🐍');
     }
     else if (newGrid[index].content === '0') {
       // Clear adjacent empty squares
