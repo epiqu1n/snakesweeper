@@ -2,6 +2,7 @@ import React from "react";
 import GameBar from "./GameBar";
 import GameBoard from "./GameBoard";
 import { BoardOptions } from "../../App";
+import { MulticlickHandler, ClickTypeMulti, ClickTypeMulti as CTM } from '../../utils/eventUtils';
 
 export type GridObject = {
   content: string,
@@ -16,13 +17,14 @@ type GameControllerProps = {
   difficulty: BoardOptions
 }
 
+const squareClickHandler = new MulticlickHandler();
+
 // TODO: BUG: Occasional issues with negative mines and win condition not being met :/
 // TODO: BUG: Flag count and likely revealed tile count does not get reset if restarting by clicking the board
 // TODO: Remove game over popup - replace with some other kind of unobtrusive notification
 // TODO: Question mark option
 export default function GameController({ onScoreSubmit, onModeChange, difficulty, children }: GameControllerProps) {
-  const size = difficulty.size;
-  const numMines = difficulty.mines;
+  const { size, mines: numMines } = difficulty;
   
   const [grid, setGrid] = React.useState<GridObject[]>([], );
   /** Number of unrevealed tiles */
@@ -37,8 +39,10 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
    * On square click, set new grid state and check if player hit a mine or has won
    * @param index 
    */
-  const handleSquareClick = (index: number, event: React.MouseEvent<HTMLDivElement, MouseEvent>): void => {
-    console.log('Clicked square', index, ':', grid[index].content);
+  const handleValidSquareClick = (index: number, button: ClickTypeMulti): void => {
+    const square = grid[index];
+    // console.debug('Clicked square', index, ':', square.content);
+
     // Start timer if first click
     let generatedGrid: GridObject[] | undefined;
     if (!gameActive) {
@@ -50,18 +54,29 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
       setGrid(generatedGrid);
     }
 
+    // Return if space is already revealed or if attempting to left click a flagged tile
+    if (square.isRevealed || (square.isFlagged && button === 0)) return;
+
     // TODO: Prevent overplacement of flags
     // Update grid state
     const newGrid = !gameActive ? generatedGrid! : [ ...grid ];
     const newSquare = { ...newGrid[index] };
-    const isLeftClick = event.nativeEvent.button === 0;
+    const isLeftClick = button === CTM.LEFT;
 
-    // If left click, reveal square
-    // Else, flag square
-    if (isLeftClick) newSquare.isRevealed = true;
-    else {
-      newSquare.isFlagged = !newSquare.isFlagged;
-      setNumFlags((prev) => prev + (newSquare.isFlagged ? 1 : -1));
+    // Left click: reveal square
+    // Right click: flag square
+    // Left + right click: reveal surrounding squares
+    switch (button) {
+      case CTM.LEFT:
+        newSquare.isRevealed = true;
+        break;
+      case CTM.RIGHT:
+        newSquare.isFlagged = !newSquare.isFlagged;
+        setNumFlags((prev) => prev + (newSquare.isFlagged ? 1 : -1));
+        break;
+      case CTM.LEFT_RIGHT:
+      default:
+        break;
     }
 
     newGrid[index] = newSquare;
@@ -88,6 +103,12 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
     else {
       setRemainingTiles(prev => prev - 1);
     }
+  };
+
+  const handleRawSquareClick = (index: number, event: React.MouseEvent) => {
+    squareClickHandler.handleClick(event.nativeEvent, (button, maxButtons) => {
+      handleValidSquareClick(index, maxButtons);
+    });
   };
 
   /// Methods
@@ -136,7 +157,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
           grid={grid}
           width={size[0]}
           height={size[1]}
-          onSquareClick={handleSquareClick}
+          onSquareClick={handleRawSquareClick}
         />
       </div>
     </section>
