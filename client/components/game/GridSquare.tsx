@@ -1,8 +1,9 @@
 import * as React from 'react';
+import { TileContent } from '../../types/GridTypes';
 
 type GridSquareProps = {
   index: number,
-  content: string,
+  content: TileContent,
   isRevealed: boolean,
   isFlagged: boolean,
   onClick: (index: number, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void

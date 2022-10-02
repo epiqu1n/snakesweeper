@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { GridObject } from './GameController';
+import { Grid } from './GameController';
 import GridSquare from './GridSquare';
 
 type GameBoardProps = {
-  grid: GridObject[],
+  grid: Grid,
   width: number,
   height: number,
   onSquareClick: (index: number, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void
