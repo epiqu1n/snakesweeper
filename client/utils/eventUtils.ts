@@ -30,12 +30,23 @@ export enum ClickTypeMulti {
   LEFT_RIGHT_MIDDLE = 7
 }
 
-type CompleteClickHandler = (button: ClickTypeBase, maxButtons: ClickTypeMulti) => void;
+interface CompleteClickHandler {
+  (
+    /** The single button associated with an event */
+    button: ClickTypeBase,
+    /** The highest combination of buttons that were held during a full mouse click */
+    maxButtons: ClickTypeMulti
+  ): void
+};
 
 /** Handles mouse clicks with multiple buttons */
 export class MulticlickHandler {
   private maxButtonsHeld = 0;
 
+  /**
+   * Handles a click event
+   * @param onCompleteClick Fires when all mouse buttons have been released
+   */
   handleClick(event: MouseEvent, onCompleteClick: CompleteClickHandler) {
     switch (event.type) {
       case 'mousedown':
