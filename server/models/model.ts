@@ -51,4 +51,4 @@ export const ERROR_CODES = {
   DUPLICATE_KEY: 23505
 };
 
-export type Model = Record<string, (...args: unknown[]) => Promise<unknown>>;
+export type Model = Record<string, (...args: any[]) => Promise<unknown>>;
