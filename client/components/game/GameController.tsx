@@ -63,7 +63,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
 
     switch (button) {
       case CTM.LEFT:
-        if (!square.isRevealed && !square.isFlagged) revealTile(newGrid, index);
+        if (!square.isRevealed && !square.isFlagged) revealTile(index);
         break;
       case CTM.RIGHT:
         if (!square.isRevealed) flagTile(newGrid, index);
@@ -87,31 +87,40 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
 
   /// Methods
   /** Reveals a tile and updates the board state */
-  function revealTile (grid: Grid, index: number) {
-    const newGrid = [ ...grid ];
-    const newSquare: GridSquareState = { ...newGrid[index] };
-    
-    newSquare.isRevealed = true;
+  function revealTile(index: number) {
+    setGrid((prevGrid) => {
+      if (prevGrid[index].isRevealed) return prevGrid;
+      
+      const newSquare: GridSquareState = { ...prevGrid[index] };
+      
+      newSquare.isRevealed = true;
 
-    // Check for win or loss
-    if (newSquare.content === 'M') {
-      console.log('Player lost');
-      setGameActive(false);
-      setGrid(revealMines(newGrid))
-      // alert('Sssssssssss 🐍');
-    }
-    else if (newSquare.content === '0') {
-      // Clear adjacent empty squares
-      const revealed = cascadeEmpties(newGrid, index, ...size);
-      setGrid(newGrid);
-      setRemainingTiles((prev) => prev - revealed);
-    }
-    else {
-      setRemainingTiles(prev => prev - 1);
-    }
+      // Check for win or loss
+      if (newSquare.content === 'M') {
+        console.log('Player lost');
+        setGameActive(false);
+        setGrid((prevGrid) => revealMines(prevGrid))
+        // alert('Sssssssssss 🐍');
+      }
+      else if (newSquare.content === '0') {
+        // Clear adjacent empty squares
+        const revealed = cascadeEmpties(prevGrid, index, ...size);
+        setRemainingTiles((prev) => {
+          console.log(`Setting rem tiles from cascade: ${prev} - ${revealed}`);
+          return prev - revealed
+        });
+      }
+      else {
+        setRemainingTiles(prev => {
+          console.log(`Setting rem tiles: ${prev} - 1`);
+          return prev - 1
+        });
+      }
 
-    newGrid[index] = newSquare;
-    setGrid(newGrid);
+      const newGrid = [ ...prevGrid ];
+      newGrid[index] = newSquare;
+      return newGrid;
+    });
   }
 
   /** Flags a tile and updates the board state */
@@ -141,7 +150,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
         const adjIndex = (adjRow * width) + adjCol;
         if (!grid[adjIndex].isFlagged && !grid[adjIndex].isRevealed) {
           console.debug(`Revealing [${adjCol}, ${adjRow}] : ${adjIndex}`);
-          revealTile(grid, adjIndex);
+          revealTile(adjIndex);
         }
       }
     }
@@ -168,7 +177,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
 
   // Check if player has won when remaining number of mines changes
   React.useEffect(() => {
-    // console.log('Remaining:', remaining);
+    console.debug('Remaining:', remainingTiles);
     if (remainingTiles === numMines) {
       const totalTime = Math.floor((Date.now() - startTime) / 1000);
       setGameActive(false);
