@@ -90,7 +90,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
   function revealTile(index: number) {
     setGrid((prevGrid) => {
       if (prevGrid[index].isRevealed) return prevGrid;
-      
+
       const newSquare: GridSquareState = { ...prevGrid[index] };
       
       newSquare.isRevealed = true;
@@ -105,16 +105,10 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
       else if (newSquare.content === '0') {
         // Clear adjacent empty squares
         const revealed = cascadeEmpties(prevGrid, index, ...size);
-        setRemainingTiles((prev) => {
-          console.log(`Setting rem tiles from cascade: ${prev} - ${revealed}`);
-          return prev - revealed
-        });
+        setRemainingTiles((prev) => prev - revealed);
       }
       else {
-        setRemainingTiles(prev => {
-          console.log(`Setting rem tiles: ${prev} - 1`);
-          return prev - 1
-        });
+        setRemainingTiles(prev => prev - 1);
       }
 
       const newGrid = [ ...prevGrid ];
@@ -149,7 +143,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
 
         const adjIndex = (adjRow * width) + adjCol;
         if (!grid[adjIndex].isFlagged && !grid[adjIndex].isRevealed) {
-          console.debug(`Revealing [${adjCol}, ${adjRow}] : ${adjIndex}`);
+          // console.debug(`Revealing [${adjCol}, ${adjRow}] : ${adjIndex}`);
           revealTile(adjIndex);
         }
       }
@@ -177,7 +171,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
 
   // Check if player has won when remaining number of mines changes
   React.useEffect(() => {
-    console.debug('Remaining:', remainingTiles);
+    // console.debug('Remaining:', remainingTiles);
     if (remainingTiles === numMines) {
       const totalTime = Math.floor((Date.now() - startTime) / 1000);
       setGameActive(false);
