@@ -17,7 +17,7 @@ export default function GridSquare({ index, content, isRevealed, isFlagged, onCl
 
   const display = (isRevealed  && content !== '0' && !isNaN(parseInt(content)) ? content : '');
 
-  let className = `s${content} ` + (isRevealed ? '' : 'hidden');
+  let className = (isRevealed ? `s${content}` : 'hidden');
   if (isFlagged) className += ' F';
 
   return (
