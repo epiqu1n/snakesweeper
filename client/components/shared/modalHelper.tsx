@@ -4,7 +4,6 @@ import InputModal from './InputModal';
 
 export default function promptModal<RT>(message: string): Promise<{ input: string | undefined, cancelled: boolean }> {
   return new Promise((resolve) => {
-    console.debug('Starting modal');
     const container = document.createElement('div');
     const modalRoot = createRoot(container);
 
@@ -12,7 +11,6 @@ export default function promptModal<RT>(message: string): Promise<{ input: strin
       modalRoot.unmount();
       container.remove();
       resolve({ input, cancelled });
-      console.debug('Closing modal');
     }
 
     const modal = (
