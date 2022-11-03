@@ -6,12 +6,12 @@
     "esModuleInterop": true,
     "module": "CommonJS",
     "target": "ES6",
-    "jsx": "react",
+    "jsx": "react-jsx",
     "allowJs": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "strictNullChecks": true
-  },
-  "include": ["types.d.ts"]
+    "strictNullChecks": true,
+    "plugins": [{ "name": "typescript-plugin-css-modules" }]
+  }
 }
