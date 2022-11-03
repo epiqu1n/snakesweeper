@@ -17,7 +17,7 @@ export default function InputModal({ message, onSubmit, onCancel }: InputModalPr
 
   return (
     <dialog ref={dialogRef} onCancel={onCancel} className={styles.modal}>
-      <span onClick={onCancel}>X</span>
+      <div className={styles.closeButton} onClick={onCancel}>X</div>
       <pre>{message}</pre>
       <form onSubmit={() => onSubmit(input)} method='dialog'>
         <input value={input} onChange={(event) => setInput(event.target.value)} autoFocus />
