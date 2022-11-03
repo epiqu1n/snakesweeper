@@ -4,6 +4,7 @@ import GameBoard from "./GameBoard";
 import { BoardOptions } from "../../App";
 import { MulticlickHandler, ClickTypeMulti, ClickTypeMulti as CTM } from '../../utils/eventUtils';
 import { TileContent } from '../../types/GridTypes';
+import promptModal from '../shared/modalHelper';
 
 export type GridSquareState = {
   content: TileContent,
@@ -177,8 +178,11 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
       setGameActive(false);
       console.log('Player won!');
 
-      const username = prompt(`You win! :D\nIt took you ${totalTime} seconds\nEnter your name:`);
-      if (username && typeof username === 'string') submitScore(username, totalTime, difficulty.modeId).then(onScoreSubmit);
+      promptModal(`You win! :D\nIt took you ${totalTime} seconds\nEnter your name:`)
+      .then(({ input: username, cancelled }) => {
+        // console.debug('Submitting score:', { username, totalTime, difficulty: difficulty.modeId });
+        if (username && typeof username === 'string') submitScore(username, totalTime, difficulty.modeId).then(onScoreSubmit);
+      });
     }
   }, [remainingTiles]);
 
