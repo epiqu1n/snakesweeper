@@ -1,0 +1,11 @@
+.modal {
+  $modal-width: 16rem;
+  $modal-height: 9rem;
+
+  background-color: rgba(156, 179, 72, 0.9);
+  border-radius: 0.5rem;
+
+  &::backdrop {
+    background-color: #00000068;
+  }
+}
