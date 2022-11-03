@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import InputModal from './InputModal';
 
-export default function promptModal<RT>(message: string): Promise<{ input: string | undefined, cancelled: boolean }> {
+export default function promptModal(message: string): Promise<{ input: string | undefined, cancelled: boolean }> {
   return new Promise((resolve) => {
     // Create a mini React app
     const container = document.createElement('div');

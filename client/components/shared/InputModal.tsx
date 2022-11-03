@@ -8,7 +8,7 @@ interface InputModalProps {
 }
 
 export default function InputModal({ message, onSubmit, onCancel }: InputModalProps) {
-  const dialogRef = useRef<HTMLDialogElement>(null) as React.MutableRefObject<HTMLDialogElement | null>;
+  const dialogRef = useRef(null) as React.MutableRefObject<HTMLDialogElement | null>;
   const [ input, setInput ] = useState('');
 
   useEffect(() => {
