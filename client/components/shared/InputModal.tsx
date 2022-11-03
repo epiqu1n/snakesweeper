@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import styles from './Modal.module.scss';
+import styles from './InputModal.module.scss';
 
 interface InputModalProps {
   message: string,
