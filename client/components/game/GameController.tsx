@@ -277,50 +277,39 @@ function revealMines(grid: Grid): Grid {
 function genGrid(width: number, height: number, numMines: number, clickIndex = 0) {
   const newGrid = Array.from<unknown, GridSquareState>({ length: width * height }, () => ({ content: '0', isRevealed: false, isFlagged: false }));
 
-  // Clear a line on the board centered around where the player clicks to give better starts
+  // Clear a 3x3 zone around where the player clicks to give better starts
   /** Whether or not the clear line should be vertical or horizontal */
-  const verticalClear = true; // (Math.random() < 0.5); Intended to later support 
   const [ clickRow, clickCol ] = indexToCoord(clickIndex, width);
 
-  const lineSize = 2;//Math.round(Math.max(2, width / 10));
-  const lineTiles = new Set<number>();
+  const zoneTiles = new Set<number>();
 
-  if (verticalClear) {
-    const idealMinY = clickRow - Math.round(lineSize / 2);
-    const idealMaxY = clickRow + Math.round(lineSize / 2);
-    const lineRemainTop = Math.max(0, 0 - idealMinY);
-    const lineRemainBottom = Math.max(0, idealMaxY - height);
-    console.log('idealMinY: ', idealMinY);
-    console.log('idealMaxY: ', idealMaxY);
-    console.log('lineRemainTop: ', idealMaxY);
-    console.log('lineRemainBottom: ', lineRemainBottom);
+  const idealMinY = clickRow - 1;
+  const idealMaxY = clickRow + 1;
+  const idealMinX = clickCol - 1;
+  const idealMaxX = clickCol + 1;
+  const topRemain = Math.max(0, 0 - idealMinY);
+  const bottomRemain = Math.max(0, idealMaxY - height);
+  const leftRemain = Math.max(0, 0 - idealMinX);
+  const rightRemain = Math.max(0, idealMaxX - width);
 
-    // If line top would be below 0, use 0
-    // Try to add remaining line to bottom
-    const lineTop = Math.max(0, idealMinY);
-    
-    const lineBottom = Math.min(height - 1, idealMaxY + lineRemainTop);
-    
-    // Add padding of 1 index around the sides of line
-    const lineLeft = Math.max(0, clickCol - 1);
-    const lineRemainX = Math.max(0, lineLeft - clickCol);
-    const lineRight = Math.min(width - 1, clickCol + 1 + lineRemainX);
+  // If line top would be below 0, use 0
+  // Try to add any part of the line that is out of bounds to the other side
+  const zoneTop = Math.max(0, idealMinY - bottomRemain);
+  const zoneBottom = Math.min(height - 1, idealMaxY + topRemain);
+  const zoneLeft = Math.max(0, idealMinX - rightRemain);
+  const zoneRight = Math.min(width - 1, idealMaxX + leftRemain);
 
-    // Push indexes of tiles within line bounds
-    console.log(lineLeft, lineRight, lineTop, lineBottom)
-    for (let x = lineLeft; x <= lineRight; x++)
-      for (let y = lineTop; y <= lineBottom; y++)
-        lineTiles.add(coordToIndex(x, y, width));
-  }
+  // Push indexes of tiles within line bounds
+  console.log(zoneLeft, zoneRight, zoneTop, zoneBottom)
+  for (let x = zoneLeft; x <= zoneRight; x++)
+    for (let y = zoneTop; y <= zoneBottom; y++)
+      zoneTiles.add(coordToIndex(x, y, width));
 
   // Add the clickIndex just for safe measure
-  lineTiles.add(clickIndex);
-  console.log('clickIndex: ', clickIndex);
-  console.log('clickCoord: ', [clickRow, clickCol]);
-  console.log('lineTiles: ', lineTiles);
+  zoneTiles.add(clickIndex);
   
   const available = Object.keys(newGrid).filter((_, i) => {
-    return !lineTiles.has(i);
+    return !zoneTiles.has(i);
   });
 
 
