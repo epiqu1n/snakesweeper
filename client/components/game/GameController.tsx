@@ -54,7 +54,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
       // TODO: Still show time after won/lost game
       setStartTime(Date.now());
       setGameActive(true);
-      generatedGrid = genGrid(...size, numMines, index);
+      generatedGrid = genGrid(size[0], size[1], numMines, index);
       setGrid(generatedGrid);
     }
 
@@ -274,18 +274,67 @@ function revealMines(grid: Grid): Grid {
   return grid;
 }
 
-function genGrid(width: number, height: number, numMines: number, clickIndex?: number) {
+function genGrid(width: number, height: number, numMines: number, clickIndex = 0) {
   const newGrid = Array.from<unknown, GridSquareState>({ length: width * height }, () => ({ content: '0', isRevealed: false, isFlagged: false }));
-  const available = Object.keys(newGrid).filter((_, i) => i !== clickIndex);
+
+  // Clear a line on the board centered around where the player clicks to give better starts
+  /** Whether or not the clear line should be vertical or horizontal */
+  const verticalClear = true; // (Math.random() < 0.5); Intended to later support 
+  const [ clickRow, clickCol ] = indexToCoord(clickIndex, width);
+
+  const lineSize = 2;//Math.round(Math.max(2, width / 10));
+  const lineTiles = new Set<number>();
+
+  if (verticalClear) {
+    const idealMinY = clickRow - Math.round(lineSize / 2);
+    const idealMaxY = clickRow + Math.round(lineSize / 2);
+    const lineRemainTop = Math.max(0, 0 - idealMinY);
+    const lineRemainBottom = Math.max(0, idealMaxY - height);
+    console.log('idealMinY: ', idealMinY);
+    console.log('idealMaxY: ', idealMaxY);
+    console.log('lineRemainTop: ', idealMaxY);
+    console.log('lineRemainBottom: ', lineRemainBottom);
+
+    // If line top would be below 0, use 0
+    // Try to add remaining line to bottom
+    const lineTop = Math.max(0, idealMinY);
+    
+    const lineBottom = Math.min(height - 1, idealMaxY + lineRemainTop);
+    
+    // Add padding of 1 index around the sides of line
+    const lineLeft = Math.max(0, clickCol - 1);
+    const lineRemainX = Math.max(0, lineLeft - clickCol);
+    const lineRight = Math.min(width - 1, clickCol + 1 + lineRemainX);
+
+    // Push indexes of tiles within line bounds
+    console.log(lineLeft, lineRight, lineTop, lineBottom)
+    for (let x = lineLeft; x <= lineRight; x++)
+      for (let y = lineTop; y <= lineBottom; y++)
+        lineTiles.add(coordToIndex(x, y, width));
+  }
+
+  // Add the clickIndex just for safe measure
+  lineTiles.add(clickIndex);
+  console.log('clickIndex: ', clickIndex);
+  console.log('clickCoord: ', [clickRow, clickCol]);
+  console.log('lineTiles: ', lineTiles);
+  
+  const available = Object.keys(newGrid).filter((_, i) => {
+    return !lineTiles.has(i);
+  });
+
 
   // For num mines, randomly assign to a grid location that has not been occupied yet
+  // To have random clear around starting click:
+    // At starting index, create a shape of size X and remove from available tiles
+      // Add 1 layer of padding around the edge 
   for (let i = 0; i < numMines; i++) {
     const randIndex = Math.floor(Math.random() * available.length);
     const targetIndex = parseInt(available.splice(randIndex, 1)[0]);
     newGrid[targetIndex].content = 'M';
   }
 
-  // Iterate through squares and determine number of adjacent mines
+  // Iterate through squares and determine the number of adjacent mines to each tile
   // row = Math.floor(i / width), col = i % width
   for (let i = 0; i < newGrid.length; i++) {
     if (newGrid[i].content === 'M') continue;
@@ -297,8 +346,13 @@ function genGrid(width: number, height: number, numMines: number, clickIndex?: n
 }
 
 function indexToCoord(index: number, gridWidth: number): [row: number, col: number] {
-  const row = Math.floor(index / gridWidth), col = index % gridWidth;
+  const row = Math.floor(index / gridWidth);
+  const col = index % gridWidth;
   return [row, col];
+}
+
+function coordToIndex(x: number, y: number, gridWidth: number): number {
+  return gridWidth * y + x;
 }
 
 function countAdjacent(type: 'mines' | 'flags', grid: Grid, gridWidth: number, gridHeight: number, index: number) {
