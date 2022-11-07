@@ -283,6 +283,7 @@ function genGrid(width: number, height: number, numMines: number, clickIndex = 0
 
   const zoneTiles = new Set<number>();
 
+  // Determine the ideal boundaries for the zone, and how much of it would remain out of bounds
   const idealMinY = clickRow - 1;
   const idealMaxY = clickRow + 1;
   const idealMinX = clickCol - 1;
@@ -300,7 +301,6 @@ function genGrid(width: number, height: number, numMines: number, clickIndex = 0
   const zoneRight = Math.min(width - 1, idealMaxX + leftRemain);
 
   // Push indexes of tiles within line bounds
-  console.log(zoneLeft, zoneRight, zoneTop, zoneBottom)
   for (let x = zoneLeft; x <= zoneRight; x++)
     for (let y = zoneTop; y <= zoneBottom; y++)
       zoneTiles.add(coordToIndex(x, y, width));
@@ -308,10 +308,10 @@ function genGrid(width: number, height: number, numMines: number, clickIndex = 0
   // Add the clickIndex just for safe measure
   zoneTiles.add(clickIndex);
   
+  // Create an array of which tiles (indexes) are still available
   const available = Object.keys(newGrid).filter((_, i) => {
     return !zoneTiles.has(i);
   });
-
 
   // For num mines, randomly assign to a grid location that has not been occupied yet
   // To have random clear around starting click:
