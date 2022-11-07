@@ -54,7 +54,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
       // TODO: Still show time after won/lost game
       setStartTime(Date.now());
       setGameActive(true);
-      generatedGrid = genGrid(...size, numMines, index);
+      generatedGrid = genGrid(size[0], size[1], numMines, index);
       setGrid(generatedGrid);
     }
 
@@ -274,18 +274,56 @@ function revealMines(grid: Grid): Grid {
   return grid;
 }
 
-function genGrid(width: number, height: number, numMines: number, clickIndex?: number) {
+function genGrid(width: number, height: number, numMines: number, clickIndex = 0) {
   const newGrid = Array.from<unknown, GridSquareState>({ length: width * height }, () => ({ content: '0', isRevealed: false, isFlagged: false }));
-  const available = Object.keys(newGrid).filter((_, i) => i !== clickIndex);
+
+  // Clear a 3x3 zone around where the player clicks to give better starts
+  /** Whether or not the clear line should be vertical or horizontal */
+  const [ clickRow, clickCol ] = indexToCoord(clickIndex, width);
+
+  const zoneTiles = new Set<number>();
+
+  // Determine the ideal boundaries for the zone, and how much of it would remain out of bounds
+  const idealMinY = clickRow - 1;
+  const idealMaxY = clickRow + 1;
+  const idealMinX = clickCol - 1;
+  const idealMaxX = clickCol + 1;
+  const topRemain = Math.max(0, 0 - idealMinY);
+  const bottomRemain = Math.max(0, idealMaxY - height);
+  const leftRemain = Math.max(0, 0 - idealMinX);
+  const rightRemain = Math.max(0, idealMaxX - width);
+
+  // If line top would be below 0, use 0
+  // Try to add any part of the line that is out of bounds to the other side
+  const zoneTop = Math.max(0, idealMinY - bottomRemain);
+  const zoneBottom = Math.min(height - 1, idealMaxY + topRemain);
+  const zoneLeft = Math.max(0, idealMinX - rightRemain);
+  const zoneRight = Math.min(width - 1, idealMaxX + leftRemain);
+
+  // Push indexes of tiles within line bounds
+  for (let x = zoneLeft; x <= zoneRight; x++)
+    for (let y = zoneTop; y <= zoneBottom; y++)
+      zoneTiles.add(coordToIndex(x, y, width));
+
+  // Add the clickIndex just for safe measure
+  zoneTiles.add(clickIndex);
+  
+  // Create an array of which tiles (indexes) are still available
+  const available = Object.keys(newGrid).filter((_, i) => {
+    return !zoneTiles.has(i);
+  });
 
   // For num mines, randomly assign to a grid location that has not been occupied yet
+  // To have random clear around starting click:
+    // At starting index, create a shape of size X and remove from available tiles
+      // Add 1 layer of padding around the edge 
   for (let i = 0; i < numMines; i++) {
     const randIndex = Math.floor(Math.random() * available.length);
     const targetIndex = parseInt(available.splice(randIndex, 1)[0]);
     newGrid[targetIndex].content = 'M';
   }
 
-  // Iterate through squares and determine number of adjacent mines
+  // Iterate through squares and determine the number of adjacent mines to each tile
   // row = Math.floor(i / width), col = i % width
   for (let i = 0; i < newGrid.length; i++) {
     if (newGrid[i].content === 'M') continue;
@@ -297,8 +335,13 @@ function genGrid(width: number, height: number, numMines: number, clickIndex?: n
 }
 
 function indexToCoord(index: number, gridWidth: number): [row: number, col: number] {
-  const row = Math.floor(index / gridWidth), col = index % gridWidth;
+  const row = Math.floor(index / gridWidth);
+  const col = index % gridWidth;
   return [row, col];
+}
+
+function coordToIndex(x: number, y: number, gridWidth: number): number {
+  return gridWidth * y + x;
 }
 
 function countAdjacent(type: 'mines' | 'flags', grid: Grid, gridWidth: number, gridHeight: number, index: number) {
