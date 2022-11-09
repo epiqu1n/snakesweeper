@@ -210,31 +210,42 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
 /// Auxiliary functions
 
 
-function cascadeEmpties(grid: Grid, index: number, width: number, height: number, checked: Set<number> = new Set()) {
+function cascadeEmpties(grid: Grid, index: number, width: number, height: number) {
   // console.log(index, ':', grid[index].content, ':', grid[index].isRevealed);
-  grid[index] = {
-    ...grid[index],
-    isRevealed: true
-  };
-  checked.add(index);
-  if (grid[index].content !== '0') return 0;
-  const row = Math.floor(index / width), col = index % width;
+  const checked: Set<number> = new Set();
+  let revealed = 0;
+
+  function cascadeHelper(index: number) {
+    if (!grid[index].isFlagged) {
+      grid[index] = {
+        ...grid[index],
+        isRevealed: true
+      };
+      revealed++;
+    }
+
+    checked.add(index);
+    if (grid[index].content !== '0') return;
+
+    const row = Math.floor(index / width), col = index % width;
+    
+    // Iterate around adjacent squares
+    for (let x = -1; x <= 1; x++) {
+      const checkCol = col + x;
+      if (checkCol < 0 || checkCol >= width) continue; // Prevent wrapping behavior
   
-  // Iterate around adjacent squares
-  for (let x = -1; x <= 1; x++) {
-    const checkCol = col + x;
-    if (checkCol < 0 || checkCol >= width) continue; // Prevent wrapping behavior
-
-    for (let y = -1; y <= 1; y++) {
-      const checkRow = row + y;
-      if (x === 0 && y === 0 || checkRow < 0 || checkRow >= height) continue; // Prevent same square being checked and wrapping behavior
-
-      const checkIndex = checkRow * width + checkCol;
-      if (!checked.has(checkIndex) && !grid[checkIndex].isRevealed) cascadeEmpties(grid, checkIndex, width, height, checked);
+      for (let y = -1; y <= 1; y++) {
+        const checkRow = row + y;
+        if (x === 0 && y === 0 || checkRow < 0 || checkRow >= height) continue; // Prevent same square being checked and wrapping behavior
+  
+        const checkIndex = checkRow * width + checkCol;
+        if (!checked.has(checkIndex) && !grid[checkIndex].isRevealed) cascadeHelper(checkIndex);
+      }
     }
   }
+  cascadeHelper(index);
 
-  return checked.size;
+  return revealed;
 }
 
 async function submitScore(username: string, time: number, modeId: number) {
