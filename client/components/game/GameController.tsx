@@ -75,6 +75,8 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
   };
 
   const handleRawSquareClick = (index: number, event: React.MouseEvent) => {
+    if (gameState === GS.POST_GAME_LOSS || gameState === GS.POST_GAME_WIN) return;
+    
     squareClickHandler.handleClick(event.nativeEvent, (button, maxButtons) => {
       handleValidSquareClick(index, maxButtons);
     });
