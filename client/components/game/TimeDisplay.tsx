@@ -21,7 +21,7 @@ export default function TimeDisplay({ startTime, gameState }: TimeDisplayProps) 
       }, 1000);
       setIntervalId(newIntervalId);
     }
-    else if (gameState) setCurrTime(0);
+    else if (gameState === GS.PRE_GAME) setCurrTime(0);
 
     return () => {
       if (intervalId !== null) clearInterval(intervalId);
