@@ -3,7 +3,7 @@ import GameBar from "./GameBar";
 import GameBoard from "./GameBoard";
 import { BoardOptions } from "../../App";
 import { MulticlickHandler, ClickTypeMulti, ClickTypeMulti as CTM } from '../../utils/eventUtils';
-import { TileContent } from '../../types/GridTypes';
+import { GameState as GS, TileContent } from '../../types/GridTypes';
 import promptModal from '../shared/modalHelper';
 
 export type GridSquareState = {
@@ -30,8 +30,8 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
   /** Number of unrevealed tiles */
   const [remainingTiles, setRemainingTiles] = React.useState(size[0] * size[1]);
   const [startTime, setStartTime] = React.useState(-1);
-  const [gameActive, setGameActive] = React.useState(false);
   const [numFlags, setNumFlags] = React.useState(0);
+  const [gameState, setGameState] = React.useState(GS.PRE_GAME);
 
 
   /// Event handlers
@@ -43,17 +43,18 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
     const square = grid[index];
     // console.debug('Clicked square', index, ':', square.content);
 
-    // Start timer if first click
+    // Start timer and generate new board if first click
+    const isPreGame = gameState === GS.PRE_GAME;
     let generatedGrid: Grid | undefined;
-    if (!gameActive) {
+    if (isPreGame) {
       setStartTime(Date.now());
-      setGameActive(true);
+      setGameState(GS.IN_GAME);
       generatedGrid = genGrid(size[0], size[1], numMines, index);
       setGrid(generatedGrid);
     }
 
     // Update grid state
-    const newGrid = !gameActive ? generatedGrid! : [ ...grid ];
+    const newGrid = (isPreGame ? generatedGrid! : [ ...grid ]);
 
     switch (button) {
       case CTM.LEFT:
@@ -92,9 +93,8 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
       // Check for win or loss
       if (newSquare.content === 'M') {
         console.log('Player lost');
-        setGameActive(false);
+        setGameState(GS.POST_GAME_LOSS);
         setGrid((prevGrid) => revealMines(prevGrid))
-        // alert('Sssssssssss 🐍');
       }
       else if (newSquare.content === '0') {
         // Clear adjacent empty squares
@@ -149,12 +149,12 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
    */
   const startNewGame = () => {
     console.log('Starting new game');
-    if (gameActive) setGameActive(false);
     // Set grid here just to fill out spaces when awaiting to start new game
     setGrid(genGrid(...size, numMines));
     setRemainingTiles(size[0] * size[1]);
     setStartTime(-1);
     setNumFlags(0);
+    setGameState(GS.PRE_GAME);
   }
 
   /// Effects
@@ -167,9 +167,10 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
   React.useEffect(() => {
     // console.debug('Remaining:', remainingTiles);
     if (remainingTiles === numMines) {
-      const totalTime = Math.floor((Date.now() - startTime) / 1000);
-      setGameActive(false);
       console.log('Player won!');
+
+      const totalTime = Math.floor((Date.now() - startTime) / 1000);
+      setGameState(GS.POST_GAME_WIN);
 
       promptModal(`You win! :D\nIt took you ${totalTime} seconds\nEnter your name:`)
       .then(({ input: username, cancelled }) => {
@@ -188,7 +189,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
         {children}
       </select>
       <div className="boardContainer">
-        <GameBar onResetClick={startNewGame} startTime={startTime} gameActive={gameActive} remainingFlags={remainingFlags} />
+        <GameBar onResetClick={startNewGame} startTime={startTime} gameState={gameState} remainingFlags={remainingFlags} />
         <GameBoard
           grid={grid}
           width={size[0]}
