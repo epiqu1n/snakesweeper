@@ -23,10 +23,6 @@ type GameControllerProps = {
 
 const squareClickHandler = new MulticlickHandler();
 
-// TODO: BUG: Occasional issues with negative mines and win condition not being met :/
-// TODO: BUG: Flag count and likely revealed tile count does not get reset if restarting by clicking the board
-// TODO: Remove game over popup - replace with some other kind of unobtrusive notification
-// TODO: Question mark option
 export default function GameController({ onScoreSubmit, onModeChange, difficulty, children }: GameControllerProps) {
   const { size, mines: numMines } = difficulty;
   
@@ -50,15 +46,12 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
     // Start timer if first click
     let generatedGrid: Grid | undefined;
     if (!gameActive) {
-      // TODO: If board hasn't been reset since last game, prevent clicks until reset
-      // TODO: Still show time after won/lost game
       setStartTime(Date.now());
       setGameActive(true);
       generatedGrid = genGrid(size[0], size[1], numMines, index);
       setGrid(generatedGrid);
     }
 
-    // TODO: Prevent overplacement of flags
     // Update grid state
     const newGrid = !gameActive ? generatedGrid! : [ ...grid ];
 
