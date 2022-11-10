@@ -32,6 +32,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
   const [startTime, setStartTime] = React.useState(-1);
   const [numFlags, setNumFlags] = React.useState(0);
   const [gameState, setGameState] = React.useState(GS.PRE_GAME);
+  const [lastClickIndex, setLastClickIndex] = React.useState(-1);
 
 
   /// Event handlers
@@ -59,6 +60,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
     switch (button) {
       case CTM.LEFT:
         if (!square.isRevealed && !square.isFlagged) revealTile(index);
+        setLastClickIndex(index);
         break;
       case CTM.RIGHT:
         if (!square.isRevealed) flagTile(newGrid, index);
@@ -96,7 +98,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
       if (newSquare.content === 'M') {
         console.log('Player lost');
         setGameState(GS.POST_GAME_LOSS);
-        setGrid((prevGrid) => revealMines(prevGrid))
+        setGrid((prevGrid) => revealMines(prevGrid, index))
       }
       else if (newSquare.content === '0') {
         // Clear adjacent empty squares
@@ -197,6 +199,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
           width={size[0]}
           height={size[1]}
           onSquareClick={handleRawSquareClick}
+          lastClickIndex={lastClickIndex}
         />
       </div>
     </section>
@@ -274,9 +277,10 @@ function coordInBounds(row: number, col: number, gridWidth: number, gridHeight: 
   );
 }
 
-function revealMines(grid: Grid): Grid {
+function revealMines(grid: Grid, clickIndex?: number): Grid {
   for (const tile of grid) {
-    if (tile.content === 'M') tile.isRevealed = true;
+    // Reveal all of both falsely flagged non-mines and unflagged mines
+    if ((tile.content !== 'M' && tile.isFlagged) || (tile.content === 'M' && !tile.isFlagged)) tile.isRevealed = true;
   }
   return grid;
 }

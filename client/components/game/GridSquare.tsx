@@ -6,10 +6,11 @@ type GridSquareProps = {
   content: TileContent,
   isRevealed: boolean,
   isFlagged: boolean,
-  onClick: (index: number, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void
+  onClick: (index: number, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void,
+  lastClicked: boolean
 }
 
-export default function GridSquare({ index, content, isRevealed, isFlagged, onClick }: GridSquareProps) {
+export default function GridSquare({ index, content, isRevealed, isFlagged, onClick, lastClicked }: GridSquareProps) {
   const handleClick = React.useCallback((event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.preventDefault();
     onClick(index, event);
@@ -19,6 +20,7 @@ export default function GridSquare({ index, content, isRevealed, isFlagged, onCl
 
   let className = (isRevealed ? `s${content}` : 'hidden');
   if (isFlagged) className += ' F';
+  if (lastClicked) className += ' clicked';
 
   return (
     <div onContextMenu={(e) => e.preventDefault()} onMouseDown={handleClick} onMouseUp={handleClick} className={className}>
