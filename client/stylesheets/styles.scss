@@ -160,6 +160,32 @@ h1, h2 {
 
     overflow: hidden;
 
+    /*
+      Styling behavior:
+      (isMine, isFlagged, isRevealed)
+
+      Mine  Flag  Rev
+      Y     Y     Y    ->  Flag and hide
+      Y     Y     N    ->  Flag and hide
+      Y     N     Y    ->  Reveal
+      Y     N     N    ->  Hide
+      N     Y     Y    ->  Flag, but still hide and show X over it
+      N     Y     N    ->  Flag and hide
+      N     N     Y    ->  Reveal
+      N     N     N    ->  Hide
+
+      - Flagged tiles should always have flag image
+      - Hidden tiles should always have lighter background and border
+      - Flagged non-mine tiles whose contents have been revealed by a loss (.hidden.F.s-*)
+          should not display their contents, but should have an X overlay to show the flag was incorrect
+      - Any tiles that are not hidden should show their contents
+      - The mine tile that was clicked to trigger a loss should have a deeper red background
+    */
+
+    &.F {
+      background-image: url('../assets/flag.png');
+    }
+
     &.hidden {
       border: 3px outset #cacaca;
       background-color: rgba(173, 173, 173);
@@ -167,59 +193,22 @@ h1, h2 {
       &:hover {
         filter: brightness(1.05);
       }
-      &:not(.F).active {
+      &:not(.F):active {
         filter: brightness(0.9);
       }
 
-      &.F {
-        background-image: url('../assets/flag.png');
-      }
-    }
-
-    &.s1 {
-      color: blue;
-    }
-    &.s2 {
-      color: green;
-    }
-    &.s3 {
-      color: red;
-    }
-    &.s4 {
-      color: purple;
-    }
-    &.s5 {
-      color: black;
-    }
-    &.s6 {
-      color: rgb(76, 76, 76);
-    }
-    &.s7 {
-      color: maroon;
-    }
-    &.s8 {
-      color: turquoise;
-    }
-    &:not(.hidden) {
-      &.sM {
-        background-image: url('../assets/snek.png');
-        background-color: $bg-watermelon;
-  
-        &.clicked {
-          background-color: maroon;
-        }
-      }
-
-      &.F:not(.sM) {
-        $bad-flag-border-size: 4px;
+      &.F[class*="s-"]:not(.s-M) {
+        $bad-flag-border-size: 0.2rem;
         @mixin pseudo-base {
           content: '';
           position: absolute;
           z-index: 1;
           width: 100%;
           height: 0;
-          border-top: 4px solid firebrick;
+          border-top: $bad-flag-border-size solid firebrick;
         }
+
+        background-blend-mode: darken;
 
         &::after {
           @include pseudo-base();
@@ -239,7 +228,42 @@ h1, h2 {
         }
       }
     }
+    
+    &:not(.hidden) {
+      &.s-M {
+        background-image: url('../assets/snek.png');
+        background-color: $bg-watermelon;
+  
+        &.clicked {
+          background-color: maroon;
+        }
+      }
+    }
 
+    &.s-1 {
+      color: blue;
+    }
+    &.s-2 {
+      color: green;
+    }
+    &.s-3 {
+      color: red;
+    }
+    &.s-4 {
+      color: purple;
+    }
+    &.s-5 {
+      color: black;
+    }
+    &.s-6 {
+      color: rgb(76, 76, 76);
+    }
+    &.s-7 {
+      color: maroon;
+    }
+    &.s-8 {
+      color: turquoise;
+    }
   }
 }
 

@@ -279,8 +279,8 @@ function coordInBounds(row: number, col: number, gridWidth: number, gridHeight: 
 
 function revealMines(grid: Grid, clickIndex?: number): Grid {
   for (const tile of grid) {
-    // Reveal all of both falsely flagged non-mines and unflagged mines
-    if ((tile.content !== 'M' && tile.isFlagged) || (tile.content === 'M' && !tile.isFlagged)) tile.isRevealed = true;
+    // Reveal all of both mines and falsely flagged non-mines
+    if ((tile.content !== 'M' && tile.isFlagged) || tile.content === 'M') tile.isRevealed = true;
   }
   return grid;
 }
