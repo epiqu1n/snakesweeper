@@ -193,9 +193,10 @@ h1, h2 {
       &:hover {
         filter: brightness(1.05);
       }
-      &:not(.F):active {
-        filter: brightness(0.9);
-      }
+
+      // &:not(.F):active {
+      //   filter: brightness(0.9);
+      // }
 
       &.F[class*="s-"]:not(.s-M) {
         $bad-flag-border-size: 0.2rem;
