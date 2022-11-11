@@ -1,7 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,700;1,400;1,700&family=Oswald:wght@400;700&display=swap');
 
+$color-blue: rgb(63, 63, 137);
+$bg-earthtone: #877a60;
+$bg-watermelon: #914e47;
+
 :root {
-  $color-blue: rgb(63, 63, 137);
 }
 
 @mixin no-select {
@@ -155,6 +158,34 @@ h1, h2 {
     font-size: 1.4em;
     font-weight: bold;
 
+    overflow: hidden;
+
+    /*
+      Styling behavior:
+      (isMine, isFlagged, isRevealed)
+
+      Mine  Flag  Rev
+      Y     Y     Y    ->  Flag and hide
+      Y     Y     N    ->  Flag and hide
+      Y     N     Y    ->  Reveal
+      Y     N     N    ->  Hide
+      N     Y     Y    ->  Flag, but still hide and show X over it
+      N     Y     N    ->  Flag and hide
+      N     N     Y    ->  Reveal
+      N     N     N    ->  Hide
+
+      - Flagged tiles should always have flag image
+      - Hidden tiles should always have lighter background and border
+      - Flagged non-mine tiles whose contents have been revealed by a loss (.hidden.F.s-*)
+          should not display their contents, but should have an X overlay to show the flag was incorrect
+      - Any tiles that are not hidden should show their contents
+      - The mine tile that was clicked to trigger a loss should have a deeper red background
+    */
+
+    &.F {
+      background-image: url('../assets/flag.png');
+    }
+
     &.hidden {
       border: 3px outset #cacaca;
       background-color: rgba(173, 173, 173);
@@ -162,41 +193,77 @@ h1, h2 {
       &:hover {
         filter: brightness(1.05);
       }
-      &:not(.F).active {
-        filter: brightness(0.9);
+
+      // &:not(.F):active {
+      //   filter: brightness(0.9);
+      // }
+
+      &.F[class*="s-"]:not(.s-M) {
+        $bad-flag-border-size: 0.2rem;
+        @mixin pseudo-base {
+          content: '';
+          position: absolute;
+          z-index: 1;
+          width: 100%;
+          height: 0;
+          border-top: $bad-flag-border-size solid firebrick;
+        }
+
+        background-blend-mode: darken;
+
+        &::after {
+          @include pseudo-base();
+          
+          transform:
+            skewY(-45deg)
+            translateY(calc(50% - ($bad-flag-border-size / 2)))
+          ;
+        }
+        &::before {
+          @include pseudo-base();
+          
+          transform:
+            skewY(45deg)
+            translateY(calc(-50% + ($bad-flag-border-size / 2)))
+          ;
+        }
+      }
+    }
+    
+    &:not(.hidden) {
+      &.s-M {
+        background-image: url('../assets/snek.png');
+        background-color: $bg-watermelon;
+  
+        &.bad {
+          background-color: maroon;
+        }
       }
     }
 
-    &.s1 {
+    &.s-1 {
       color: blue;
     }
-    &.s2 {
+    &.s-2 {
       color: green;
     }
-    &.s3 {
+    &.s-3 {
       color: red;
     }
-    &.s4 {
+    &.s-4 {
       color: purple;
     }
-    &.s5 {
+    &.s-5 {
       color: black;
     }
-    &.s6 {
+    &.s-6 {
       color: rgb(76, 76, 76);
     }
-    &.s7 {
+    &.s-7 {
       color: maroon;
     }
-    &.s8 {
+    &.s-8 {
       color: turquoise;
-    }
-    &.sM:not(.hidden) {
-      background-image: url('../assets/snek.png');
-      background-color: maroon;
-    }
-    &.F.hidden {
-      background-image: url('../assets/flag.png');
     }
   }
 }
