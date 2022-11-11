@@ -7,10 +7,10 @@ type GridSquareProps = {
   isRevealed: boolean,
   isFlagged: boolean,
   onClick: (index: number, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void,
-  lastClicked: boolean
+  wasBadReveal: boolean
 }
 
-export default function GridSquare({ index, content, isRevealed, isFlagged, onClick, lastClicked }: GridSquareProps) {
+export default function GridSquare({ index, content, isRevealed, isFlagged, onClick, wasBadReveal }: GridSquareProps) {
   const handleClick = React.useCallback((event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.preventDefault();
     onClick(index, event);
@@ -25,7 +25,7 @@ export default function GridSquare({ index, content, isRevealed, isFlagged, onCl
     )
     : ''
   );
-  const className = makeCssClass(content, isFlagged, isRevealed);
+  const className = makeCssClass(content, isFlagged, isRevealed, wasBadReveal);
 
   return (
     <div onContextMenu={(e) => e.preventDefault()} onMouseDown={handleClick} onMouseUp={handleClick} className={className}>
@@ -35,7 +35,7 @@ export default function GridSquare({ index, content, isRevealed, isFlagged, onCl
 }
 
 /** Assembles a CSS class string for the tile based on its state and contents */
-function makeCssClass(content: TileContent, isFlagged: boolean, isRevealed: boolean): string {
+function makeCssClass(content: TileContent, isFlagged: boolean, isRevealed: boolean, wasBadReveal: boolean): string {
   // On game over, all mines and falsely flagged mines will be revealed
   // Styling behavior:
   // (isMine, isFlagged, isRevealed)
@@ -59,6 +59,7 @@ function makeCssClass(content: TileContent, isFlagged: boolean, isRevealed: bool
   if (isRevealed) classes.push(`s-${content}`);
   if (!isRevealed || isFlagged) classes.push('hidden');
   if (isFlagged) classes.push('F');
+  if (wasBadReveal) classes.push('bad')
 
   return classes.join(' ');
 }

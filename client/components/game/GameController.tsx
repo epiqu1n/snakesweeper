@@ -32,7 +32,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
   const [startTime, setStartTime] = React.useState(-1);
   const [numFlags, setNumFlags] = React.useState(0);
   const [gameState, setGameState] = React.useState(GS.PRE_GAME);
-  const [lastClickIndex, setLastClickIndex] = React.useState(-1);
+  const [badRevealIndex, setBadRevealIndex] = React.useState(-1);
 
 
   /// Event handlers
@@ -60,7 +60,6 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
     switch (button) {
       case CTM.LEFT:
         if (!square.isRevealed && !square.isFlagged) revealTile(index);
-        setLastClickIndex(index);
         break;
       case CTM.RIGHT:
         if (!square.isRevealed) flagTile(newGrid, index);
@@ -99,6 +98,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
         console.log('Player lost');
         setGameState(GS.POST_GAME_LOSS);
         setGrid((prevGrid) => revealMines(prevGrid, index))
+        setBadRevealIndex(index);
       }
       else if (newSquare.content === '0') {
         // Clear adjacent empty squares
@@ -186,6 +186,8 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
 
   const remainingFlags = numMines - numFlags;
 
+  console.debug('Bad reveal index', badRevealIndex);
+
   /// Render
   return (
     <section className="gameContainer">
@@ -199,7 +201,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
           width={size[0]}
           height={size[1]}
           onSquareClick={handleRawSquareClick}
-          lastClickIndex={lastClickIndex}
+          badRevealIndex={badRevealIndex}
         />
       </div>
     </section>

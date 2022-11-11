@@ -234,7 +234,7 @@ h1, h2 {
         background-image: url('../assets/snek.png');
         background-color: $bg-watermelon;
   
-        &.clicked {
+        &.bad {
           background-color: maroon;
         }
       }

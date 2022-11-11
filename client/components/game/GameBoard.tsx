@@ -7,7 +7,7 @@ type GameBoardProps = {
   width: number,
   height: number,
   onSquareClick: (index: number, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void,
-  lastClickIndex: number
+  badRevealIndex: number
 }
 
 export default function GameBoard(props: GameBoardProps) {
@@ -21,7 +21,7 @@ export default function GameBoard(props: GameBoardProps) {
     <GridSquare
       index={i}
       onClick={props.onSquareClick} key={`GridSquare_${i}`}
-      lastClicked={(props.lastClickIndex === i)}
+      wasBadReveal={(props.badRevealIndex === i)}
       {...square}
     />
   );
