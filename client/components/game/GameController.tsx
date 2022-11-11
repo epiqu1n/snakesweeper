@@ -186,8 +186,6 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
 
   const remainingFlags = numMines - numFlags;
 
-  console.debug('Bad reveal index', badRevealIndex);
-
   /// Render
   return (
     <section className="gameContainer">
