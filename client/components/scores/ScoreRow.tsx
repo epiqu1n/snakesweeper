@@ -1,3 +1,5 @@
+import styles from './ScoreRow.module.scss';
+
 type ScoreRowProps = {
   time_seconds: number,
   username: string,
@@ -22,12 +24,11 @@ export default function ScoreRow(props: ScoreRowProps) {
   const timeStr = `${hours}:${date.getMinutes()}${amPm} ${timeZone}`;
 
   return (
-    <tr>
+    <tr className={styles['row']}>
       <td>{username}</td>
-      <td>{time_seconds}s</td>
-      <td>
-        <span>{dateStr} at {timeStr}</span>
-      </td>
+      <td align='center'>{time_seconds}s</td>
+      <td align='right' className={styles['date']}>{month} {date.getDate()}</td>
+      <td className={styles['date']}>at {timeStr}</td>
     </tr>
   );
 }

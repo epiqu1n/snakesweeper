@@ -17,7 +17,7 @@ export default function TopScores({ scores, mode }: TopScoresProps) {
       <thead><tr>
         <th>Player</th>
         <th>Time</th>
-        <th>Date</th>
+        <th colSpan={3}>Date</th>
         </tr></thead>
       <tbody>{scoreRows}</tbody>
     </table>
