@@ -17,11 +17,12 @@ export default function ScoreRow(props: ScoreRowProps) {
   const dateStr = `${month} ${date.getDate()}${year}`;
 
   // Format time
-  const rawHours = date.getHours();
+  const rawHours = date.getHours(), rawMinutes = date.getMinutes();
   const hours = ( rawHours === 0 ? 12 : rawHours > 12 ? rawHours % 12 : rawHours );
+  const minutes = ( rawMinutes < 10 ? `0${rawMinutes}` : rawMinutes);
   const amPm = ( date.getHours() < 12 ? 'am' : 'pm' );
   const timeZone = new Date().toLocaleTimeString('en-us',{timeZoneName:'short'}).split(' ')[2];
-  const timeStr = `${hours}:${date.getMinutes()}${amPm} ${timeZone}`;
+  const timeStr = `${hours}:${minutes}${amPm} ${timeZone}`;
 
   return (
     <tr className={styles['row']}>
