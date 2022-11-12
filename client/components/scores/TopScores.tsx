@@ -1,7 +1,5 @@
-import * as React from 'react';
 import ScoreRow from './ScoreRow';
 import { UserScore } from '../../App';
-const { useState, useEffect } = React;
 // import styles from './TopScores.scss';
 
 type TopScoresProps = {

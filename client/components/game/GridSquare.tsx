@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useCallback } from 'react';
 import { TileContent } from '../../types/GridTypes';
 
 type GridSquareProps = {
@@ -11,7 +11,7 @@ type GridSquareProps = {
 }
 
 export default function GridSquare({ index, content, isRevealed, isFlagged, onClick, wasBadReveal }: GridSquareProps) {
-  const handleClick = React.useCallback((event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const handleClick = useCallback((event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.preventDefault();
     onClick(index, event);
   }, [onClick, isRevealed]);

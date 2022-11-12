@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { UserScore } from '../../App';
 import TopScores from './TopScores';
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import GameController from './components/game/GameController';
 import ScoresDisplay from './components/scores/ScoresDisplay';
 import './stylesheets/styles.scss';

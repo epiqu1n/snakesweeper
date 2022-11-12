@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Grid } from './GameController';
 import GridSquare from './GridSquare';
 

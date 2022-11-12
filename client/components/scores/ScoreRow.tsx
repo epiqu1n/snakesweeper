@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 type ScoreRowProps = {
   time_seconds: number,
   username: string,

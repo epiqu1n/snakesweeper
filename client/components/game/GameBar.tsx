@@ -1,4 +1,3 @@
-import React from 'react';
 import { GameState } from '../../types/GridTypes';
 import FlagsDisplay from './MinesDisplay';
 import TimeDisplay from './TimeDisplay';
