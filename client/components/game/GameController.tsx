@@ -1,10 +1,10 @@
-import React from "react";
 import GameBar from "./GameBar";
 import GameBoard from "./GameBoard";
 import { BoardOptions } from "../../App";
 import { MulticlickHandler, ClickTypeMulti, ClickTypeMulti as CTM } from '../../utils/eventUtils';
 import { GameState as GS, TileContent } from '../../types/GridTypes';
 import promptModal from '../shared/modalHelper';
+import { useEffect, useState, MouseEvent } from 'react';
 
 export type GridSquareState = {
   content: TileContent,
@@ -26,13 +26,13 @@ const squareClickHandler = new MulticlickHandler();
 export default function GameController({ onScoreSubmit, onModeChange, difficulty, children }: GameControllerProps) {
   const { size, mines: numMines } = difficulty;
   
-  const [grid, setGrid] = React.useState<Grid>([], );
+  const [grid, setGrid] = useState<Grid>([], );
   /** Number of unrevealed tiles */
-  const [remainingTiles, setRemainingTiles] = React.useState(size[0] * size[1]);
-  const [startTime, setStartTime] = React.useState(-1);
-  const [numFlags, setNumFlags] = React.useState(0);
-  const [gameState, setGameState] = React.useState(GS.PRE_GAME);
-  const [badRevealIndex, setBadRevealIndex] = React.useState(-1);
+  const [remainingTiles, setRemainingTiles] = useState(size[0] * size[1]);
+  const [startTime, setStartTime] = useState(-1);
+  const [numFlags, setNumFlags] = useState(0);
+  const [gameState, setGameState] = useState(GS.PRE_GAME);
+  const [badRevealIndex, setBadRevealIndex] = useState(-1);
 
 
   /// Event handlers
@@ -75,7 +75,7 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
     }
   };
 
-  const handleRawSquareClick = (index: number, event: React.MouseEvent) => {
+  const handleRawSquareClick = (index: number, event: MouseEvent) => {
     if (gameState === GS.POST_GAME_LOSS || gameState === GS.POST_GAME_WIN) return;
     
     squareClickHandler.handleClick(event.nativeEvent, (button, maxButtons) => {
@@ -163,12 +163,12 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
 
   /// Effects
   // Reset grid on grid size change
-  React.useEffect(() => {
+  useEffect(() => {
     startNewGame();
   }, [size]);
 
   // Check if player has won when remaining number of mines changes
-  React.useEffect(() => {
+  useEffect(() => {
     // console.debug('Remaining:', remainingTiles);
     if (remainingTiles === numMines) {
       console.log('Player won!');

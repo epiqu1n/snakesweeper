@@ -1,7 +1,5 @@
-import * as React from 'react';
 import ScoreRow from './ScoreRow';
 import { UserScore } from '../../App';
-const { useState, useEffect } = React;
 // import styles from './TopScores.scss';
 
 type TopScoresProps = {
@@ -19,7 +17,7 @@ export default function TopScores({ scores, mode }: TopScoresProps) {
       <thead><tr>
         <th>Player</th>
         <th>Time</th>
-        <th>Date</th>
+        <th colSpan={3}>Date</th>
         </tr></thead>
       <tbody>{scoreRows}</tbody>
     </table>

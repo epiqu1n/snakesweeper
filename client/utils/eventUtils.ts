@@ -1,3 +1,5 @@
+import { MouseEvent } from 'react';
+
 /*
   0: Primary button (usually the left button)
   1: Secondary button (usually the right button)
@@ -47,7 +49,7 @@ export class MulticlickHandler {
    * Handles a click event
    * @param onCompleteClick Fires when all mouse buttons have been released
    */
-  handleClick(event: MouseEvent, onCompleteClick: CompleteClickHandler) {
+  handleClick(event: globalThis.MouseEvent, onCompleteClick: CompleteClickHandler) {
     switch (event.type) {
       case 'mousedown':
         this.maxButtonsHeld = Math.max(event.buttons, this.maxButtonsHeld);

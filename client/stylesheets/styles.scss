@@ -273,11 +273,8 @@ h1, h2 {
   width: fit-content;
   flex-flow: column;
 
-  td, th {
-    padding: 0.25em 1rem;
-  }
-
   th {
+    padding: 0.25em 1.5rem;
     font-weight: bold;
   }
 }
