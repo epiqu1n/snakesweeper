@@ -8,3 +8,9 @@ td:not(.date) {
 td.date {
   padding: 0.25rem 0.1em;
 }
+
+td.username {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 12.5em;
+}
