@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  app_dev:
+    image: epiq/snake-app-dev
+    container_name: snake-app-dev
+    ports: 
+      - 8080:8080
+    volumes:
+      - ./:/usr/src/app
+      - node_modules:/usr/src/app/node_modules
+    command: npm run server-start-dev
+volumes:
+  node_modules: {}

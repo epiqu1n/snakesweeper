@@ -1,0 +1,8 @@
+version: "3.8"
+services:
+  app_dev:
+    image: epiq/snake-app-prod
+    container_name: snake-app-prod
+    ports: 
+      - 3000:3000
+    command: npm run server-start
