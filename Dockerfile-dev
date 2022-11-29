@@ -1,0 +1,12 @@
+FROM node:16
+
+WORKDIR /tmp/
+COPY package*.json ./
+RUN npm install
+
+WORKDIR /usr/src/app/
+COPY . .
+RUN cp -a /tmp/node_modules/ ./
+
+CMD ["npm", "run", "server-start-dev"]
+EXPOSE 8080

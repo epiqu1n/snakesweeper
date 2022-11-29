@@ -2,6 +2,11 @@
 import webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import path from 'path';
+import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
+import ReactRefreshTypeScript from 'react-refresh-typescript';
+import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
+
+const isDevEnv = process.env.NODE_ENV === 'development';
 
 export default {
   entry: './client/index.tsx',
@@ -13,7 +18,7 @@ export default {
   devtool: 'eval-source-map', // inline-source-map?
   mode: process.env.NODE_ENV,
   devServer: {
-    host: 'localhost',
+    host: '0.0.0.0',
     port: 8080,
     hot: true,
     // historyApiFallback: true,
@@ -36,35 +41,32 @@ export default {
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader'
-        }
-      },
-      {
         test: /\.s?css$/,
         exclude: /node_modules/,
         use: ['style-loader', 'css-loader', 'sass-loader']
       },
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
-        // Use babel-loader w/ @babel/preset-typescript & react?
-        exclude: /node_modules/
-      }/* ,
-      {
-        test: /\.png$/,
-        use: 'url-loader',
-        exclude: /node_modules/
-      } */
+        exclude: /node_modules/,
+        use: {
+          loader: 'ts-loader',
+          options: {
+            getCustomTransformers: () => ({
+              before: [isDevEnv && ReactRefreshTypeScript()].filter(Boolean),
+            }),
+            transpileOnly: isDevEnv
+          }
+        }
+      }
     ]
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: './client/index.html'
-    })
-  ],
+    }),
+    isDevEnv && new ReactRefreshWebpackPlugin(),
+    new ForkTsCheckerWebpackPlugin()
+  ].filter(Boolean),
   resolve: {
     extensions: ['.tsx', '.ts', '.jsx', '.js'],
   }
