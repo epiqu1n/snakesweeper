@@ -1,5 +1,5 @@
-import { UserScore } from '../../App';
-import TopScores from './TopScores';
+import { UserScore } from '../../types/Scores';
+import Leaderboard from './Leaderboard';
 
 type ScoresDisplayProps = {
   topScores: UserScore[],
@@ -7,5 +7,17 @@ type ScoresDisplayProps = {
 };
 
 export default function ScoresDisplay({ topScores, mode }: ScoresDisplayProps) {
-  return <TopScores scores={topScores} mode={mode} />;
+  return (
+    <section>
+      <h2>Leaderboards – {mode}</h2>
+      <Leaderboard
+        title={`Top scores`}
+        scores={topScores}
+      />
+      <Leaderboard
+        title={`Your scores`}
+        scores={topScores}
+      />
+    </section>
+  );
 }

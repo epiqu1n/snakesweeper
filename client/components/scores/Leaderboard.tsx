@@ -1,18 +1,18 @@
+import { UserScore } from '../../types/Scores';
 import ScoreRow from './ScoreRow';
-import { UserScore } from '../../App';
-// import styles from './TopScores.scss';
+import styles from './Leaderboard.module.scss';
 
-type TopScoresProps = {
-  scores: UserScore[],
-  mode: string
+interface LeaderboardProps {
+  title: string,
+  scores: UserScore[]
 }
 
-export default function TopScores({ scores, mode }: TopScoresProps) {
+export default function Leaderboard({ title, scores }: LeaderboardProps) {
   const scoreRows = scores.map((score) => <ScoreRow {...score} key={`Score_${score.score_id}`} />);
 
   return (
-  <section className="scores">
-    <h2>Top Scores: {mode}</h2>
+  <section className={styles['leaderboard']}>
+    <h3>{title}</h3>
     <table>
       <thead><tr>
         <th>Player</th>

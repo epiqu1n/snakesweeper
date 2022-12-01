@@ -1,0 +1,12 @@
+.leaderboard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  flex-flow: column;
+
+  th {
+    padding: 0.25em 1.5rem;
+    font-weight: bold;
+  }
+}
