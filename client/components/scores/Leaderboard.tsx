@@ -11,16 +11,18 @@ export default function Leaderboard({ title, scores }: LeaderboardProps) {
   const scoreRows = scores.map((score) => <ScoreRow {...score} key={`Score_${score.score_id}`} />);
 
   return (
-  <section className={styles['leaderboard']}>
+  <div className={styles['leaderboard']}>
     <h3>{title}</h3>
-    <table>
-      <thead><tr>
-        <th>Player</th>
-        <th>Time</th>
-        <th colSpan={3}>Date</th>
-        </tr></thead>
-      <tbody>{scoreRows}</tbody>
-    </table>
-  </section>
+    <div className={styles['container']}>
+      <table>
+        <thead><tr>
+          <th>Player</th>
+          <th>Time</th>
+          <th colSpan={3}>Date</th>
+          </tr></thead>
+        <tbody>{scoreRows}</tbody>
+      </table>
+    </div>
+  </div>
   );
 }
