@@ -2,13 +2,9 @@ import { useEffect, useState } from 'react';
 import GameController from './components/game/GameController';
 import ScoresDisplay from './components/scores/ScoresDisplay';
 import './stylesheets/styles.scss';
+import { UserScore } from './types/Scores';
 
-export type UserScore = {
-  time_seconds: number,
-  username: string,
-  submitted_at: string, // Datetime
-  score_id: number
-};
+
 
 export type BoardOptions = {
   size: [width: number, height: number],
@@ -35,7 +31,12 @@ export default function App() {
     try {
       const data = await fetch(url).then(res => res.json());
       if (data.error) return console.error(data.error);
-      setTopScores(data.scores);
+
+      const scores: UserScore[] = data.scores.map((score: UserScore & { submitted_at: string }) => ({
+        ...score,
+        submitted_at: new Date(score.submitted_at)
+      }));
+      setTopScores(scores);
     } catch (err) {
       alert('Something went wrong retrieving top scores');
       return console.error(err);

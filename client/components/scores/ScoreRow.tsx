@@ -3,14 +3,13 @@ import styles from './ScoreRow.module.scss';
 type ScoreRowProps = {
   time_seconds: number,
   username: string,
-  submitted_at: string // Datetime
+  submitted_at: Date // Datetime
 };
 
 export default function ScoreRow(props: ScoreRowProps) {
-  const { username, time_seconds, submitted_at } = props;
+  const { username, time_seconds, submitted_at: date } = props;
 
   // Format date
-  const date = new Date(submitted_at);
   const month = date.toLocaleString('default', { month: 'short' });
   const isCurrentYear = (date.getFullYear() === ((new Date()).getFullYear()));
   const year = (isCurrentYear ? '' : `, ${date.getFullYear()}`);
