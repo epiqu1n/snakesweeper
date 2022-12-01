@@ -22,7 +22,7 @@ const scoreController: ScoreController = {
     });
   
     try {
-      res.locals.scores = await Scores.GET_SCORES({ modeId, limit: 10 });
+      res.locals.scores = await Scores.GET_SCORES({ modeId, limit: 50 });
       return next();
     } catch (err) {
       return next({
