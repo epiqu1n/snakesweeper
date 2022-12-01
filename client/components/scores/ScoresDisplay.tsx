@@ -1,3 +1,4 @@
+import { CSSProperties } from 'react';
 import { UserScore } from '../../types/Scores';
 import Leaderboard from './Leaderboard';
 
@@ -8,7 +9,7 @@ type ScoresDisplayProps = {
 
 export default function ScoresDisplay({ topScores, mode }: ScoresDisplayProps) {
   return (
-    <section>
+    <section style={sectionStyle}>
       <h2>Leaderboards – {mode}</h2>
       <Leaderboard
         title={`Top scores`}
@@ -20,4 +21,11 @@ export default function ScoresDisplay({ topScores, mode }: ScoresDisplayProps) {
       />
     </section>
   );
+}
+
+const sectionStyle: CSSProperties = {
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  flexFlow: 'column nowrap'
 }
