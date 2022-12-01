@@ -5,6 +5,8 @@ $bg-earthtone: #877a60;
 $bg-watermelon: #914e47;
 
 :root {
+  color-scheme: only dark;
+  color: black;
 }
 
 @mixin no-select {
