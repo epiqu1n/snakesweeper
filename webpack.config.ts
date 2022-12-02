@@ -41,8 +41,15 @@ const config: Configuration = {
   },
   module: {
     rules: [
+      // Normal SCSS stylesheets
       {
         test: /\.s?css$/,
+        exclude: [/node_modules/, /\.module\.s?css$/i],
+        use: ['style-loader', 'css-loader', 'sass-loader'],
+      },
+      // SCSS modules
+      {
+        test: /\.module\.s?css$/i,
         exclude: /node_modules/,
         use: [
           'style-loader',
