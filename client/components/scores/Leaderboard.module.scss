@@ -1,16 +1,63 @@
 .leaderboard {
+  $bg-color: gray;
+  $table-head-margin: 0.5em;
+
   display: flex;
   justify-content: center;
   align-items: center;
   width: fit-content;
   flex-flow: column;
 
-  .container {
-    
+  > .container {
+    $scrollbar-thumb-color: #2d2d2d;
+    $scrollbar-track-color: #393a3a47;
+
+    max-height: 20rem;
+    overflow-y: scroll;
+    background-color: $bg-color;
+    border: 2px solid #4f4f4f;
+
+    scrollbar-color: $scrollbar-thumb-color $scrollbar-track-color;
+    margin-left: 1em; // Offset to account for scrollbar
   }
 
-  th {
-    padding: 0.25em 1.5rem;
-    font-weight: bold;
+  table {
+    border-spacing: 0;
+  }
+
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: #6f7382;
+
+    &::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      top: 100%;
+      left: 0;
+      height: $table-head-margin;
+      width: 100%;
+      
+      background: linear-gradient(to bottom, #0000002e, transparent 100%);
+    }
+
+    > tr > th {
+      padding: 0.25em 1.5rem;
+      font-weight: bold;
+      border-right: 1px solid black;
+      border-bottom: 1px solid black;
+
+      &:last-of-type {
+        border-right: none;
+      }
+    }
+  }
+
+  tbody {
+    tr:first-of-type > td {
+      padding-top: $table-head-margin;
+    }
   }
 }

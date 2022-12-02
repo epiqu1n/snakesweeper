@@ -19,7 +19,7 @@ export default function Leaderboard({ title, scores }: LeaderboardProps) {
           <th>Player</th>
           <th>Time</th>
           <th colSpan={3}>Date</th>
-          </tr></thead>
+        </tr></thead>
         <tbody>{scoreRows}</tbody>
       </table>
     </div>
