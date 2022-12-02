@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
-import webpack from 'webpack';
+import webpack, { Configuration, WebpackPluginInstance } from 'webpack';
+import { Configuration as DevServerConfig } from 'webpack-dev-server';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import path from 'path';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
@@ -8,7 +9,7 @@ import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 
 const isDevEnv = process.env.NODE_ENV === 'development';
 
-export default {
+const config: Configuration = {
   entry: './client/index.tsx',
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -16,7 +17,7 @@ export default {
     publicPath: '/'
   },
   devtool: 'eval-source-map', // inline-source-map?
-  mode: process.env.NODE_ENV,
+  mode: (process.env.NODE_ENV === 'development' ? 'development' : 'production'),
   devServer: {
     host: '0.0.0.0',
     port: 8080,
@@ -43,7 +44,18 @@ export default {
       {
         test: /\.s?css$/,
         exclude: /node_modules/,
-        use: ['style-loader', 'css-loader', 'sass-loader']
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              modules: {
+                localIdentName: process.env.NODE_ENV === 'development' ? 'snek__[local]--[hash:base64:4]' : '[hash:base64:6]'
+              },
+            },
+          },
+          'sass-loader'
+        ],
       },
       {
         test: /\.tsx?$/,
@@ -64,10 +76,12 @@ export default {
     new HtmlWebpackPlugin({
       template: './client/index.html'
     }),
-    isDevEnv && new ReactRefreshWebpackPlugin(),
+    isDevEnv ? new ReactRefreshWebpackPlugin() : ({} as WebpackPluginInstance),
     new ForkTsCheckerWebpackPlugin()
   ].filter(Boolean),
   resolve: {
     extensions: ['.tsx', '.ts', '.jsx', '.js'],
   }
 };
+
+export default config;
