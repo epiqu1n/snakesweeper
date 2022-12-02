@@ -22,6 +22,7 @@ const config: Configuration = {
     host: '0.0.0.0',
     port: 8080,
     hot: true,
+    open: false,
     // historyApiFallback: true,
     static: {
       directory: path.resolve(__dirname, 'dist'),
