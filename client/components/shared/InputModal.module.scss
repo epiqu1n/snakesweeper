@@ -4,9 +4,16 @@
 
   background-color: rgba(156, 179, 72, 0.9);
   border-radius: 0.5rem;
+  border-color: #3e3e3e;
+  color: inherit;
 
   &::backdrop {
     background-color: #00000068;
+  }
+
+  input {
+    color: inherit;
+    background-color: #b3b3b3;
   }
 }
 

@@ -1,0 +1,66 @@
+.leaderboard {
+  $bg-color: #9a9ea8;
+  $table-head-margin: 0.5em;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  flex-flow: column;
+
+  & > .container {
+    $scrollbar-thumb-color: #2d2d2d;
+    $scrollbar-track-color: #393a3a47;
+
+    max-height: 20rem;
+    overflow-y: scroll;
+    background-color: $bg-color;
+    border: 2px solid #4f4f4f;
+
+    scrollbar-color: $scrollbar-thumb-color $scrollbar-track-color;
+    margin-left: 1em; // Offset to account for scrollbar
+  }
+
+  table {
+    border-spacing: 0;
+  }
+
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: #6f7382;
+    box-shadow: 0px -0.5em 0.5em 0.5em rgba(0, 0, 0, 0.5);
+
+    // Table header cells
+    & > tr > th {
+      padding: 0.25em 1.5rem;
+      font-weight: bold;
+      border-right: 1px solid black;
+      border-bottom: 1px solid black;
+
+      // Last header shouldn't have border overlapping table border
+      &:last-of-type {
+        border-right: none;
+      }
+      
+      &.name {
+        width: 10em;
+      }
+      &.score {
+        width: 5em;
+      }
+      &.date {
+        width: 12em;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      &:first-of-type > td {
+        padding-top: $table-head-margin;
+      }
+    }
+  }
+}

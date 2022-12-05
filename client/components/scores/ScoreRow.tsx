@@ -3,14 +3,14 @@ import styles from './ScoreRow.module.scss';
 type ScoreRowProps = {
   time_seconds: number,
   username: string,
-  submitted_at: string // Datetime
+  submitted_at: Date // Datetime,
+  position: number
 };
 
 export default function ScoreRow(props: ScoreRowProps) {
-  const { username, time_seconds, submitted_at } = props;
+  const { username, time_seconds, submitted_at: date, position } = props;
 
   // Format date
-  const date = new Date(submitted_at);
   const month = date.toLocaleString('default', { month: 'short' });
   const isCurrentYear = (date.getFullYear() === ((new Date()).getFullYear()));
   const year = (isCurrentYear ? '' : `, ${date.getFullYear()}`);
@@ -26,10 +26,12 @@ export default function ScoreRow(props: ScoreRowProps) {
 
   return (
     <tr className={styles['row']}>
-      <td className={styles['username']}>{username}</td>
-      <td align='center'>{time_seconds}s</td>
-      <td align='right' className={styles['date']}>{dateStr}</td>
-      <td className={styles['date']}>at {timeStr}</td>
+      <td align='left' className={styles['name']}>
+        <span className={styles['position']}>{position}. </span>
+        {username}
+      </td>
+      <td align='center' className={styles['score']}>{time_seconds}s</td>
+      <td align='center' className={styles['date']}>{dateStr} at {timeStr}</td>
     </tr>
   );
 }

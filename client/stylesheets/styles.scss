@@ -5,6 +5,8 @@ $bg-earthtone: #877a60;
 $bg-watermelon: #914e47;
 
 :root {
+  color-scheme: only dark;
+  color: black;
 }
 
 @mixin no-select {
@@ -65,6 +67,10 @@ h1, h2 {
   font-weight: bold;
 }
 
+h2 {
+  margin-top: 0;
+}
+
 #root {
   display: flex;
   flex-flow: row wrap;
@@ -72,7 +78,7 @@ h1, h2 {
   align-items: flex-start;
   
   & > section {
-    margin: 2rem;
+    margin: 1.5rem 2rem;
   }
 
   & > h1 {
@@ -121,6 +127,8 @@ h1, h2 {
       height: 100%;
       width: $gamebar-height;
       background-image: url('../assets/restart.png');
+      background-color: silver;
+      // TODO: Style button
       @include center-bg(70%);
     }
 
@@ -268,13 +276,12 @@ h1, h2 {
   }
 }
 
-.scores {
-  @include flex-center();
-  width: fit-content;
-  flex-flow: column;
+h3 {
+  font-weight: bold;
+  font-size: 1.33em;
+}
 
-  th {
-    padding: 0.25em 1.5rem;
-    font-weight: bold;
-  }
+select {
+  background-color: gray;
+  // TODO: Style select
 }
