@@ -31,7 +31,7 @@ export default function ScoreRow(props: ScoreRowProps) {
         {username}
       </td>
       <td align='center' className={styles['score']}>{time_seconds}s</td>
-      <td align='center' className={styles['date']}>{dateStr} at {timeStr}</td>
+      <td align='center' className={styles['date']}>{dateStr} <span className={styles['symbol']}>@</span> {timeStr}</td>
     </tr>
   );
 }
