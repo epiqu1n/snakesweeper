@@ -1,16 +1,16 @@
 .row {
 }
 
-td:not(.date) {
+td {
   padding: 0.25em 1rem;
-}
 
-td.date {
-  padding: 0.25rem 0.1em;
-}
+  &.date {
+    padding: 0.25rem 0.1em;
+  }
 
-td.username {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 12.5em;
+  &.name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 10em;
+  }
 }

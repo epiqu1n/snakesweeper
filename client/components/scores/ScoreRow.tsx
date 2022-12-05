@@ -25,10 +25,9 @@ export default function ScoreRow(props: ScoreRowProps) {
 
   return (
     <tr className={styles['row']}>
-      <td className={styles['username']}>{username}</td>
-      <td align='center'>{time_seconds}s</td>
-      <td align='right' className={styles['date']}>{dateStr}</td>
-      <td className={styles['date']}>at {timeStr}</td>
+      <td align='left' className={styles['name']}>{username}</td>
+      <td align='center' className={styles['score']}>{time_seconds}s</td>
+      <td align='center' className={styles['date']}>{dateStr} at {timeStr}</td>
     </tr>
   );
 }

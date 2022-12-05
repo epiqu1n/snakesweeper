@@ -16,9 +16,9 @@ export default function Leaderboard({ title, scores }: LeaderboardProps) {
     <div className={styles['container']}>
       <table>
         <thead><tr>
-          <th>Player</th>
-          <th>Time</th>
-          <th colSpan={3}>Date</th>
+          <th className={styles['name']}>Player</th>
+          <th className={styles['score']}>Time</th>
+          <th className={styles['date']}>Date</th>
         </tr></thead>
         <tbody>{scoreRows}</tbody>
       </table>

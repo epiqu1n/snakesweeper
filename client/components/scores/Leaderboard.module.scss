@@ -1,5 +1,5 @@
 .leaderboard {
-  $bg-color: gray;
+  $bg-color: #9a9ea8;
   $table-head-margin: 0.5em;
 
   display: flex;
@@ -8,7 +8,7 @@
   width: fit-content;
   flex-flow: column;
 
-  > .container {
+  & > .container {
     $scrollbar-thumb-color: #2d2d2d;
     $scrollbar-track-color: #393a3a47;
 
@@ -30,34 +30,37 @@
     top: 0;
     z-index: 1;
     background-color: #6f7382;
+    box-shadow: 0px -0.5em 0.5em 0.5em rgba(0, 0, 0, 0.5);
 
-    &::after {
-      content: "";
-      position: absolute;
-      z-index: -1;
-      top: 100%;
-      left: 0;
-      height: $table-head-margin;
-      width: 100%;
-      
-      background: linear-gradient(to bottom, #0000002e, transparent 100%);
-    }
-
-    > tr > th {
+    // Table header cells
+    & > tr > th {
       padding: 0.25em 1.5rem;
       font-weight: bold;
       border-right: 1px solid black;
       border-bottom: 1px solid black;
 
+      // Last header shouldn't have border overlapping table border
       &:last-of-type {
         border-right: none;
+      }
+      
+      &.name {
+        width: 10em;
+      }
+      &.score {
+        width: 5em;
+      }
+      &.date {
+        width: 12em;
       }
     }
   }
 
   tbody {
-    tr:first-of-type > td {
-      padding-top: $table-head-margin;
+    tr {
+      &:first-of-type > td {
+        padding-top: $table-head-margin;
+      }
     }
   }
 }
