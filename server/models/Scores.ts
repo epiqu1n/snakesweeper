@@ -25,17 +25,19 @@ const Scores: ScoresModel = {
     return await query(queryStr, params);
   },
   GET_SCORES: async (options = {}) => {
-    const { username, modeId, limit } = options;
+    const { username, modeId, limit, offset } = options;
 
     const queryStr = sql`
       SELECT Users.name AS username, US.time_seconds, US.submitted_at, US.id AS score_id, US.mode_id
       FROM User_Scores US
       LEFT JOIN Users ON Users.id = US.user_id
-      WHERE ($1::int IS NULL OR mode_id = $1::int) AND ($3::varchar IS NULL OR LOWER(Users.name) = LOWER($3::varchar))
+      WHERE
+        ($1::int IS NULL OR mode_id = $1::int)
+        AND ($3::varchar IS NULL OR LOWER(Users.name) = LOWER($3::varchar))
       ORDER BY US.time_seconds ASC
-      LIMIT $2::int
+      LIMIT $2::int OFFSET $4::int
     `;
-    const params = [modeId, limit, username];
+    const params = [modeId, limit, username, offset];
     
     return await query(queryStr, params).then((res) => res.rows) as ScoreResult[];
   },
@@ -57,7 +59,8 @@ const Scores: ScoresModel = {
 interface GetScoresOptions {
   username?: string,
   modeId?: number,
-  limit?: number
+  limit?: number,
+  offset?: number
 }
 
 export default Scores;
