@@ -2,15 +2,20 @@
 }
 
 td {
-  padding: 0.25em 1rem;
+  padding: 0.25em 0.75rem;
 
   &.date {
-    padding: 0.25rem 0.1em;
+    padding-left: 0.1em;
+    padding-right: 0.1em;
   }
 
   &.name {
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 10em;
+  }
+  
+  & > .position {
+    font-size: 0.875em;
   }
 }

@@ -8,7 +8,7 @@ interface LeaderboardProps {
 }
 
 export default function Leaderboard({ title, scores }: LeaderboardProps) {
-  const scoreRows = scores.map((score) => <ScoreRow {...score} key={`Score_${score.score_id}`} />);
+  const scoreRows = scores.map((score, i) => <ScoreRow {...score} position={i+1} key={`Score_${score.score_id}`} />);
 
   return (
   <div className={styles['leaderboard']}>

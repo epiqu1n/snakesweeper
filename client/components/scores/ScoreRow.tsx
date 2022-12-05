@@ -3,11 +3,12 @@ import styles from './ScoreRow.module.scss';
 type ScoreRowProps = {
   time_seconds: number,
   username: string,
-  submitted_at: Date // Datetime
+  submitted_at: Date // Datetime,
+  position: number
 };
 
 export default function ScoreRow(props: ScoreRowProps) {
-  const { username, time_seconds, submitted_at: date } = props;
+  const { username, time_seconds, submitted_at: date, position } = props;
 
   // Format date
   const month = date.toLocaleString('default', { month: 'short' });
@@ -25,7 +26,10 @@ export default function ScoreRow(props: ScoreRowProps) {
 
   return (
     <tr className={styles['row']}>
-      <td align='left' className={styles['name']}>{username}</td>
+      <td align='left' className={styles['name']}>
+        <span className={styles['position']}>{position}. </span>
+        {username}
+      </td>
       <td align='center' className={styles['score']}>{time_seconds}s</td>
       <td align='center' className={styles['date']}>{dateStr} at {timeStr}</td>
     </tr>
