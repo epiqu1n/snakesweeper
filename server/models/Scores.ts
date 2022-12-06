@@ -34,7 +34,7 @@ const Scores: ScoresModel = {
       WHERE
         ($1::int IS NULL OR mode_id = $1::int)
         AND ($3::varchar IS NULL OR LOWER(Users.name) = LOWER($3::varchar))
-      ORDER BY US.time_seconds ASC
+      ORDER BY US.time_seconds ASC, US.submitted_at DESC
       LIMIT $2::int OFFSET $4::int
     `;
     const params = [modeId, limit, username, offset];
