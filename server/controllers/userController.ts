@@ -25,7 +25,7 @@ const userController: UserController = {
     const { username } = body;
 
     try {
-      await Users.CREATE_USER(username)
+      await Users.createUser(username)
       return next();
     } catch (err) {
       return next({
@@ -43,7 +43,7 @@ const userController: UserController = {
     });
 
     try {
-      res.locals.user = await Users.GET_USER(username);
+      res.locals.user = await Users.getUserByName(username);
       return next();
     } catch (err) {
       return next({

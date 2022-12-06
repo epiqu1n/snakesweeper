@@ -1,14 +1,14 @@
 import { Model, query, queryOne, sql } from './model';
 
 interface UsersModel extends Model {
-  GET_ID_BY_NAME: (name: string) => Promise<number | null>,
-  UPDATE_HIGH_SCORE: (userId: number, time: number) => ReturnType<typeof query>,
-  CREATE_USER: (username: string) => ReturnType<typeof query>,
-  GET_USER: (username: string) => Promise<UserInfo>
+  getIdByName: (name: string) => Promise<number | null>,
+  updateHighScore: (userId: number, time: number) => ReturnType<typeof query>,
+  createUser: (username: string) => ReturnType<typeof query>,
+  getUserByName: (username: string) => Promise<UserInfo>
 }
 
 const Users: UsersModel = {
-  GET_ID_BY_NAME: async (name) => {
+  getIdByName: async (name) => {
     const queryStr = sql`
       SELECT id FROM Users
       WHERE LOWER(name) = LOWER($1::varchar)
@@ -17,7 +17,7 @@ const Users: UsersModel = {
 
     return await queryOne(queryStr, params).then((res) => res.id as number);
   },
-  UPDATE_HIGH_SCORE: async (userId, time) => {
+  updateHighScore: async (userId, time) => {
     const queryStr = sql`
       UPDATE Users
       SET best_time = LEAST(best_time, $1::int)
@@ -27,7 +27,7 @@ const Users: UsersModel = {
     
     return await query(queryStr, params);
   },
-  CREATE_USER: async (username) => {
+  createUser: async (username) => {
     const userInsQuery = sql`
       INSERT INTO Users ("name")
       VALUES ($1::varchar)
@@ -36,7 +36,7 @@ const Users: UsersModel = {
 
     return await query(userInsQuery, userParams);
   },
-  GET_USER: async (username) => {
+  getUserByName: async (username) => {
     const userQuery = sql`
       SELECT "name", best_time FROM Users
       WHERE LOWER(name) = LOWER($1::varchar)

@@ -9,13 +9,13 @@ interface ScoreResult {
 }
 
 interface ScoresModel extends Model {
-  INSERT_SCORE: (userId: number, modeId: number, timeSeconds: number) => ReturnType<typeof query>,
-  GET_SCORES: (options?: GetScoresOptions) => Promise<ScoreResult[]>,
-  DELETE_SCORE: (username: string, scoreId: number) => Promise<number[]>
+  insertScore: (userId: number, modeId: number, timeSeconds: number) => ReturnType<typeof query>,
+  getScores: (options?: GetScoresOptions) => Promise<ScoreResult[]>,
+  deleteScore: (username: string, scoreId: number) => Promise<number[]>
 }
 
 const Scores: ScoresModel = {
-  INSERT_SCORE: async (userId, modeId, timeSeconds) => {
+  insertScore: async (userId, modeId, timeSeconds) => {
     const queryStr = sql`
       INSERT INTO User_Scores (user_id, time_seconds, mode_id)
       VALUES ($1::int, $2::int, $3::int)
@@ -24,7 +24,7 @@ const Scores: ScoresModel = {
 
     return await query(queryStr, params);
   },
-  GET_SCORES: async (options = {}) => {
+  getScores: async (options = {}) => {
     const { username, modeId, limit, offset } = options;
 
     const queryStr = sql`
@@ -41,7 +41,7 @@ const Scores: ScoresModel = {
     
     return await query(queryStr, params).then((res) => res.rows) as ScoreResult[];
   },
-  DELETE_SCORE: async (username, scoreId) => {
+  deleteScore: async (username, scoreId) => {
     const queryStr = sql`
       DELETE FROM User_Scores US
       WHERE user_id = (

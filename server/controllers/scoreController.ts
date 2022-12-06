@@ -23,8 +23,7 @@ const scoreController: ScoreController = {
     });
   
     try {
-      res.locals.scores = await Scores.GET_SCORES({ modeId, limit: 50, offset });
-      console.log(res.locals.scores.length)
+      res.locals.scores = await Scores.getScores({ modeId, limit: 50, offset });
       return next();
     } catch (err) {
       return next({
@@ -47,7 +46,7 @@ const scoreController: ScoreController = {
     }
 
     try {
-      res.locals.scores = await Scores.GET_SCORES({ username });
+      res.locals.scores = await Scores.getScores({ username });
       return next();
     } catch (err) {
       return next({
@@ -72,7 +71,7 @@ const scoreController: ScoreController = {
 
     // Run queries
     try {
-      const userId = await Users.GET_ID_BY_NAME(body.username);
+      const userId = await Users.getIdByName(body.username);
       if (userId == null) return next({
         msg: 'Failed to locate user for score submission',
         err: `Could not locate user "${body.username}" for score submission`,
@@ -80,8 +79,8 @@ const scoreController: ScoreController = {
       });
       
       await Promise.all([
-        Scores.INSERT_SCORE(userId, body.modeId, body.score),
-        Users.UPDATE_HIGH_SCORE(userId, body.score)
+        Scores.insertScore(userId, body.modeId, body.score),
+        Users.updateHighScore(userId, body.score)
       ]);
 
       return next();
@@ -103,7 +102,7 @@ const scoreController: ScoreController = {
     });
 
     try {
-      res.locals.deletedIds = await Scores.DELETE_SCORE(username, parseInt(scoreId));
+      res.locals.deletedIds = await Scores.deleteScore(username, parseInt(scoreId));
       return next();
     } catch (err) {
       return next({
