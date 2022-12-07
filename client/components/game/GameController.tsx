@@ -1,6 +1,6 @@
 import GameBar from "./GameBar";
 import GameBoard from "./GameBoard";
-import { BoardOptions } from "../../App";
+import { Gamemode } from '../../utils/gamemodes';
 import { MulticlickHandler, ClickTypeMulti, ClickTypeMulti as CTM } from '../../utils/eventUtils';
 import { GameState as GS, TileContent } from '../../types/GridTypes';
 import promptModal from '../shared/modalHelper';
@@ -18,7 +18,7 @@ type GameControllerProps = {
   onScoreSubmit: () => void,
   onModeChange: (mode: string) => void,
   children: JSX.Element[],
-  difficulty: BoardOptions
+  difficulty: Gamemode
 }
 
 const squareClickHandler = new MulticlickHandler();

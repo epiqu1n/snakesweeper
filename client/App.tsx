@@ -3,22 +3,10 @@ import GameController from './components/game/GameController';
 import ScoresDisplay from './components/scores/ScoresDisplay';
 import './stylesheets/styles.scss';
 import { UserScore } from './types/Scores';
+import gamemodes from './utils/gamemodes';
 
 
 
-export type BoardOptions = {
-  size: [width: number, height: number],
-  mines: number,
-  modeId: number
-};
-
-export const difficulties: {[d: string]: BoardOptions} = {
-  'EZMode': { size: [9, 9], mines: 3, modeId: 0 },
-  'Beginner': { size: [9, 9], mines: 10, modeId: 1 },
-  'Intermediate': { size: [16, 16], mines: 40, modeId: 2 },
-  'Expert': { size: [30, 16], mines: 99, modeId: 3 },
-  'Why': { size: [40, 40], mines: 666, modeId: 4 }
-}
 
 export default function App() {
   const [topScores, setTopScores] = useState<UserScore[]>([]);
@@ -44,24 +32,24 @@ export default function App() {
   }
 
   useEffect(() => {
-    getTopScores(difficulties[mode].modeId);
+    getTopScores(gamemodes[mode].modeId);
   }, [mode]);
 
   function handleScoreSubmit() {
-    getTopScores(difficulties[mode].modeId);
+    getTopScores(gamemodes[mode].modeId);
   }
 
   function handleModeChange(mode: string) {
     setMode(mode);
   }
 
-  const difficultyOpts = Object.entries(difficulties).map(([diff, opts]) =>
+  const difficultyOpts = Object.entries(gamemodes).map(([diff, opts]) =>
     <option key={`ModeOpt_${opts.modeId}`}>{diff}</option>
   );
 
   return (<>
     <h1>Snakesweeper</h1>
-    <GameController onScoreSubmit={handleScoreSubmit} onModeChange={handleModeChange} difficulty={difficulties[mode]}>
+    <GameController onScoreSubmit={handleScoreSubmit} onModeChange={handleModeChange} difficulty={gamemodes[mode]}>
         {difficultyOpts}
     </GameController>
     <ScoresDisplay topScores={topScores} mode={mode} />
