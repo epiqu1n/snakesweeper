@@ -34,7 +34,7 @@ export default function GameController({ onModeChange, difficulty, children }: G
   const [gameState, setGameState] = useState(GS.PRE_GAME);
   const [badRevealIndex, setBadRevealIndex] = useState(-1);
 
-  const postScore = usePostScores();
+  const [ postScore ] = usePostScores();
 
 
   /// Event handlers
@@ -182,7 +182,7 @@ export default function GameController({ onModeChange, difficulty, children }: G
       .then(({ input: username, cancelled }) => {
         // console.debug('Submitting score:', { username, totalTime, difficulty: difficulty.modeId });
         if (username && typeof username === 'string') {
-          postScore({ username, time: totalTime, modeId: difficulty.modeId });
+          postScore({ username, score: totalTime, modeId: difficulty.modeId });
         }
       });
     }

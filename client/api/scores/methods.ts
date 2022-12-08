@@ -1,9 +1,9 @@
 import { UserScore } from '../../types/Scores';
 
-export interface GetScoresArgs {
+export interface ScoresFilters {
   modeId?: number
 }
-export async function getScores({ modeId }: GetScoresArgs) {
+export async function getScores({ modeId }: ScoresFilters) {
   console.log('Getting top scores');
 
   let url = '/api/scores';
@@ -22,23 +22,20 @@ export async function getScores({ modeId }: GetScoresArgs) {
   return scores;
 }
 
-export interface PostScoreArgs {
+export interface NewScoreData {
   username: string,
-  time: number,
+  score: number,
   modeId: number
 }
-export async function postScore({ username, time, modeId }: PostScoreArgs) {
+export async function postScore(data: NewScoreData) {
+  const { username, score, modeId } = data;
   try {
     const response = await fetch('/api/scores', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        username: username,
-        score: time,
-        modeId: modeId
-      })
+      body: JSON.stringify({ username, score, modeId })
     })
     .then(res => res.json());
 
