@@ -40,8 +40,9 @@ export async function postScore(data: NewScoreData) {
     .then(res => res.json());
 
     if (response.error) throw new Error(response.error);
+    return response;
   } catch (err) {
     console.error(err);
-    alert('Uh oh, something went wrong submitting your score D:');
+    throw new Error('Uh oh, something went wrong submitting your score D:');
   }
 }
