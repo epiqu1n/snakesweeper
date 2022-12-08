@@ -14,7 +14,7 @@ export function useGetScores(filters: Parameters<typeof getScores>[0] = {}, opti
     queryFn: () => getScores(filters),
     refetchInterval: false
   });
-  return scoresQuery;
+  return [scoresQuery.data, scoresQuery] as const;
 }
 
 export function usePostScores(options?: MutationOptions<PostScoreArgs>) {

@@ -9,7 +9,7 @@ type ScoresDisplayProps = {
 
 export default function ScoresDisplay({ mode }: ScoresDisplayProps) {
   const modeId = gamemodes[mode].modeId;
-  const { data: scores } = useGetScores({ modeId });
+  const [ scores ] = useGetScores({ modeId });
 
   return (
     <section style={sectionStyle}>
