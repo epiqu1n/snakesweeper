@@ -5,7 +5,6 @@ import gamemodes from '../../utils/gamemodes';
 import Leaderboard from './Leaderboard';
 
 type ScoresDisplayProps = {
-  topScores: UserScore[],
   mode: string
 };
 

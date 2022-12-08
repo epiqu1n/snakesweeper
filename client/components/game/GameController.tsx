@@ -5,6 +5,7 @@ import { MulticlickHandler, ClickTypeMulti, ClickTypeMulti as CTM } from '../../
 import { GameState as GS, TileContent } from '../../types/GridTypes';
 import promptModal from '../shared/modalHelper';
 import { useEffect, useState, MouseEvent } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export type GridSquareState = {
   content: TileContent,
@@ -15,7 +16,6 @@ export type GridSquareState = {
 export type Grid = GridSquareState[];
 
 type GameControllerProps = {
-  onScoreSubmit: () => void,
   onModeChange: (mode: string) => void,
   children: JSX.Element[],
   difficulty: Gamemode
@@ -23,16 +23,23 @@ type GameControllerProps = {
 
 const squareClickHandler = new MulticlickHandler();
 
-export default function GameController({ onScoreSubmit, onModeChange, difficulty, children }: GameControllerProps) {
+export default function GameController({ onModeChange, difficulty, children }: GameControllerProps) {
   const { size, mines: numMines } = difficulty;
   
-  const [grid, setGrid] = useState<Grid>([], );
+  const [grid, setGrid] = useState<Grid>([]);
   /** Number of unrevealed tiles */
   const [remainingTiles, setRemainingTiles] = useState(size[0] * size[1]);
   const [startTime, setStartTime] = useState(-1);
   const [numFlags, setNumFlags] = useState(0);
   const [gameState, setGameState] = useState(GS.PRE_GAME);
   const [badRevealIndex, setBadRevealIndex] = useState(-1);
+
+  const queryClient = useQueryClient();
+  const scoreMutation = useMutation({
+    mutationKey: ['scores'],
+    mutationFn: submitScore,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['scores'] })
+  });
 
 
   /// Event handlers
@@ -179,7 +186,9 @@ export default function GameController({ onScoreSubmit, onModeChange, difficulty
       promptModal(`You win! :D\nIt took you ${totalTime} seconds\nEnter your name:`)
       .then(({ input: username, cancelled }) => {
         // console.debug('Submitting score:', { username, totalTime, difficulty: difficulty.modeId });
-        if (username && typeof username === 'string') submitScore(username, totalTime, difficulty.modeId).then(onScoreSubmit);
+        if (username && typeof username === 'string') {
+          scoreMutation.mutateAsync({ username, time: totalTime, modeId: difficulty.modeId });
+        }
       });
     }
   }, [remainingTiles]);
@@ -247,7 +256,12 @@ function cascadeEmpties(grid: Grid, index: number, width: number, height: number
   return revealed;
 }
 
-async function submitScore(username: string, time: number, modeId: number) {
+interface ScoreFormData {
+  username: string,
+  time: number,
+  modeId: number
+}
+async function submitScore({ username, time, modeId }: ScoreFormData) {
   try {
     const response = await fetch('/api/scores', {
       method: 'POST',
