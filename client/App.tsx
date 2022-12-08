@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import GameController from './components/game/GameController';
 import ScoresDisplay from './components/scores/ScoresDisplay';
 import './stylesheets/styles.scss';
-import { UserScore } from './types/Scores';
 import gamemodes from './utils/gamemodes';
 
 

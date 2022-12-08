@@ -5,7 +5,7 @@ import { MulticlickHandler, ClickTypeMulti, ClickTypeMulti as CTM } from '../../
 import { GameState as GS, TileContent } from '../../types/GridTypes';
 import promptModal from '../shared/modalHelper';
 import { useEffect, useState, MouseEvent } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { usePostScores } from '../../api/scores';
 
 export type GridSquareState = {
   content: TileContent,
@@ -34,12 +34,7 @@ export default function GameController({ onModeChange, difficulty, children }: G
   const [gameState, setGameState] = useState(GS.PRE_GAME);
   const [badRevealIndex, setBadRevealIndex] = useState(-1);
 
-  const queryClient = useQueryClient();
-  const scoreMutation = useMutation({
-    mutationKey: ['scores'],
-    mutationFn: submitScore,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['scores'] })
-  });
+  const postScore = usePostScores();
 
 
   /// Event handlers
@@ -187,7 +182,7 @@ export default function GameController({ onModeChange, difficulty, children }: G
       .then(({ input: username, cancelled }) => {
         // console.debug('Submitting score:', { username, totalTime, difficulty: difficulty.modeId });
         if (username && typeof username === 'string') {
-          scoreMutation.mutateAsync({ username, time: totalTime, modeId: difficulty.modeId });
+          postScore({ username, time: totalTime, modeId: difficulty.modeId });
         }
       });
     }

@@ -4,11 +4,11 @@ import styles from './Leaderboard.module.scss';
 
 interface LeaderboardProps {
   title: string,
-  scores: UserScore[]
+  scores?: UserScore[]
 }
 
 export default function Leaderboard({ title, scores }: LeaderboardProps) {
-  const scoreRows = scores.map((score, i) => <ScoreRow {...score} position={i+1} key={`Score_${score.score_id}`} />);
+  const scoreRows = scores?.map((score, i) => <ScoreRow {...score} position={i+1} key={`Score_${score.score_id}`} />);
 
   return (
   <div className={styles['leaderboard']}>

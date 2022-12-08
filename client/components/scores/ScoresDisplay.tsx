@@ -1,6 +1,5 @@
-import { QueryFunctionContext, useQuery } from '@tanstack/react-query';
 import { CSSProperties } from 'react';
-import { UserScore } from '../../types/Scores';
+import { useGetScores } from '../../api/scores';
 import gamemodes from '../../utils/gamemodes';
 import Leaderboard from './Leaderboard';
 
@@ -8,26 +7,20 @@ type ScoresDisplayProps = {
   mode: string
 };
 
-export default function ScoresDisplay({ /* topScores, */ mode }: ScoresDisplayProps) {
+export default function ScoresDisplay({ mode }: ScoresDisplayProps) {
   const modeId = gamemodes[mode].modeId;
-  const scoresQuery = useQuery({
-    queryKey: ['scores', { modeId }],
-    queryFn: () => getTopScores(modeId),
-    refetchInterval: false
-  });
-
-  const topScores = scoresQuery.data || [];
+  const { data: scores } = useGetScores({ modeId });
 
   return (
     <section style={sectionStyle}>
       <h2>Leaderboards – {mode}</h2>
       <Leaderboard
         title={`Top scores`}
-        scores={topScores}
+        scores={scores}
       />
       <Leaderboard
         title={`Your scores`}
-        scores={topScores}
+        scores={scores}
       />
     </section>
   );
@@ -38,23 +31,4 @@ const sectionStyle: CSSProperties = {
   justifyContent: 'center',
   alignItems: 'center',
   flexFlow: 'column nowrap'
-}
-
-async function getTopScores(modeId?: number) {
-  console.log('Getting top scores');
-
-  let url = '/api/scores';
-  if (typeof modeId === 'number') url += `?modeId=${modeId}`;
-  
-  const data = await fetch(url).then(res => res.json());
-  if (data.error) {
-    console.error(data.error);
-    throw new Error('An error occurred getting top scores:', data.error);
-  }
-
-  const scores: UserScore[] = data.scores.map((score: UserScore & { submitted_at: string }) => ({
-    ...score,
-    submitted_at: new Date(score.submitted_at)
-  }));
-  return scores;
 }
