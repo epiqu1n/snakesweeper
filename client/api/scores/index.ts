@@ -1,23 +1,20 @@
-import { QueryKey, useMutation, UseMutationOptions, useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
-import { UserScore } from '../../types/Scores';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { MutationFunction, MutationOptions, QueryFunction, QueryOptions } from '../ApiTypes';
 import { getScores, postScore, NewScoreData } from './methods';
 
 const SCORES = 'scores';
 
-type MutationOptions<TMethod extends (...args: unknown[]) => void> = UseMutationOptions<void, unknown, Parameters<TMethod>[0], unknown>;
-type QueryOptions<TData> = UseQueryOptions<TData, unknown, TData, QueryKey>;
-
-export function useGetScores(filters: Parameters<typeof getScores>[0] = {}, options?: QueryOptions<UserScore[]>) {
+export const useGetScores: QueryFunction<typeof getScores> = (filters = {}, options) => {
   const scoresQuery = useQuery({
     ...options,
     queryKey: [SCORES, filters],
     queryFn: () => getScores(filters),
     refetchInterval: false
   });
-  return [ scoresQuery.data, scoresQuery ] as const;
+  return [ scoresQuery.data, scoresQuery ];
 }
 
-export function usePostScores(options?: MutationOptions<typeof postScore>) {
+export const usePostScores: MutationFunction<typeof postScore> = (options) => {
   const queryClient = useQueryClient();
   const scoreMutation = useMutation({
     ...options,
@@ -26,6 +23,6 @@ export function usePostScores(options?: MutationOptions<typeof postScore>) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['scores'] })
   });
 
-  const post = (data: NewScoreData) => scoreMutation.mutateAsync(data);
-  return [ post, scoreMutation ] as const;
+  const post = (data: Parameters<typeof postScore>[0]) => scoreMutation.mutateAsync(data);
+  return [ post, scoreMutation, queryClient ];
 }
