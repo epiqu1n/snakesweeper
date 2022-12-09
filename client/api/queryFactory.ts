@@ -2,14 +2,14 @@ import { QueryClient, QueryKey, UseMutationOptions, UseMutationResult, UseQueryO
 
 export type QueryApiMethod<TReturn> = (filters?: Record<string, unknown>) => Promise<TReturn>;
 
-export interface QueryHook<
-  TReturn = unknown,
-  TArgs = unknown
-> {
+export interface QueryHook<TReturn = unknown, TArgs = unknown> {
   (
     args?: TArgs,
     options?: UseQueryOptions<TReturn, unknown, TReturn>
-  ): [data: TReturn | undefined, query: UseQueryResult<TReturn, unknown>]
+  ): [
+    data: TReturn | undefined,
+    query: UseQueryResult<TReturn, unknown>
+  ]
 }
 
 /** Creates a wrapper for the useQuery hook for simpler implementation. Returns the data and the query result. */
@@ -31,13 +31,14 @@ export function createQueryHook<TReturn>(
 
 export type MutationApiMethod<TReturn, TBody extends Object> = (body: TBody) => Promise<TReturn>;
 
-export interface MutationHook<
-  TReturn = unknown,
-  TBody = Object
-> {
+export interface MutationHook<TReturn = unknown, TBody = Object> {
   (
     options?: UseMutationOptions<TReturn, unknown, TBody, unknown>
-  ): [actionFn: (data: TBody) => Promise<TReturn>, mutation: UseMutationResult<TReturn, unknown, TBody, unknown>, queryClient: QueryClient]
+  ): [
+    actionFn: (data: TBody) => Promise<TReturn>,
+    mutation: UseMutationResult<TReturn, unknown, TBody, unknown>,
+    queryClient: QueryClient
+  ]
 }
 
 /**
