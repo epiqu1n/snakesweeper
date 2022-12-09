@@ -4,10 +4,10 @@ export type QueryApiMethod<TReturn> = (filters?: Record<string, unknown>) => Pro
 
 export interface QueryHook<
   TReturn = unknown,
-  TFilter = unknown
+  TArgs = unknown
 > {
   (
-    filters?: TFilter,
+    args?: TArgs,
     options?: UseQueryOptions<TReturn, unknown, TReturn>
   ): [data: TReturn | undefined, query: UseQueryResult<TReturn, unknown>]
 }
@@ -17,11 +17,11 @@ export function createQueryHook<TReturn>(
   queryKeyName: string,
   queryFn: QueryApiMethod<TReturn>
 ) {
-  const queryHook: QueryHook<TReturn, Parameters<typeof queryFn>[0]> = (context, options) => {
+  const queryHook: QueryHook<TReturn, Parameters<typeof queryFn>[0]> = (args, options) => {
     const query = useQuery({
-      ...options,
-      queryKey: [queryKeyName, context],
-      queryFn: () => queryFn(context)
+      queryKey: [queryKeyName, args],
+      queryFn: () => queryFn(args),
+      ...options
     });
     return [ query.data, query ];
   }
@@ -40,7 +40,11 @@ export interface MutationHook<
   ): [actionFn: (data: TBody) => Promise<TReturn>, mutation: UseMutationResult<TReturn, unknown, TBody, unknown>, queryClient: QueryClient]
 }
 
-/** Creates a wrapper for the useMutation hook for simpler implementation. Returns the action method for triggering a mutation, the mutation result, and the query client. */
+/**
+ * Creates a wrapper for the useMutation hook for simpler implementation.
+ * Returns the action method for triggering a mutation, the mutation result, and the query client.  
+ * Defaults to invalidating the associated query on success, but can be overridden by providing an `onSuccess` method in the `options` parameter.
+ */
 export function createMutationHook<TReturn, TBody extends Object>(
   queryKeyName: string,
   mutationFn: MutationApiMethod<TReturn, TBody>
@@ -48,10 +52,10 @@ export function createMutationHook<TReturn, TBody extends Object>(
   const mutationHook: MutationHook<TReturn, TBody> = (options) => {
     const queryClient = useQueryClient();
     const mutation = useMutation({
-      ...options,
       mutationKey: [queryKeyName],
       mutationFn: mutationFn,
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: [queryKeyName] })
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: [queryKeyName] }),
+      ...options
     });
   
     const action = (data: TBody) => mutation.mutateAsync(data);
