@@ -1,6 +1,11 @@
-import { QueryClient, QueryKey, UseMutationOptions, UseMutationResult, UseQueryOptions, UseQueryResult, useQuery, MutationFunction, useQueryClient, useMutation } from '@tanstack/react-query';
+import { QueryClient, UseMutationOptions, UseMutationResult, UseQueryOptions, UseQueryResult, useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 
-export type QueryApiMethod<TReturn, TArgs extends unknown> = (args?: TArgs) => Promise<TReturn>; // Record<string, unknown>
+/// Query Hook
+export interface QueryApiMethod<TArgs, TReturn> {
+  (
+    args?: TArgs
+  ): Promise<TReturn>
+}
 
 export interface QueryHook<TArgs = unknown, TReturn = unknown> {
   (
@@ -13,11 +18,11 @@ export interface QueryHook<TArgs = unknown, TReturn = unknown> {
 }
 
 /** Creates a wrapper for the useQuery hook for simpler implementation. Returns the data and the query result. */
-export function createQueryHook<TReturn, TArgs>(
+export function createQueryHook<TArgs, TReturn>(
   queryKeyName: string,
-  queryFn: QueryApiMethod<TReturn, TArgs>
+  queryFn: QueryApiMethod<TArgs, TReturn>
 ) {
-  const queryHook: QueryHook<Parameters<typeof queryFn>[0], TReturn> = (args, options) => {
+  const queryHook: QueryHook<TArgs, TReturn> = (args, options) => {
     const query = useQuery({
       queryKey: [queryKeyName, args],
       queryFn: () => queryFn(args),
@@ -29,9 +34,11 @@ export function createQueryHook<TReturn, TArgs>(
   return queryHook;
 }
 
-export type MutationApiMethod<TReturn, TBody extends Object> = (body: TBody) => Promise<TReturn>;
 
-export interface MutationHook<TReturn = unknown, TBody = Object> {
+/// Mutation Hook
+export type MutationApiMethod<TBody extends Object, TReturn> = (body: TBody) => Promise<TReturn>;
+
+export interface MutationHook<TBody = Object, TReturn = unknown> {
   (
     options?: UseMutationOptions<TReturn, unknown, TBody, unknown>
   ): [
@@ -46,11 +53,11 @@ export interface MutationHook<TReturn = unknown, TBody = Object> {
  * Returns the action method for triggering a mutation, the mutation result, and the query client.  
  * Defaults to invalidating the associated query on success, but can be overridden by providing an `onSuccess` method in the `options` parameter.
  */
-export function createMutationHook<TReturn, TBody extends Object>(
+export function createMutationHook<TBody extends Object, TReturn>(
   queryKeyName: string,
-  mutationFn: MutationApiMethod<TReturn, TBody>
+  mutationFn: MutationApiMethod<TBody, TReturn>
 ) {
-  const mutationHook: MutationHook<TReturn, TBody> = (options) => {
+  const mutationHook: MutationHook<TBody, TReturn> = (options) => {
     const queryClient = useQueryClient();
     const mutation = useMutation({
       mutationKey: [queryKeyName],
