@@ -1,8 +1,8 @@
 import { QueryClient, QueryKey, UseMutationOptions, UseMutationResult, UseQueryOptions, UseQueryResult, useQuery, MutationFunction, useQueryClient, useMutation } from '@tanstack/react-query';
 
-export type QueryApiMethod<TReturn> = (filters?: Record<string, unknown>) => Promise<TReturn>;
+export type QueryApiMethod<TReturn, TArgs extends unknown> = (args?: TArgs) => Promise<TReturn>; // Record<string, unknown>
 
-export interface QueryHook<TReturn = unknown, TArgs = unknown> {
+export interface QueryHook<TArgs = unknown, TReturn = unknown> {
   (
     args?: TArgs,
     options?: UseQueryOptions<TReturn, unknown, TReturn>
@@ -13,11 +13,11 @@ export interface QueryHook<TReturn = unknown, TArgs = unknown> {
 }
 
 /** Creates a wrapper for the useQuery hook for simpler implementation. Returns the data and the query result. */
-export function createQueryHook<TReturn>(
+export function createQueryHook<TReturn, TArgs>(
   queryKeyName: string,
-  queryFn: QueryApiMethod<TReturn>
+  queryFn: QueryApiMethod<TReturn, TArgs>
 ) {
-  const queryHook: QueryHook<TReturn, Parameters<typeof queryFn>[0]> = (args, options) => {
+  const queryHook: QueryHook<Parameters<typeof queryFn>[0], TReturn> = (args, options) => {
     const query = useQuery({
       queryKey: [queryKeyName, args],
       queryFn: () => queryFn(args),
