@@ -1,13 +1,14 @@
 import { UserScore } from '../../types/Scores';
 
 export interface ScoresFilters {
-  modeId?: number
+  modeId?: number,
+  limit?: number,
+  offset?: number
 }
 export async function getScores(filters: ScoresFilters = {}) {
-  const { modeId } = filters;
-
   let url = '/api/scores';
-  if (typeof modeId === 'number') url += `?modeId=${modeId}`;
+  const params = Object.entries(filters).map(([key, val]) => `${key}=${encodeURIComponent(val)}`).join("&");
+  if (params.length > 0) url += `?${params}`;
   
   const data = await fetch(url).then(res => res.json());
   if (data.error) {
