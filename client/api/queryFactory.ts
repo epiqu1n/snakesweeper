@@ -36,18 +36,22 @@ export function createQueryHook<TArgs, TReturn>(
 
 
 /// Infinite Query Hook
-export interface InfiniteQueryParams {
-  limit: number,
-  offset: number
+export interface InfiniteApiMethodParams {
+  limit?: number,
+  offset?: number
 }
 
-export interface QueryInfiniteApiMethod<TArgs extends Partial<InfiniteQueryParams>, TReturn> {
+export interface QueryInfiniteApiMethod<TArgs extends InfiniteApiMethodParams, TReturn> {
   (
     args: TArgs
   ): Promise<TReturn[]>
 }
 
-export interface InfiniteQueryHook<TArgs extends InfiniteQueryParams, TReturn> {
+export interface InfiniteQueryHookParams {
+  perPage: number
+}
+
+export interface InfiniteQueryHook<TArgs extends InfiniteQueryHookParams, TReturn> {
   (
     args: TArgs,
     options?: UseInfiniteQueryOptions<TReturn[], unknown, TReturn[], TReturn[]>
@@ -58,14 +62,17 @@ export interface InfiniteQueryHook<TArgs extends InfiniteQueryParams, TReturn> {
 }
 
 /** Creates a wrapper for the useInfiniteQuery hook for simpler implementation. Returns the merged data and the query result. */
-export function createInfiniteQueryHook<TArgs extends Partial<InfiniteQueryParams>, TReturn>(
+export function createInfiniteQueryHook<TArgs, TReturn>(
   queryKeyName: string,
-  queryFn: QueryInfiniteApiMethod<TArgs, TReturn>
+  queryFn: QueryInfiniteApiMethod<TArgs & InfiniteApiMethodParams, TReturn>
 ) {
-  const infiniteQueryHook: InfiniteQueryHook<TArgs & InfiniteQueryParams, TReturn> = (args, options) => {
+  const infiniteQueryHook: InfiniteQueryHook<TArgs & InfiniteQueryHookParams, TReturn> = (args, options) => {
     const query = useInfiniteQuery({
       queryKey: [queryKeyName, args],
-      queryFn: () => queryFn(args),
+      queryFn: ({ pageParam = 0 }) => queryFn({
+        ...args,
+        offset: pageParam * args.perPage
+      }),
       ...options
     });
     const mergedData = query.data?.pages.reduce((acc, curr) => acc.concat(curr), []);
