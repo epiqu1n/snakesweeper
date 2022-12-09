@@ -1,4 +1,4 @@
-import { QueryClient, UseMutationOptions, UseMutationResult, UseQueryOptions, UseQueryResult, useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { QueryClient, UseMutationOptions, UseMutationResult, UseQueryOptions, UseQueryResult, useQuery, useQueryClient, useMutation, UseInfiniteQueryOptions, UseInfiniteQueryResult, useInfiniteQuery } from '@tanstack/react-query';
 
 /// Query Hook
 export interface QueryApiMethod<TArgs, TReturn> {
@@ -32,6 +32,47 @@ export function createQueryHook<TArgs, TReturn>(
   }
 
   return queryHook;
+}
+
+
+/// Infinite Query Hook
+export interface InfiniteQueryParams {
+  limit: number,
+  offset: number
+}
+
+export interface QueryInfiniteApiMethod<TArgs extends Partial<InfiniteQueryParams>, TReturn> {
+  (
+    args: TArgs
+  ): Promise<TReturn[]>
+}
+
+export interface InfiniteQueryHook<TArgs extends InfiniteQueryParams, TReturn> {
+  (
+    args: TArgs,
+    options?: UseInfiniteQueryOptions<TReturn[], unknown, TReturn[], TReturn[]>
+  ): [
+    mergedData: TReturn[] | undefined,
+    query: UseInfiniteQueryResult<TReturn[], unknown>
+  ]
+}
+
+/** Creates a wrapper for the useInfiniteQuery hook for simpler implementation. Returns the merged data and the query result. */
+export function createInfiniteQueryHook<TArgs extends Partial<InfiniteQueryParams>, TReturn>(
+  queryKeyName: string,
+  queryFn: QueryInfiniteApiMethod<TArgs, TReturn>
+) {
+  const infiniteQueryHook: InfiniteQueryHook<TArgs & InfiniteQueryParams, TReturn> = (args, options) => {
+    const query = useInfiniteQuery({
+      queryKey: [queryKeyName, args],
+      queryFn: () => queryFn(args),
+      ...options
+    });
+    const mergedData = query.data?.pages.reduce((acc, curr) => acc.concat(curr), []);
+    return [ mergedData, query ];
+  }
+
+  return infiniteQueryHook;
 }
 
 
