@@ -15,15 +15,17 @@ type ScoreController = Record<ScoreMethod, RequestHandler>;
 const scoreController: ScoreController = {
   /** Retrieves all scores from database and stores into `res.locals.scores` */
   async getTopScores(req, res, next) {
-    const offset = parseInt(req.query.offset as string) || undefined;
     const modeId = parseInt(req.query.modeId as string) || undefined;
+    const offset = parseInt(req.query.offset as string) || undefined;
+    const limit = parseInt(req.query.limit as string) || 50;
+    
     if (modeId !== undefined && isNaN(modeId)) return next({
       msg: 'Invalid mode',
       err: new ClientError('Invalid mode')
     });
   
     try {
-      res.locals.scores = await Scores.getScores({ modeId, limit: 50, offset });
+      res.locals.scores = await Scores.getScores({ modeId, limit, offset });
       return next();
     } catch (err) {
       return next({
