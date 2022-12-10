@@ -48,7 +48,7 @@ export interface QueryInfiniteApiMethod<TArgs extends InfiniteApiMethodParams, T
 }
 
 export interface InfiniteQueryHookParams {
-  perPage: number
+  limit: number
 }
 
 export interface InfiniteQueryHook<TArgs extends InfiniteQueryHookParams, TReturn> {
@@ -75,11 +75,11 @@ export function createInfiniteQueryHook<TArgs, TReturn>(
       queryKey: [queryKeyName, args],
       queryFn: ({ pageParam = 0 }) => queryFn({
         ...args,
-        offset: pageParam * args.perPage
+        offset: pageParam * args.limit
       }),
       // If the last page had less results than the requested number per page, that 99% means there are no more pages
       getNextPageParam: (lastPage, pages) => {
-        return (lastPage.length < args.perPage ? undefined : pages.length)
+        return (lastPage.length < args.limit ? undefined : pages.length)
       },
       ...options
     });
