@@ -79,7 +79,7 @@ export function createInfiniteQueryHook<TArgs, TReturn>(
       }),
       // If the last page had less results than the requested number per page, that 99% means there are no more pages
       getNextPageParam: (lastPage, pages) => {
-        return (lastPage.length < args.perPage ? undefined : pages.length + 1)
+        return (lastPage.length < args.perPage ? undefined : pages.length)
       },
       ...options
     });
