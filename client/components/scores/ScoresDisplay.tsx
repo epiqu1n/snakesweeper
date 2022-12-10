@@ -1,23 +1,28 @@
 import { CSSProperties } from 'react';
-import { UserScore } from '../../types/Scores';
+import { useGetScores, useGetScoresInfinite } from '../../api/scores';
+import gamemodes from '../../utils/gamemodes';
 import Leaderboard from './Leaderboard';
 
 type ScoresDisplayProps = {
-  topScores: UserScore[],
   mode: string
 };
 
-export default function ScoresDisplay({ topScores, mode }: ScoresDisplayProps) {
+export default function ScoresDisplay({ mode }: ScoresDisplayProps) {
+  const modeId = gamemodes[mode].modeId;
+  const [ scores, getNextPage ] = useGetScoresInfinite({ modeId, limit: 100 }, { refetchInterval: false });
+
   return (
     <section style={sectionStyle}>
       <h2>Leaderboards – {mode}</h2>
       <Leaderboard
         title={`Top scores`}
-        scores={topScores}
+        scores={scores}
+        onScrollBottom={getNextPage}
       />
       <Leaderboard
         title={`Your scores`}
-        scores={topScores}
+        scores={scores}
+        onScrollBottom={getNextPage}
       />
     </section>
   );

@@ -9,13 +9,13 @@ interface ScoreResult {
 }
 
 interface ScoresModel extends Model {
-  INSERT_SCORE: (userId: number, modeId: number, timeSeconds: number) => ReturnType<typeof query>,
-  GET_SCORES: (options?: GetScoresOptions) => Promise<ScoreResult[]>,
-  DELETE_SCORE: (username: string, scoreId: number) => Promise<number[]>
+  insertScore: (userId: number, modeId: number, timeSeconds: number) => ReturnType<typeof query>,
+  getScores: (options?: GetScoresOptions) => Promise<ScoreResult[]>,
+  deleteScore: (username: string, scoreId: number) => Promise<number[]>
 }
 
 const Scores: ScoresModel = {
-  INSERT_SCORE: async (userId, modeId, timeSeconds) => {
+  insertScore: async (userId, modeId, timeSeconds) => {
     const queryStr = sql`
       INSERT INTO User_Scores (user_id, time_seconds, mode_id)
       VALUES ($1::int, $2::int, $3::int)
@@ -24,22 +24,24 @@ const Scores: ScoresModel = {
 
     return await query(queryStr, params);
   },
-  GET_SCORES: async (options = {}) => {
-    const { username, modeId, limit } = options;
+  getScores: async (options = {}) => {
+    const { username, modeId, limit, offset } = options;
 
     const queryStr = sql`
       SELECT Users.name AS username, US.time_seconds, US.submitted_at, US.id AS score_id, US.mode_id
       FROM User_Scores US
       LEFT JOIN Users ON Users.id = US.user_id
-      WHERE ($1::int IS NULL OR mode_id = $1::int) AND ($3::varchar IS NULL OR LOWER(Users.name) = LOWER($3::varchar))
-      ORDER BY US.time_seconds ASC
-      LIMIT $2::int
+      WHERE
+        ($1::int IS NULL OR mode_id = $1::int)
+        AND ($3::varchar IS NULL OR LOWER(Users.name) = LOWER($3::varchar))
+      ORDER BY US.time_seconds ASC, US.submitted_at DESC
+      LIMIT $2::int OFFSET $4::int
     `;
-    const params = [modeId, limit, username];
+    const params = [modeId, limit, username, offset];
     
     return await query(queryStr, params).then((res) => res.rows) as ScoreResult[];
   },
-  DELETE_SCORE: async (username, scoreId) => {
+  deleteScore: async (username, scoreId) => {
     const queryStr = sql`
       DELETE FROM User_Scores US
       WHERE user_id = (
@@ -57,7 +59,8 @@ const Scores: ScoresModel = {
 interface GetScoresOptions {
   username?: string,
   modeId?: number,
-  limit?: number
+  limit?: number,
+  offset?: number
 }
 
 export default Scores;
