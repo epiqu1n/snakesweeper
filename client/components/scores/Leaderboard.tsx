@@ -15,7 +15,8 @@ export default function Leaderboard({ title, scores, onScrollBottom }: Leaderboa
   const handleScroll: UIEventHandler<HTMLDivElement> = (event) => {
     const el = event.target as HTMLDivElement;
     const endDist = el.scrollHeight - (el.scrollTop + el.clientHeight);
-    if (endDist < 50) onScrollBottom();
+    console.log('endDist: ', endDist);
+    if (endDist < 875) onScrollBottom();
   }
 
   return (

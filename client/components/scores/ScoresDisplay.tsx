@@ -9,7 +9,7 @@ type ScoresDisplayProps = {
 
 export default function ScoresDisplay({ mode }: ScoresDisplayProps) {
   const modeId = gamemodes[mode].modeId;
-  const [ scores, getNextPage ] = useGetScoresInfinite({ modeId, perPage: 50 }, { refetchInterval: false });
+  const [ scores, getNextPage ] = useGetScoresInfinite({ modeId, limit: 100 }, { refetchInterval: false });
 
   return (
     <section style={sectionStyle}>
