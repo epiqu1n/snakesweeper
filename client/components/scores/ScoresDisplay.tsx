@@ -1,5 +1,5 @@
 import { CSSProperties } from 'react';
-import { useGetScores } from '../../api/scores';
+import { useGetScores, useGetScoresInfinite } from '../../api/scores';
 import gamemodes from '../../utils/gamemodes';
 import Leaderboard from './Leaderboard';
 
@@ -9,7 +9,7 @@ type ScoresDisplayProps = {
 
 export default function ScoresDisplay({ mode }: ScoresDisplayProps) {
   const modeId = gamemodes[mode].modeId;
-  const [ scores ] = useGetScores({ modeId }, { refetchInterval: false });
+  const [ scores, getNextPage ] = useGetScoresInfinite({ modeId, perPage: 50 }, { refetchInterval: false });
 
   return (
     <section style={sectionStyle}>
@@ -17,10 +17,12 @@ export default function ScoresDisplay({ mode }: ScoresDisplayProps) {
       <Leaderboard
         title={`Top scores`}
         scores={scores}
+        onScrollBottom={getNextPage}
       />
       <Leaderboard
         title={`Your scores`}
         scores={scores}
+        onScrollBottom={getNextPage}
       />
     </section>
   );
