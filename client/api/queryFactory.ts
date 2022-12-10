@@ -57,11 +57,15 @@ export interface InfiniteQueryHook<TArgs extends InfiniteQueryHookParams, TRetur
     options?: UseInfiniteQueryOptions<TReturn[], unknown, TReturn[], TReturn[]>
   ): [
     mergedData: TReturn[] | undefined,
+    getNextPageSafe: () => void,
     query: UseInfiniteQueryResult<TReturn[], unknown>
   ]
 }
 
-/** Creates a wrapper for the useInfiniteQuery hook for simpler implementation. Returns the merged data and the query result. */
+/**
+ * Creates a wrapper for the useInfiniteQuery hook for simpler implementation.
+ * Returns the merged data, a method to load the next page (which does not run if a page is already being fetched or if there are no more pages), and the query result.
+ */
 export function createInfiniteQueryHook<TArgs, TReturn>(
   queryKeyName: string,
   queryFn: QueryInfiniteApiMethod<TArgs & InfiniteApiMethodParams, TReturn>
@@ -73,10 +77,22 @@ export function createInfiniteQueryHook<TArgs, TReturn>(
         ...args,
         offset: pageParam * args.perPage
       }),
+      // If the last page had less results than the requested number per page, that 99% means there are no more pages
+      getNextPageParam: (lastPage, pages) => {
+        return (lastPage.length < args.perPage ? undefined : pages.length + 1)
+      },
       ...options
     });
+
+    const { isFetchingNextPage, hasNextPage, fetchNextPage } = query;
+
+    function getNextPageSafe() {
+      if (isFetchingNextPage || !hasNextPage) return;
+      fetchNextPage();
+    }
+
     const mergedData = query.data?.pages.reduce((acc, curr) => acc.concat(curr), []);
-    return [ mergedData, query ];
+    return [ mergedData, getNextPageSafe, query ];
   }
 
   return infiniteQueryHook;
