@@ -1,3 +1,4 @@
+import { ClientError } from '../utils/utils';
 import { compareHash, Model, query, queryOne, sql } from './model';
 
 interface UsersModel extends Model {
@@ -51,8 +52,10 @@ const Users: UsersModel = {
       SELECT name, password FROM Users
       WHERE name = $1::varchar
     `;
-    const user = await queryOne(passQuery);
-    if (!user) throw new Error(`User ${username} not found`);
+    const passParams = [username];
+
+    const user = await queryOne(passQuery, passParams);
+    if (!user) throw new ClientError(`User ${username} not found`);
     return await compareHash(password, user.password);
   }
 }
