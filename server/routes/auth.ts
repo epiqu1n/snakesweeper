@@ -8,7 +8,7 @@ authRouter.post('/signup', authController.validateNewUser, userController.addUse
   res.json({ success: true });
 });
 
-authRouter.post('/login', authController.verifyUser, userController.getUser, (req, res) => {
+authRouter.post('/login', authController.verifyUser, (req, res) => {
   res.json({ success: true });
 });
 
