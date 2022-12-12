@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
-import { query, queryOne, sql } from '../models/model'; 
 import Users from '../models/Users';
 import { extractBody, PropertyMap } from '../utils/utils';
+import { encrypt } from '../models/model';
 
 enum UserMethod {
   ADD_USER = 'addUser',
@@ -11,21 +11,35 @@ type UserController = Record<UserMethod, RequestHandler>;
 
 const userController: UserController = {
   addUser: async (req, res, next) => {
-    const expProps = { username: 'string' } as const;
-    let body: PropertyMap<typeof expProps>;
+    const expProps = {
+      username: 'string',
+      password: 'string'
+    } as const;
+
+    let userInfo: PropertyMap<typeof expProps>;
     try {
-      body = extractBody(req, expProps);
+      userInfo = extractBody(req, expProps);
     } catch (err) {
       return next({
         msg: 'Invalid body properties',
+        err: err,
+        code: 400
+      });
+    }
+
+    const { username, password: plainPass } = userInfo;
+    let hashedPass: string;
+    try {
+      hashedPass = await encrypt(plainPass);
+    } catch (err) {
+      return next({
+        msg: 'Failed to create user (code: uc-au-1)',
         err: err
       });
     }
 
-    const { username } = body;
-
     try {
-      await Users.createUser(username)
+      await Users.createUser(username, hashedPass);
       return next();
     } catch (err) {
       return next({

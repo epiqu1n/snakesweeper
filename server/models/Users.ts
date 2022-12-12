@@ -1,9 +1,9 @@
-import { Model, query, queryOne, sql } from './model';
+import { compareHash, Model, query, queryOne, sql } from './model';
 
 interface UsersModel extends Model {
   getIdByName: (name: string) => Promise<number | null>,
   updateHighScore: (userId: number, time: number) => ReturnType<typeof query>,
-  createUser: (username: string) => ReturnType<typeof query>,
+  createUser: (username: string, password: string) => ReturnType<typeof query>,
   getUserByName: (username: string) => Promise<UserInfo>
 }
 
@@ -27,12 +27,12 @@ const Users: UsersModel = {
     
     return await query(queryStr, params);
   },
-  createUser: async (username) => {
+  createUser: async (username, password) => {
     const userInsQuery = sql`
-      INSERT INTO Users ("name")
-      VALUES ($1::varchar)
+      INSERT INTO Users ("name", "password")
+      VALUES ($1::varchar, $2::varchar)
     `;
-    const userParams = [username];
+    const userParams = [username, password];
 
     return await query(userInsQuery, userParams);
   },
