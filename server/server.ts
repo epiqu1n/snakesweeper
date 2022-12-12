@@ -35,11 +35,12 @@ app.all('*', function(req, res) {
 // Global error handler
 type MiddlewareError = { msg: string, err?: Error | CustomError, code?: number };
 
-const globalErrorHandler: ErrorRequestHandler = (info: MiddlewareError, req, res, next) => {
+const globalErrorHandler: ErrorRequestHandler = (info: MiddlewareError | Error, req, res, next) => {
   const err = (info instanceof Error ? info : info.err);
   const message = (info instanceof Error ? 'An unknown server error occurred' : info.msg);
   const code = (
-    typeof info.code === 'number' ? info.code
+    info instanceof Error ? 500
+    : typeof info.code === 'number' ? info.code
     : info.err instanceof CustomError ? info.err.statusCode
     : 500
   );
