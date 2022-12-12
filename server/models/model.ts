@@ -2,6 +2,7 @@ import pg from 'pg';
 import { zip } from '../utils/utils';
 import colors from 'colors';
 import CONFIG from './model.config.json';
+import bcrypt from 'bcrypt';
 
 // Database schema: https://app.dbdesigner.net/designer/schema/532865
 // Initialize pool
@@ -45,6 +46,14 @@ export function sql(strings: TemplateStringsArray, ...variables: any[]) {
   if (lines[lines.length - 1].trim() == '') lines.splice(lines.length - 1, 1);
     
   return lines.join('\n');
+}
+
+export async function encrypt(text: string) {
+  return bcrypt.hash(text, CONFIG.saltRounds);
+}
+
+export async function compareHash(plain: string, hashed: string) {
+  return bcrypt.compare(plain, hashed);
 }
 
 export const ERROR_CODES = {
