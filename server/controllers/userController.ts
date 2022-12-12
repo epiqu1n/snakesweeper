@@ -43,7 +43,7 @@ const userController: UserController = {
       return next();
     } catch (err) {
       return next({
-        msg: 'An error occurred during score submission',
+        msg: 'An error occurred creating user',
         err: err
       });
     }
