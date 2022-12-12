@@ -4,6 +4,7 @@ import { CustomError, error, warn } from './utils/utils';
 import scoreRouter from './routes/scores';
 import userRouter from './routes/users';
 import CONFIG from './server.config.json';
+import authRouter from './routes/auth';
 
 ///Initialization
 // Set up application
@@ -16,6 +17,7 @@ app.use('/assets', express.static(path.join(__dirname, '../client/assets')));
 /// API
 app.use('/api/scores', scoreRouter);
 app.use('/api/users', userRouter);
+app.use('/api/auth', authRouter);
 
 
 /// Routes
