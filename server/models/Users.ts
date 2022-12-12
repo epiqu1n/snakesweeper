@@ -4,7 +4,8 @@ interface UsersModel extends Model {
   getIdByName: (name: string) => Promise<number | null>,
   updateHighScore: (userId: number, time: number) => ReturnType<typeof query>,
   createUser: (username: string, password: string) => ReturnType<typeof query>,
-  getUserByName: (username: string) => Promise<UserInfo>
+  getUserByName: (username: string) => Promise<UserInfo>,
+  checkPassword: (username: string, password: string) => Promise<boolean>
 }
 
 const Users: UsersModel = {
@@ -44,6 +45,15 @@ const Users: UsersModel = {
     const userParams = [username];
 
     return await queryOne(userQuery, userParams) as UserInfo;
+  },
+  checkPassword: async (username, password) => {
+    const passQuery = sql`
+      SELECT name, password FROM Users
+      WHERE name = $1::varchar
+    `;
+    const user = await queryOne(passQuery);
+    if (!user) throw new Error(`User ${username} not found`);
+    return await compareHash(password, user.password);
   }
 }
 
