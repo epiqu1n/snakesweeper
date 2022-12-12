@@ -4,7 +4,7 @@ import userController from '../controllers/userController';
 
 const authRouter = Router();
 
-authRouter.post('/signup', authController.validateNewUser, userController.addUser, (req, res) => {
+authRouter.post('/signup', authController.validateNewUserInfo, userController.addUser, (req, res) => {
   res.json({ success: true });
 });
 

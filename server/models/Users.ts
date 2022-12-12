@@ -5,7 +5,7 @@ interface UsersModel extends Model {
   getIdByName: (name: string) => Promise<number | null>,
   updateHighScore: (userId: number, time: number) => ReturnType<typeof query>,
   createUser: (username: string, password: string) => ReturnType<typeof query>,
-  getUserByName: (username: string) => Promise<UserInfo>,
+  getUserByName: (username: string) => Promise<UserInfo | null>,
   checkPassword: (username: string, password: string) => Promise<boolean>
 }
 
