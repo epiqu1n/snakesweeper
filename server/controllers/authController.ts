@@ -2,14 +2,15 @@ import { RequestHandler } from 'webpack-dev-server';
 import Users from '../models/Users';
 import { ClientError, extractBody, PropertyMap } from '../utils/utils';
 
-enum AuthMethod {
-  validateNewUserInfo,
-  verifyUser
+interface AuthController {
+  /** Checks that the provided info is valid for creating a new user */
+  validateNewUserInfo: RequestHandler,
+  /** Checks to make sure a user exists and that the provided password is correct */
+  verifyUser: RequestHandler
 }
 
-type AuthController = Record<keyof typeof AuthMethod, RequestHandler>;
-
 const authController: AuthController = {
+  /** Checks that the provided info is valid for creating a new user */
   validateNewUserInfo: async (req, res, next) => {
     const expProps = {
       username: "string",
@@ -49,6 +50,7 @@ const authController: AuthController = {
     // A-Ok -> Create user
     return next();
   },
+  /** Checks to make sure a user exists and that the provided password is correct */
   verifyUser: async (req, res, next) => {
     const expProps = {
       username: "string",

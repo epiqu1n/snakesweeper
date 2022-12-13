@@ -1,16 +1,18 @@
 import { RequestHandler } from 'express';
-import { query, queryOne, sql } from '../models/model'; 
 import Users from '../models/Users';
 import Scores from '../models/Scores';
 import { ClientError, extractBody, isNum, PropertyMap, ServerError } from '../utils/utils';
 
-enum ScoreMethod {
-  GET_TOP_SCORES = 'getTopScores',
-  GET_USER_SCORES = 'getUserScores',
-  ADD_SCORE = 'addScore',
-  REMOVE_SCORE = 'removeScore'
+interface ScoreController {
+  /** Retrieves all scores from database and stores into `res.locals.scores` */
+  getTopScores: RequestHandler,
+  /** Retrieves a user's scores from database and stores into `res.locals.scores` */
+  getUserScores: RequestHandler,
+  /** Adds a score submission to the database and updates that user's high score if applicable */
+  addScore: RequestHandler,
+  /** Clears a score for a user */
+  removeScore: RequestHandler
 };
-type ScoreController = Record<ScoreMethod, RequestHandler>;
 
 const scoreController: ScoreController = {
   /** Retrieves all scores from database and stores into `res.locals.scores` */
