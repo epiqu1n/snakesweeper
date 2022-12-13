@@ -1,18 +1,14 @@
 import { ChangeEventHandler, DetailedHTMLProps, InputHTMLAttributes, useEffect, useRef, useState } from 'react';
 import styles from './InputModal.module.scss';
 
-export interface InputFields {
-  [name: string]: Partial<DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>>
-}
-
-interface InputModalProps {
+interface InputModalProps<TInputs extends InputFields> {
   message: string,
-  onSubmit: (values: InputFields) => void,
+  onSubmit: (values: Output<TInputs>) => void,
   onCancel: () => void,
-  inputs?: InputFields
+  inputs?: TInputs
 }
 
-export default function InputModal({ message, onSubmit, onCancel, inputs }: InputModalProps) {
+export default function InputModal<TInputs extends InputFields>({ message, onSubmit, onCancel, inputs }: InputModalProps<TInputs>) {
   const dialogRef = useRef(null) as React.MutableRefObject<HTMLDialogElement | null>;
 
   const [ inputFields, setInputFields ] = useState<InputFields>({});
@@ -29,6 +25,19 @@ export default function InputModal({ message, onSubmit, onCancel, inputs }: Inpu
       else newInputFields[name].value = value;
       return newInputFields;
     });
+  };
+
+  /** Handles form submission -> maps relevant information from inputs and invokes `onSubmit` prop with that info */
+  const handleSubmit = () => {
+    const outputs: Record<string, InputData> = {};
+    for (const name in inputFields) {
+      outputs[name] = {
+        type: inputFields[name].type || 'text',
+        value: inputFields[name].value,
+        checked: inputFields[name].checked
+      }
+    }
+    onSubmit(outputs as Output<TInputs>);
   };
 
   /** Handle new or removed input fields */
@@ -68,11 +77,30 @@ export default function InputModal({ message, onSubmit, onCancel, inputs }: Inpu
     <dialog ref={dialogRef} onCancel={onCancel} className={styles.modal}>
       <div className={styles.closeButton} onClick={onCancel}>X</div>
       <pre>{message}</pre>
-      <form onSubmit={() => onSubmit(inputFields)} method='dialog'>
+      <form onSubmit={handleSubmit} method='dialog'>
         {/* <input value={input} onChange={(event) => setInput(event.target.value)} autoFocus /> */}
         {inputEls}
         <input type='submit' value='Submit' />
       </form>
     </dialog>
   );
+}
+
+// Hard-coded because the React HTMLInputTypeAttribute also allows for `(string & {})` which is messing with type autocompletion
+type HTMLInputType = ('button' | 'checkbox' | 'color' | 'date' | 'datetime-local' | 'email' | 'file' | 'hidden' | 'image' | 'month' | 'number' | 'password' | 'radio' | 'range' | 'reset' | 'search' | 'submit' | 'tel' | 'text' | 'time' | 'url' | 'week');
+
+export type HTMLInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & { type: HTMLInputType };
+
+export interface InputFields {
+  [name: string]: Partial<HTMLInputProps>
+}
+
+export interface InputData {
+  type: HTMLInputType,
+  value?: HTMLInputProps['value'],
+  checked?: HTMLInputProps['checked']
+}
+
+export type Output<TInputs extends InputFields> = {
+  [Key in keyof TInputs]: InputData
 }
