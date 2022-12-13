@@ -4,9 +4,6 @@ import ScoresDisplay from './components/scores/ScoresDisplay';
 import './stylesheets/styles.scss';
 import gamemodes from './utils/gamemodes';
 
-
-
-
 export default function App() {
   const [mode, setMode] = useState('EZMode');
 
