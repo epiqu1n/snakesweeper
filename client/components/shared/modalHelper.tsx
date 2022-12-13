@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import InputModal, { InputFields } from './InputModal';
 
-export default function showInputModal(message: string, inputFields: InputFields): Promise<{ inputs: InputFields | undefined, cancelled: boolean }> {
+export default function showInputModal(message: string, inputFields: InputFields = {}): Promise<{ inputs: InputFields | undefined, cancelled: boolean }> {
   return new Promise((resolve) => {
     // Create a mini React app
     const container = document.createElement('div');

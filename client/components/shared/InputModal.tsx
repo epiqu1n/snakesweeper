@@ -1,12 +1,8 @@
-import { ChangeEventHandler, HTMLInputTypeAttribute, ReactNode, useEffect, useRef, useState } from 'react';
+import { ChangeEventHandler, DetailedHTMLProps, InputHTMLAttributes, useEffect, useRef, useState } from 'react';
 import styles from './InputModal.module.scss';
 
 export interface InputFields {
-  [name: string]: {
-    type?: HTMLInputTypeAttribute,
-    value?: string,
-    checked?: boolean
-  }
+  [name: string]: Partial<DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>>
 }
 
 interface InputModalProps {
@@ -40,12 +36,8 @@ export default function InputModal({ message, onSubmit, onCancel, inputs }: Inpu
     const newInputFields: InputFields = {};
     if (inputs) {
       for (const name in inputs) {
-        const { value, type, checked } = inputs[name];
-        newInputFields[name] = (inputFields[name] || {
-          type: type || 'text',
-          value: (type !== 'checkbox' ? value || '' : undefined),
-          checked: (type === 'checkbox' ? checked || false : undefined)
-        });
+        newInputFields[name] = inputFields[name] || inputs[name];
+        newInputFields[name].value = newInputFields[name].value || ''; // Force component to be controlled, even without initial value
       }
     }
     else {
@@ -57,12 +49,13 @@ export default function InputModal({ message, onSubmit, onCancel, inputs }: Inpu
   }, [inputs]);
 
   /** Map input fields to elements */
-  const inputEls = Object.entries(inputFields).map(([ name, { type, value, checked } ], i) => {
-    if (name === '__default') return <input name={name} value={value} onChange={handleInputChange} key={`InputModal_${name}`} autoFocus />;
+  const inputEls = Object.entries(inputFields).map(([ name, input ], i) => {
+    // Default input is a text fgield with no label
+    if (name === '__default') return <input name={name} {...input} onChange={handleInputChange} key={`InputModal_${name}`} autoFocus />;
     else return (
       <div className={styles.fieldGroup} key={`InputModal_${name}`}>
         <label htmlFor={name}>{name}</label>
-        <input type={type || 'text'} name={name} value={value} checked={checked} onChange={handleInputChange} autoFocus={i === 0} />
+        <input name={name} {...input} onChange={handleInputChange} autoFocus={i === 0} />
       </div>
     );
   });
