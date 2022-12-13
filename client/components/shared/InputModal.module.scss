@@ -17,6 +17,15 @@
   }
 }
 
+.fieldGroup {
+  display: flex;
+  flex-flow: row nowrap;
+
+  & > label {
+    padding-right: 0.33em;
+  }
+}
+
 .closeButton {
   $font-color: black;
 

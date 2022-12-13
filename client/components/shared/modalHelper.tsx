@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client';
-import InputModal from './InputModal';
+import InputModal, { InputFields } from './InputModal';
 
-export default function promptModal(message: string): Promise<{ input: string | undefined, cancelled: boolean }> {
+export default function showInputModal(message: string): Promise<{ inputs: InputFields | undefined, cancelled: boolean }> {
   return new Promise((resolve) => {
     // Create a mini React app
     const container = document.createElement('div');
@@ -9,10 +9,10 @@ export default function promptModal(message: string): Promise<{ input: string | 
     const modalRoot = createRoot(container);
 
     /** Removes the modal and resolves the promise */
-    function closeModal(input: string | undefined, cancelled = false) {
+    function closeModal(inputs: InputFields | undefined, cancelled = false) {
       modalRoot.unmount();
       container.remove();
-      resolve({ input, cancelled });
+      resolve({ inputs, cancelled });
     }
 
     const modal = (
