@@ -3,7 +3,7 @@ import GameBoard from "./GameBoard";
 import { Gamemode } from '../../utils/gamemodes';
 import { MulticlickHandler, ClickTypeMulti, ClickTypeMulti as CTM } from '../../utils/eventUtils';
 import { GameState as GS, TileContent } from '../../types/GridTypes';
-import promptModal from '../shared/modalHelper';
+import showInputModal from '../shared/modalHelper';
 import { useEffect, useState, MouseEvent } from 'react';
 import { usePostScores } from '../../api/scores';
 
@@ -178,12 +178,10 @@ export default function GameController({ onModeChange, difficulty, children }: G
       const totalTime = Math.floor((Date.now() - startTime) / 1000);
       setGameState(GS.POST_GAME_WIN);
 
-      promptModal(`You win! :D\nIt took you ${totalTime} seconds\nEnter your name:`)
-      .then(({ input: username, cancelled }) => {
-        // console.debug('Submitting score:', { username, totalTime, difficulty: difficulty.modeId });
-        if (username && typeof username === 'string') {
-          postScore({ username, score: totalTime, modeId: difficulty.modeId });
-        }
+      showInputModal(`You win! :D\nIt took you ${totalTime} seconds`, {})
+      .then((inputs) => {
+        console.debug('Submitting score with debug username:', { /* username, */ totalTime, difficulty: difficulty.modeId });
+        postScore({ username: 'Eric', score: totalTime, modeId: difficulty.modeId }); // DEBUG
       });
     }
   }, [remainingTiles]);
