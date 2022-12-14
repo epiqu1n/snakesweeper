@@ -1,14 +1,15 @@
-import { ChangeEventHandler, DetailedHTMLProps, InputHTMLAttributes, useEffect, useRef, useState } from 'react';
+import { ChangeEventHandler, DetailedHTMLProps, FormEventHandler, InputHTMLAttributes, useEffect, useRef, useState } from 'react';
 import styles from './InputModal.module.scss';
 
 interface InputModalProps<TInputs extends InputFields> {
   message: string,
   onSubmit: (values: InputValues<TInputs>) => void,
   onCancel: () => void,
-  inputs?: TInputs
+  inputs?: TInputs,
+  error?: string
 }
 
-export default function InputModal<TInputs extends InputFields>({ message, onSubmit, onCancel, inputs }: InputModalProps<TInputs>) {
+export default function InputModal<TInputs extends InputFields>({ message, onSubmit, onCancel, inputs, error }: InputModalProps<TInputs>) {
   const dialogRef = useRef(null) as React.MutableRefObject<HTMLDialogElement | null>;
 
   const [ inputFields, setInputFields ] = useState<InputFields>({});
@@ -28,7 +29,8 @@ export default function InputModal<TInputs extends InputFields>({ message, onSub
   };
 
   /** Handles form submission -> maps relevant information from inputs and invokes `onSubmit` prop with that info */
-  const handleSubmit = () => {
+  const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
+    event.preventDefault();
     const outputs: Record<string, unknown> = {};
     for (const name in inputFields) {
       outputs[name] = inputFields[name].type === 'checkbox' ? inputFields[name].checked : inputFields[name].value
@@ -72,12 +74,13 @@ export default function InputModal<TInputs extends InputFields>({ message, onSub
   }, [dialogRef]);
 
   return (
-    <dialog ref={dialogRef} onCancel={onCancel} className={styles.modal}>
+    <dialog ref={dialogRef} className={styles.modal}>
       <div className={styles.closeButton} onClick={onCancel}>X</div>
-      <pre>{message}</pre>
-      <form onSubmit={handleSubmit} method='dialog'>
+      <pre className={styles.title}>{message}</pre>
+      <form onSubmit={handleSubmit} method='dialog' className={styles.form}>
         {/* <input value={input} onChange={(event) => setInput(event.target.value)} autoFocus /> */}
         {inputEls}
+        {error && <p className={styles.errors}>{error}</p>}
         <input type='submit' value='Submit' />
       </form>
     </dialog>
