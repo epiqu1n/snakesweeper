@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import GameController from './components/game/GameController';
 import ScoresDisplay from './components/scores/ScoresDisplay';
+import NavBar from './components/shared/NavBar';
 import userContext, { UserInfo } from './contexts/userContext';
 import './stylesheets/styles.scss';
 import gamemodes from './utils/gamemodes';
@@ -20,7 +21,7 @@ export default function App() {
 
   return (<>
     <userContext.Provider value={userContextValue}>
-      <h1>Snakesweeper</h1>
+      <NavBar />
       <GameController onModeChange={handleModeChange} difficulty={gamemodes[mode]}>
           {difficultyOpts}
       </GameController>
