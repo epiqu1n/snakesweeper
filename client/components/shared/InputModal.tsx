@@ -46,7 +46,9 @@ export default function InputModal<TInputs extends InputFields>({ message, onSub
     if (inputs) {
       for (const name in inputs) {
         newInputFields[name] = inputFields[name] || inputs[name];
-        newInputFields[name].value = newInputFields[name].value || ''; // Force component to be controlled, even without initial value
+        // Force component to be controlled if no initial value was provided
+        if (inputs[name].type === 'checkbox') newInputFields[name].checked = newInputFields[name].checked || false;
+        else newInputFields[name].value = newInputFields[name].value || '';
       }
     }
     else {
