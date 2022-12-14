@@ -41,7 +41,6 @@ export async function postScore(data: NewScoreData) {
     .then(res => res.json());
 
     if (response.error) throw new Error(response.error);
-    return 2;
   } catch (err) {
     console.error(err);
     throw new Error('Uh oh, something went wrong submitting your score D:');
