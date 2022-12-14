@@ -63,7 +63,7 @@ export default function InputModal<TInputs extends InputFields>({ message, onSub
     if (name === '__default') return <input name={name} {...input} onChange={handleInputChange} key={`InputModal_${name}`} autoFocus />;
     else return (
       <div className={styles.fieldGroup} key={`InputModal_${name}`}>
-        <label htmlFor={name}>{name}</label>
+        <label htmlFor={name}>{input.label || name.slice(0, 1).toUpperCase() + name.slice(1)}</label>
         <input name={name} {...input} onChange={handleInputChange} autoFocus={i === 0} />
       </div>
     );
@@ -92,7 +92,7 @@ type HTMLInputType = ('button' | 'checkbox' | 'color' | 'date' | 'datetime-local
 export type HTMLInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & { type: HTMLInputType };
 
 export interface InputFields {
-  [name: string]: Partial<HTMLInputProps>
+  [name: string]: Partial<HTMLInputProps> & { label?: string }
 }
 
 export interface InputData {
