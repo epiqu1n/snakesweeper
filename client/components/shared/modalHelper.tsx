@@ -1,10 +1,10 @@
 import { createRoot } from 'react-dom/client';
-import InputModal, { InputFields, Output } from './InputModal';
+import InputModal, { InputFields, InputValues } from './InputModal';
 
 export default function showInputModal<TInputs extends InputFields>(
   message: string,
   inputFields: TInputs = {} as TInputs
-): Promise<{ inputs: Output<TInputs> | undefined, cancelled: boolean }> {
+): Promise<{ values: InputValues<TInputs> | undefined, cancelled: boolean }> {
   return new Promise((resolve) => {
     // Create a mini React app
     const container = document.createElement('div');
@@ -12,10 +12,10 @@ export default function showInputModal<TInputs extends InputFields>(
     const modalRoot = createRoot(container);
 
     /** Removes the modal and resolves the promise */
-    function closeModal(inputs: Output<TInputs> | undefined, cancelled = false) {
+    function closeModal(values: InputValues<TInputs> | undefined, cancelled = false) {
       modalRoot.unmount();
       container.remove();
-      resolve({ inputs, cancelled });
+      resolve({ values, cancelled });
     }
 
     /** @type {Parameters<InputModal>[0]['inputs']} */

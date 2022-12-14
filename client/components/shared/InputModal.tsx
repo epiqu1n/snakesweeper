@@ -3,7 +3,7 @@ import styles from './InputModal.module.scss';
 
 interface InputModalProps<TInputs extends InputFields> {
   message: string,
-  onSubmit: (values: Output<TInputs>) => void,
+  onSubmit: (values: InputValues<TInputs>) => void,
   onCancel: () => void,
   inputs?: TInputs
 }
@@ -29,15 +29,11 @@ export default function InputModal<TInputs extends InputFields>({ message, onSub
 
   /** Handles form submission -> maps relevant information from inputs and invokes `onSubmit` prop with that info */
   const handleSubmit = () => {
-    const outputs: Record<string, InputData> = {};
+    const outputs: Record<string, unknown> = {};
     for (const name in inputFields) {
-      outputs[name] = {
-        type: inputFields[name].type || 'text',
-        value: inputFields[name].value,
-        checked: inputFields[name].checked
-      }
+      outputs[name] = inputFields[name].type === 'checkbox' ? inputFields[name].checked : inputFields[name].value
     }
-    onSubmit(outputs as Output<TInputs>);
+    onSubmit(outputs as InputValues<TInputs>);
   };
 
   /** Handle new or removed input fields */
@@ -97,12 +93,6 @@ export interface InputFields {
   [name: string]: Partial<HTMLInputProps> & { label?: string }
 }
 
-export interface InputData {
-  type: HTMLInputType,
-  value?: HTMLInputProps['value'],
-  checked?: HTMLInputProps['checked']
-}
-
-export type Output<TInputs extends InputFields> = {
-  [Key in keyof TInputs]: InputData
+export type InputValues<TInputs extends InputFields> = {
+  [Key in keyof TInputs]: TInputs[Key]['type'] extends 'checkbox' ? boolean : string
 }
