@@ -1,11 +1,14 @@
 .modal {
-  $modal-width: 16rem;
-  $modal-height: 9rem;
+  $modal-width: 20rem;
+  $modal-height: 14rem;
 
   background-color: rgba(156, 179, 72, 0.9);
   border-radius: 0.5rem;
   border-color: #3e3e3e;
   color: inherit;
+
+  width: $modal-width;
+  // height: $modal-height;
 
   &::backdrop {
     background-color: #00000068;
@@ -17,13 +20,38 @@
   }
 }
 
+.title {
+  display: flex;
+  justify-content: center;
+}
+
 .fieldGroup {
   display: flex;
   flex-flow: row nowrap;
+  justify-content: space-between;
+  width: 100%;
 
   & > label {
     padding-right: 0.33em;
   }
+}
+
+.form {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+
+  input[type="submit"] {
+    margin-top: 0.5rem;
+  }
+}
+
+.errors {
+  color: #9b0000;
+  font-weight: bold;
+  font-size: 0.9em;
+  margin: 0.5rem;
 }
 
 .closeButton {
