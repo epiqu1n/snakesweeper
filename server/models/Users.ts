@@ -40,7 +40,7 @@ const Users: UsersModel = {
   },
   getUserByName: async (username) => {
     const userQuery = sql`
-      SELECT "name", best_time FROM Users
+      SELECT "name", "id" FROM Users
       WHERE LOWER(name) = LOWER($1::varchar)
     `;
     const userParams = [username];
@@ -62,7 +62,7 @@ const Users: UsersModel = {
 
 interface UserInfo {
   name: string,
-  best_time?: number
+  id: number
 }
 
 export default Users;
