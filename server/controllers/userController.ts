@@ -2,6 +2,7 @@ import { RequestHandler } from 'express';
 import Users from '../models/Users';
 import { extractBody, PropertyMap } from '../utils/utils';
 import { encrypt } from '../models/model';
+import { setLocalsUser } from '../locals/users';
 
 interface UserController {
   /** Creates a new user in the database */
@@ -60,7 +61,9 @@ const userController: UserController = {
     });
 
     try {
-      res.locals.user = await Users.getUserByName(username);
+      const user = await Users.getUserByName(username);
+      if (!user) throw new Error('User does not exist');
+      setLocalsUser(res, user);
       return next();
     } catch (err) {
       return next({

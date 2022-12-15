@@ -60,7 +60,7 @@ const Users: UsersModel = {
   }
 }
 
-interface UserInfo {
+export interface UserInfo {
   name: string,
   id: number
 }
