@@ -8,7 +8,9 @@ interface UserController {
   /** Creates a new user in the database */
   addUser: RequestHandler,
   /** Retrieves a user from the database. User info is stored into `res.locals.user` */
-  getUser: RequestHandler
+  getUser: RequestHandler,
+  /** Updates the last login date for a user  */
+  // updateLastLogin: RequestHandler
 }
 
 const userController: UserController = {

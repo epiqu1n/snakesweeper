@@ -9,6 +9,7 @@ authRouter.post('/signup', authController.validateNewUserInfo, userController.ad
 });
 
 authRouter.post('/login', authController.verifyUser, authController.setAuthToken, (req, res) => {
+  // TODO: Add updateLastLogin once implemented
   res.json({ success: true });
 });
 
