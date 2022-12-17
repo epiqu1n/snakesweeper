@@ -3,7 +3,7 @@ import Users from '../models/Users';
 import { ClientError, extractBody, PropertyMap } from '../utils/utils';
 import { sign, verify } from 'jsonwebtoken';
 import config from '../server.config.json';
-import { getLocalsUser } from '../locals/users';
+import { getLocalsUser, setLocalsUser } from '../locals/users';
 
 interface AuthController {
   /** Checks that the provided info is valid for creating a new user */
@@ -82,11 +82,12 @@ const authController: AuthController = {
     // Check password
     const { username, password: plainPass } = loginInfo;
     try {
-      const passIsValid = await Users.checkPassword(username, plainPass);
-      if (!passIsValid) return next({
+      const { isValid: passIsValid, user } = await Users.checkPassword(username, plainPass);
+      if (!passIsValid || !user) return next({
         msg: `Password for user ${username} does not match`,
         code: 403
       });
+      else setLocalsUser(res, user);
     } catch (err) {
       return next({
         msg: 'Invalid username or password',
@@ -109,12 +110,11 @@ const authController: AuthController = {
     res.cookie('userAuth', token, {
       maxAge: 2 * 7 * 24 * 60 * 60 * 1000, // 2 weeks,
       httpOnly: true,
-      secure: true
+      // TODO: Generate local SSL cert and use https; secure: true doesn't work over http
+      // secure: true
     });
 
-    // TODO: I think this is done but it should be tested
-
-    next({ msg: 'This feature is not yet available' });
+    return next();
   },
   /**
    * Checks the request for a valid auth token.
