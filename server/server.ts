@@ -5,11 +5,13 @@ import scoreRouter from './routes/scores';
 import userRouter from './routes/users';
 import CONFIG from './server.config.json';
 import authRouter from './routes/auth';
+import cookieParser from 'cookie-parser';
 
 ///Initialization
 // Set up application
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use('/', express.static(path.join(__dirname, '../dist')));
 app.use('/assets', express.static(path.join(__dirname, '../client/assets')));
