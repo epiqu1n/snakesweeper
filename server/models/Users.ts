@@ -6,7 +6,9 @@ interface UsersModel extends Model {
   updateHighScore: (userId: number, time: number) => ReturnType<typeof query>,
   createUser: (username: string, password: string) => ReturnType<typeof query>,
   getUserByName: (username: string) => Promise<UserInfo | null>,
-  checkPassword: (username: string, password: string) => Promise<boolean>
+  checkPassword: (username: string, password: string) => Promise<{ user: UserInfo | null, isValid: boolean }>
+  // Attempting to make it so the `isValid` property dictates whether or not `user` will be null
+  // checkPassword: <TReturn>(username: string, password: string) => Promise<TReturn extends { user: UserInfo | null, isValid: boolean }>(username: string, password: string) => Promise<TReturn['isValid'] extends true ? { user: UserInfo, isValid: true } : { user: null, isValid: false }>
 }
 
 const Users: UsersModel = {
@@ -56,7 +58,12 @@ const Users: UsersModel = {
 
     const user = await queryOne(passQuery, passParams);
     if (!user) throw new ClientError(`User ${username} not found`);
-    return await compareHash(password, user.password);
+
+    const isValid = await compareHash(password, user.password);
+    return {
+      isValid,
+      user: (isValid ? user : null)
+    };
   }
 }
 
