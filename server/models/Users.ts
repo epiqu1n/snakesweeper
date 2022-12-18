@@ -51,15 +51,16 @@ const Users: UsersModel = {
   },
   checkPassword: async (username, password) => {
     const passQuery = sql`
-      SELECT name, password FROM Users
+      SELECT name, password, id FROM Users
       WHERE name = $1::varchar
     `;
     const passParams = [username];
 
-    const user = await queryOne(passQuery, passParams);
+    const user: UserInfo & { password?: string } = await queryOne(passQuery, passParams);
     if (!user) throw new ClientError(`User ${username} not found`);
 
-    const isValid = await compareHash(password, user.password);
+    const isValid = await compareHash(password, user.password!);
+    delete user.password;
     return {
       isValid,
       user: (isValid ? user : null)
