@@ -3,25 +3,31 @@ import Users, { UserInfo } from '../models/Users';
 import { ClientError, extractBody, PropertyMap } from '../utils/utils';
 import { sign, verify } from 'jsonwebtoken';
 import config from '../server.config.json';
-import { getLocalsUser, setLocalsUser, setLocalsUserToken } from '../locals/users';
+import { getLocalsUser, setLocalsUser } from '../locals/users';
+
+const AUTH_COOKIE = 'userAuth';
 
 interface AuthController {
   /** Checks that the provided info is valid for creating a new user */
   validateNewUserInfo: RequestHandler,
-  /** Checks to make sure a user exists and that the provided password is correct */
+  /**
+   * Checks to make sure a user exists and that the provided password is correct.
+   * Stores user info into `res.locals.user` if so
+   */
   verifyLoginAttempt: RequestHandler,
   /** Creates and sets a JWT for a user and stores it in cookies. Depends on user info present in `res.locals.user` */
   setAuthToken: RequestHandler,
   /**
    * Checks the request for a valid auth token.
-   * If the token is valid, it is regenerated with a new expiration, and the user's info stored in the token is set in `res.locals.userToken`.
+   * If the token is valid, it is regenerated with a new expiration, and the user's info stored in the token is set in `res.locals.user`.
    * If it is not, the token is cleared and the request is sent to the global error handler.
    */
-  validateAuthToken: RequestHandler
+  validateAuthToken: RequestHandler,
+  /** Removes the auth token from cookies */
+  clearAuthToken: RequestHandler
 }
 
 const authController: AuthController = {
-  /** Checks that the provided info is valid for creating a new user */
   validateNewUserInfo: async (req, res, next) => {
     const expProps = {
       username: "string",
@@ -61,7 +67,6 @@ const authController: AuthController = {
     // A-Ok -> Create user
     return next();
   },
-  /** Checks to make sure a user exists and that the provided password is correct */
   verifyLoginAttempt: async (req, res, next) => {
     const expProps = {
       username: "string",
@@ -84,13 +89,13 @@ const authController: AuthController = {
     try {
       const { isValid: passIsValid, user } = await Users.checkPassword(username, plainPass);
       if (!passIsValid || !user) return next({
-        msg: `Password for user ${username} does not match`,
+        msg: 'Invalid username or password',
         code: 403
       });
       else setLocalsUser(res, user);
     } catch (err) {
       return next({
-        msg: 'Invalid username or password',
+        msg: 'An unknown error occurred trying to sign in (code: ac-vla-1)',
         err: err
       });
     }
@@ -98,7 +103,6 @@ const authController: AuthController = {
     // All is well
     return next();
   },
-  /** Creates and sets a JWT for a user and stores it in cookies. Depends on user info present in `res.locals.user` */
   setAuthToken: (req, res, next) => {
     const userInfo = getLocalsUser(res);
     if (!userInfo) return next({
@@ -108,8 +112,8 @@ const authController: AuthController = {
     });
 
     const token = sign(userInfo, config.authSecret, { expiresIn: "2w" });
-    res.cookie('userAuth', token, {
-      maxAge: 2 * 7 * 24 * 60 * 60 * 1000, // 2 weeks,
+    res.cookie(AUTH_COOKIE, token, {
+      maxAge: Date.now() + 2 * 7 * 24 * 60 * 60 * 1000, // 2 weeks,
       httpOnly: true,
       // TODO: Generate local SSL cert and use https; secure: true doesn't work over http
       // secure: true
@@ -117,13 +121,8 @@ const authController: AuthController = {
 
     return next();
   },
-  /**
-   * Checks the request for a valid auth token.
-   * If the token is valid, it is regenerated with a new expiration, and the user's info stored in the token is set in `res.locals.userToken`.
-   * If it is not, the token is cleared and the request is sent to the global error handler.
-   */
   validateAuthToken: (req, res, next) => {
-    const token = req.cookies.userAuth;
+    const token = req.cookies[AUTH_COOKIE];
     if (!token) {
       return next({
         msg: 'You are not currently logged in',
@@ -140,7 +139,14 @@ const authController: AuthController = {
       code: 403
     });
 
-    setLocalsUserToken(res, authToken);
+    setLocalsUser(res, {
+      name: authToken.name,
+      id: authToken.id
+    });
+    return next();
+  },
+  clearAuthToken: (req, res, next) => {
+    res.clearCookie(AUTH_COOKIE);
     return next();
   }
 }
