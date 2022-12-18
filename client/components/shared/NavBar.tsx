@@ -1,7 +1,6 @@
 import { useContext } from 'react';
-import { postLogin } from '../../api/auth/methods';
+import { postLogin, postLogout } from '../../api/auth/methods';
 import userContext from '../../contexts/userContext';
-import { InputFields } from './InputModal';
 import showFormModal from './modalHelper';
 import styles from './NavBar.module.scss';
 
@@ -15,13 +14,25 @@ export default function NavBar() {
       'username': {},
       'password': { type: "password" }
       },
-      async (values) => await postLogin(values)
+      postLogin
     );
     
     if (cancelled) return;
-    console.debug('Logging in - psych!')
-    console.debug(response);
+    else setUser(response!);
   }
+
+  async function handleLogout() {
+    await postLogout();
+    setUser(null);
+  }
+
+  const userOrLoginEl = (
+    user ? <>
+        <b>Hi, {user.name}!</b>
+        <button onClick={handleLogout}>Logout</button>
+      </>
+      : <button onClick={showLoginModal}>Log in</button>
+  );
 
   return (
     <nav className={styles.navBar}>
@@ -32,10 +43,7 @@ export default function NavBar() {
         <h1>Snakesweeper</h1>
       </div>
       <div className={styles.right}>
-        {
-          user ? <button onClick={() => setUser(null)}>{user.username}</button>
-          : <button onClick={showLoginModal}>Log in</button>
-        }
+        {userOrLoginEl}
       </div>
     </nav>
   );
