@@ -1,15 +1,15 @@
 import { RequestHandler } from 'express';
-import Users from '../models/Users';
+import Users, { UserInfo } from '../models/Users';
 import { ClientError, extractBody, PropertyMap } from '../utils/utils';
 import { sign, verify } from 'jsonwebtoken';
 import config from '../server.config.json';
-import { getLocalsUser, setLocalsUser } from '../locals/users';
+import { getLocalsUser, setLocalsUser, setLocalsUserToken } from '../locals/users';
 
 interface AuthController {
   /** Checks that the provided info is valid for creating a new user */
   validateNewUserInfo: RequestHandler,
   /** Checks to make sure a user exists and that the provided password is correct */
-  verifyUser: RequestHandler,
+  verifyLoginAttempt: RequestHandler,
   /** Creates and sets a JWT for a user and stores it in cookies. Depends on user info present in `res.locals.user` */
   setAuthToken: RequestHandler,
   /**
@@ -62,7 +62,7 @@ const authController: AuthController = {
     return next();
   },
   /** Checks to make sure a user exists and that the provided password is correct */
-  verifyUser: async (req, res, next) => {
+  verifyLoginAttempt: async (req, res, next) => {
     const expProps = {
       username: "string",
       password: "string"
@@ -102,8 +102,9 @@ const authController: AuthController = {
   setAuthToken: (req, res, next) => {
     const userInfo = getLocalsUser(res);
     if (!userInfo) return next({
-      msg: 'An error occurred setting user credentials (ac-sat-1)',
-      err: 'User info is not present in locals'
+      msg: 'An error occurred setting user credentials (code: ac-sat-1)',
+      err: 'User info is not present in locals',
+      code: 400
     });
 
     const token = sign(userInfo, config.authSecret, { expiresIn: "2w" });
@@ -122,9 +123,33 @@ const authController: AuthController = {
    * If it is not, the token is cleared and the request is sent to the global error handler.
    */
   validateAuthToken: (req, res, next) => {
-    // TODO:
-    next({ msg: 'This feature is not yet available' });
+    const token = req.cookies.userAuth;
+    if (!token) {
+      return next({
+        msg: 'You are not currently logged in',
+        err: 'User auth token is missing or empty',
+        code: 403
+      });
+    }
+
+    const authToken = verify(token, config.authSecret) as AuthToken;
+    const tokenIsExpired = authToken.exp * 1000 < Date.now();
+    if (tokenIsExpired) return next({
+      msg: 'Session has expired. Please trying loggin in again (code: ac-vat-2)',
+      err: 'User\'s token has expired',
+      code: 403
+    });
+
+    setLocalsUserToken(res, authToken);
+    return next();
   }
 }
 
 export default authController;
+
+export interface AuthToken extends UserInfo {
+  /** The datetime the token was created (in seconds) */
+  iat: number,
+  /** The datetime of when the token expires (in seconds) */
+  exp: number
+}
