@@ -57,10 +57,9 @@ const Users: UsersModel = {
     const passParams = [username];
 
     const user: UserInfo & { password?: string } = await queryOne(passQuery, passParams);
-    if (!user) throw new ClientError(`User ${username} not found`);
 
-    const isValid = await compareHash(password, user.password!);
-    delete user.password;
+    const isValid = (user ? await compareHash(password, user.password!) : false);
+    delete user?.password;
     return {
       isValid,
       user: (isValid ? user : null)
