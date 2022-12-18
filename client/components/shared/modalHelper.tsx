@@ -48,7 +48,7 @@ export default function showFormModal<TInputs extends InputFields, TResponse>(
             const response = await onSubmit(inputs);
             if (response) {
               closeModal();
-              resolve({ response, cancelled: true });
+              resolve({ response, cancelled: false });
             }
           } catch (err) {
             setError(err?.message || err);
