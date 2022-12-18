@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { getUserInfo } from './api/users/methods';
 import GameController from './components/game/GameController';
 import ScoresDisplay from './components/scores/ScoresDisplay';
 import NavBar from './components/shared/NavBar';
@@ -10,6 +11,13 @@ export default function App() {
   const [ mode, setMode ] = useState('EZMode');
   const [ authUser, setAuthUser ] = useState<UserInfo | null>(null);
   const userContextValue = useMemo(() => ({ user: authUser, setUser: setAuthUser }), [authUser, setAuthUser]);
+
+  // Get user info if logged in
+  useEffect(() => {
+    getUserInfo()
+    .then(setAuthUser)
+    .catch(() => null);
+  }, []);
 
   function handleModeChange(mode: string) {
     setMode(mode);

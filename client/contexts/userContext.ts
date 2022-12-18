@@ -1,8 +1,8 @@
 import { createContext } from 'react';
 
 export interface UserInfo {
-  username: string,
-  userId: number
+  name: string,
+  id: number
 }
 
 export interface UserContext {
