@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import authController from '../controllers/authController';
 import scoreController from '../controllers/scoreController';
 
 const scoreRouter = Router();
@@ -11,7 +12,7 @@ scoreRouter.get('/:username', scoreController.getUserScores, function(req, res) 
   return res.json({ scores: res.locals.scores });
 });
 
-scoreRouter.post('/', scoreController.addScore, function(req, res) {
+scoreRouter.post('/', authController.validateAuth, scoreController.addScore, function(req, res) {
   return res.json({ success: true });
 });
 

@@ -180,19 +180,7 @@ export default function GameController({ onModeChange, difficulty, children }: G
       const totalTime = Math.floor((Date.now() - startTime) / 1000);
       setGameState(GS.POST_GAME_WIN);
 
-      if (user.isLoggedIn) {
-        const gameWonMessage = <>
-          <span>You win! :D</span>
-          <span>It took you {totalTime} seconds</span>
-        </>;
-  
-        showFormModal(gameWonMessage, {})
-        .then(({ cancelled }) => {
-          if (cancelled) return;
-          // console.debug('Submitting score:', { totalTime, difficulty: difficulty.modeId });
-          postScore({ score: totalTime, modeId: difficulty.modeId });
-        });
-      };
+      if (user.isLoggedIn) postScore({ score: totalTime, modeId: difficulty.modeId });
     }
   }, [remainingTiles]);
 

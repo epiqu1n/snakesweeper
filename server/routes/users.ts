@@ -3,7 +3,7 @@ import authController from '../controllers/authController';
 // import userController from '../controllers/userController';
 const userRouter = Router();
 
-userRouter.get('/', authController.validateAuthToken, function(req, res) {
+userRouter.get('/', authController.validateAuth, function(req, res) {
   return res.status(200).json({ data: res.locals.user });
 });
 

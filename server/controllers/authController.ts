@@ -22,7 +22,7 @@ interface AuthController {
    * If the token is valid, it is regenerated with a new expiration, and the user's info stored in the token is set in `res.locals.user`.
    * If it is not, the token is cleared and the request is sent to the global error handler.
    */
-  validateAuthToken: RequestHandler,
+  validateAuth: RequestHandler,
   /** Removes the auth token from cookies */
   clearAuthToken: RequestHandler
 }
@@ -121,7 +121,7 @@ const authController: AuthController = {
 
     return next();
   },
-  validateAuthToken: (req, res, next) => {
+  validateAuth: (req, res, next) => {
     const token = req.cookies[AUTH_COOKIE];
     if (!token) {
       return next({
