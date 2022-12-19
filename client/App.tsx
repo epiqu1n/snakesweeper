@@ -10,7 +10,11 @@ import gamemodes from './utils/gamemodes';
 export default function App() {
   const [ mode, setMode ] = useState('EZMode');
   const [ authUser, setAuthUser ] = useState<UserInfo | null>(null);
-  const userContextValue = useMemo(() => ({ user: authUser, setUser: setAuthUser }), [authUser, setAuthUser]);
+  const userContextValue = useMemo(() => ({
+    user: authUser,
+    setUser: setAuthUser,
+    isLoggedIn: !!authUser
+  }), [authUser, setAuthUser]);
 
   // Get user info if logged in
   useEffect(() => {

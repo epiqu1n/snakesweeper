@@ -7,12 +7,14 @@ export interface UserInfo {
 
 export interface UserContext {
   user: UserInfo | null,
-  setUser: (user: UserInfo | null) => void
+  setUser: (user: UserInfo | null) => void,
+  isLoggedIn: boolean
 }
 
 const userContext = createContext<UserContext>({
   user: null,
-  setUser: () => null // Placeholder
+  setUser: () => null, // Placeholder
+  isLoggedIn: false
 });
 
 export default userContext;
