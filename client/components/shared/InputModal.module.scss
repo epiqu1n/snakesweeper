@@ -34,7 +34,9 @@ $modal-height: 14rem;
 
 .title {
   display: flex;
+  flex-flow: column nowrap;
   justify-content: center;
+  align-items: center;
 }
 
 .fieldGroup {

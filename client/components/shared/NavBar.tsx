@@ -9,7 +9,7 @@ export default function NavBar() {
 
   async function showLoginModal() {
     const { response, cancelled } = await showFormModal(
-      'Log in',
+      <h3>Log in</h3>,
       {
       'username': {},
       'password': { type: "password" }

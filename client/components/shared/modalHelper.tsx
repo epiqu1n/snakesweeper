@@ -21,7 +21,7 @@ export default function showFormModal<TInputs extends InputFields>(
  * If the method throws an error, the error message is appended to the form.
  */
 export default function showFormModal<TInputs extends InputFields, TResponse>(
-  message: string,
+  message: ReactNode,
   inputFields: TInputs,
   onSubmit: (values: InputValues<TInputs>) => Promise<TResponse>
 ): Promise<{ response?: TResponse, cancelled: boolean }>;
@@ -29,7 +29,7 @@ export default function showFormModal<TInputs extends InputFields, TResponse>(
 
 /// `showFormModal` method implementation
 export default function showFormModal<TInputs extends InputFields, TResponse>(
-  message: string,
+  message: ReactNode,
   inputFields: TInputs = {} as TInputs,
   /**
    * Method to run when the form is submitted. The modal will close and resolve when the method returns any truthy value.

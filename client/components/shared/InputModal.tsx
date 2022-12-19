@@ -84,7 +84,7 @@ export default function InputModal<TInputs extends InputFields>({ message, onSub
     <dialog ref={dialogRef} className={styles.dialog} onCancel={onCancel} onClick={handleDialogClick}>
       <div className={styles.content}>
         <div className={styles.closeButton} onClick={onCancel}>X</div>
-        <h3>{message}</h3>
+        <div className={styles.title}>{message}</div>
         <form onSubmit={handleSubmit} method='dialog' className={styles.form}>
           {/* <input value={input} onChange={(event) => setInput(event.target.value)} autoFocus /> */}
           {inputEls}
