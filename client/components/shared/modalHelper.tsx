@@ -1,5 +1,7 @@
 import { ReactNode, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import { postLogin } from '../../api/auth/methods';
+import { UserInfo } from '../../contexts/userContext';
 import InputModal, { InputFields, InputValues } from './InputModal';
 
 /// `showFormModal` method signatures
@@ -90,4 +92,17 @@ export default function showFormModal<TInputs extends InputFields, TResponse>(
     document.body.append(container);
     modalRoot.render(<ModalWrapper />);
   });
+}
+
+export async function showLoginModal(): Promise<{ userInfo: UserInfo | undefined, cancelled: boolean }> {
+  const { response: userInfo, cancelled } = await showFormModal(
+    <h3>Log in</h3>,
+    {
+    'username': {},
+    'password': { type: "password" }
+    },
+    postLogin
+  );
+  
+  return { userInfo, cancelled };
 }
