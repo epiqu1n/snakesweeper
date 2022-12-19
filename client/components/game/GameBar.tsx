@@ -23,7 +23,7 @@ export default function GameBar({ startTime, gameState, remainingFlags, onResetC
   return (
     <div className='gameBar'>
       <FlagsDisplay remaining={remainingFlags} />
-      <button className={className} onClick={onResetClick}></button>
+      <button className={className} onClick={onResetClick} title='Start new game'></button>
       <TimeDisplay startTime={startTime} gameState={gameState} />
     </div>
   )
