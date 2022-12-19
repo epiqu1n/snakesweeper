@@ -14,7 +14,7 @@ interface UserController {
 }
 
 const userController: UserController = {
-  /** Creates a new user in the database */
+  
   addUser: async (req, res, next) => {
     const expProps = {
       username: 'string',
@@ -44,16 +44,18 @@ const userController: UserController = {
     }
 
     try {
-      await Users.createUser(username, hashedPass);
-      return next();
+      const newUser = await Users.createUser(username, hashedPass);
+      setLocalsUser(res, newUser);
     } catch (err) {
       return next({
         msg: 'An error occurred creating user',
         err: err
       });
     }
+    
+    return next();
   },
-  /** Retrieves a user from the database. User info is stored into `res.locals.user` */
+  
   getUser: async (req, res, next) => {
     const { username } = req.params;
     if (!username) return next({

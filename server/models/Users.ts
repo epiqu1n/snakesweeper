@@ -3,7 +3,7 @@ import { compareHash, Model, query, queryOne, sql } from './model';
 interface UsersModel extends Model {
   getIdByName: (name: string) => Promise<number | null>,
   updateHighScore: (userId: number, time: number) => ReturnType<typeof query>,
-  createUser: (username: string, password: string) => ReturnType<typeof query>,
+  createUser: (username: string, password: string) => Promise<UserInfo>,
   getUserByName: (username: string) => Promise<UserInfo | null>,
   checkPassword: (username: string, password: string) => Promise<{ user: UserInfo | null, isValid: boolean }>
   // Attempting to make it so the `isValid` property dictates whether or not `user` will be null
@@ -34,10 +34,11 @@ const Users: UsersModel = {
     const userInsQuery = sql`
       INSERT INTO Users ("name", "password")
       VALUES ($1::citext, $2::varchar)
+      RETURNING name, id
     `;
     const userParams = [username, password];
 
-    return await query(userInsQuery, userParams);
+    return await queryOne(userInsQuery, userParams) as UserInfo;
   },
   getUserByName: async (username) => {
     const userQuery = sql`
