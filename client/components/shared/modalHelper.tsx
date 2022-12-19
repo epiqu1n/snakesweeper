@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import InputModal, { InputFields, InputValues } from './InputModal';
 
@@ -9,7 +9,7 @@ import InputModal, { InputFields, InputValues } from './InputModal';
  * the keys and values from the form.
  */
 export default function showFormModal<TInputs extends InputFields>(
-  message: string,
+  message: ReactNode,
   inputFields: TInputs,
   onSubmit?: undefined
 ): Promise<{ values?: InputValues<TInputs>, cancelled: boolean }>;
