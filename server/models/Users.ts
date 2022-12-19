@@ -1,4 +1,3 @@
-import { ClientError } from '../utils/utils';
 import { compareHash, Model, query, queryOne, sql } from './model';
 
 interface UsersModel extends Model {

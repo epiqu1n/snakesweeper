@@ -1,7 +1,7 @@
 import { useContext } from 'react';
-import { postLogin, postLogout } from '../../api/auth/methods';
+import { postLogout } from '../../api/auth/methods';
 import userContext from '../../contexts/userContext';
-import showFormModal, { showLoginModal } from './modalHelper';
+import { showLoginModal } from './modalHelper';
 import styles from './NavBar.module.scss';
 
 export default function NavBar() {
