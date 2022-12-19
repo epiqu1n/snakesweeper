@@ -14,7 +14,7 @@ const Users: UsersModel = {
   getIdByName: async (name) => {
     const queryStr = sql`
       SELECT id FROM Users
-      WHERE LOWER(name) = LOWER($1::varchar)
+      WHERE name = $1::citext
     `;
     const params = [name];
 
@@ -33,7 +33,7 @@ const Users: UsersModel = {
   createUser: async (username, password) => {
     const userInsQuery = sql`
       INSERT INTO Users ("name", "password")
-      VALUES ($1::varchar, $2::varchar)
+      VALUES ($1::citext, $2::varchar)
     `;
     const userParams = [username, password];
 
@@ -42,7 +42,7 @@ const Users: UsersModel = {
   getUserByName: async (username) => {
     const userQuery = sql`
       SELECT "name", "id" FROM Users
-      WHERE LOWER(name) = LOWER($1::varchar)
+      WHERE name = $1::citext
     `;
     const userParams = [username];
 
@@ -51,11 +51,13 @@ const Users: UsersModel = {
   checkPassword: async (username, password) => {
     const passQuery = sql`
       SELECT name, password, id FROM Users
-      WHERE name = $1::varchar
+      WHERE name = $1::citext
     `;
     const passParams = [username];
 
+    // console.log()
     const user: UserInfo & { password?: string } = await queryOne(passQuery, passParams);
+    console.log(user);
 
     const isValid = (user ? await compareHash(password, user.password!) : false);
     delete user?.password;
