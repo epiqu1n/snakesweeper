@@ -3,6 +3,9 @@
 $color-blue: rgb(63, 63, 137);
 $bg-earthtone: #877a60;
 $bg-watermelon: #914e47;
+$bg-lightgrass: #949f8d;
+$bg-wingreen: #8bac6e;
+$bg-lossred: #b98181;
 
 :root {
   color-scheme: only dark;
@@ -128,10 +131,33 @@ h3 {
     & > .reset {
       height: 100%;
       width: $gamebar-height;
-      background-image: url('../assets/restart.png');
-      background-color: silver;
-      // TODO: Style button
       @include center-bg(70%);
+
+      // Gamestate-based icon styling
+      &.active {
+        background-image: url('../assets/snek_finder.png');
+        background-color: $bg-lightgrass;
+        background-size: 100%;
+      }
+      &.pre {
+        background-image: url('../assets/restart.png');
+        background-color: silver;
+      }
+      &.loss {
+        background-image: url('../assets/x.png');
+        background-color: $bg-lossred;
+      }
+      &.win {
+        background-image: url('../assets/check.png');
+        background-color: $bg-wingreen;
+      }
+
+      &:hover {
+        filter: brightness(0.925);
+      }
+      &:active {
+        filter: brightness(0.85);
+      }
     }
 
     & > .timer, & > .flagsDisplay {
