@@ -102,7 +102,7 @@ type HTMLInputType = ('button' | 'checkbox' | 'color' | 'date' | 'datetime-local
 export type HTMLInputProps = DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & { type: HTMLInputType };
 
 export interface InputFields {
-  [name: string]: Partial<HTMLInputProps> & { label?: string }
+  [name: string]: Partial<HTMLInputProps> & { label?: ReactNode }
 }
 
 export type InputValues<TInputs extends InputFields> = {
