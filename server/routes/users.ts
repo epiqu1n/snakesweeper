@@ -8,7 +8,7 @@ userRouter.get('/', authController.validateAuth, function(req, res) {
   return res.status(200).json({ data: getLocalsUser(res) });
 });
 
-userRouter.post('/', authController.validateNewUserInfo, userController.addUser, (req, res) => {
+userRouter.post('/', authController.validateNewUserInfo, userController.addUser, authController.setAuthToken, (req, res) => {
   res.json({ data: getLocalsUser(res) });
 });
 

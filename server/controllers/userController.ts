@@ -5,7 +5,7 @@ import { encrypt } from '../models/model';
 import { setLocalsUser } from '../locals/users';
 
 interface UserController {
-  /** Creates a new user in the database */
+  /** Creates a new user in the database and stores info into `res.locals.user` */
   addUser: RequestHandler,
   /** Retrieves a user from the database. User info is stored into `res.locals.user` */
   getUser: RequestHandler,
@@ -76,6 +76,6 @@ const userController: UserController = {
       });
     }
   }
-}
+};
 
 export default userController;
