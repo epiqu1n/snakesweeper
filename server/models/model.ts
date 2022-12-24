@@ -7,11 +7,8 @@ import bcrypt from 'bcrypt';
 // Database schema: https://app.dbdesigner.net/designer/schema/532865
 // Initialize pool
 const pool = new pg.Pool({
-  connectionString: CONFIG.databaseUri
-});
+  connectionString: CONFIG.databaseUri,
 
-pool.on('connect', () => {
-  console.log(colors.green('Database connected successfully'));
 });
 
 pool.on('error', (err) => {
