@@ -6,8 +6,15 @@
     "browser": true,
     "es2022": true
   },
-  "plugins": ["react"],
-  "extends": ["eslint:recommended", "plugin:react/recommended", "plugin:react-hooks/recommended"],
+  "plugins": ["react", "@typescript-eslint"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:react/jsx-runtime",
+    "plugin:react-hooks/recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "sourceType": "module",
     "ecmaFeatures": {
@@ -25,6 +32,7 @@
     "no-case-declarations": "off",
     "prefer-const": "warn",
     "quotes": ["warn", "single"],
+    "react/no-unescaped-entities": "warn",
     "react/prop-types": "off",
     "semi": ["warn", "always"],
     "space-infix-ops": "warn"

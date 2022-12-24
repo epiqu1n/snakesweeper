@@ -1,13 +1,28 @@
 import pg from 'pg';
-import { zip } from '../utils/utils';
+import { error, warn, zip } from '../utils/utils';
 import colors from 'colors';
 import CONFIG from './model.config.json';
+import bcrypt from 'bcrypt';
 
 // Database schema: https://app.dbdesigner.net/designer/schema/532865
 // Initialize pool
 const pool = new pg.Pool({
-  connectionString: CONFIG.databaseUri
+  connectionString: CONFIG.databaseUri,
+
 });
+
+pool.on('error', (err) => {
+  switch (err.name) {
+    case 'ETIMEDOUT':
+      warn('Database connection timed out');
+      break;
+    default:
+      error('An error occurred with the database connection');
+      error(err);
+      break;
+  }
+});
+
 
 /**
  * Queries the database
@@ -28,10 +43,10 @@ export function query(queryString: string, params?: unknown[], log = false) {
  */
 export const queryOne = (queryString: string, params?: unknown[], log = false) => {
   return query(queryString, params, log).then((result) => result.rows[0] || null);
-}
+};
 
 /** Tagged template function which removes excess indentation from a multiline template literal*/
-export function sql(strings: TemplateStringsArray, ...variables: any[]) {
+export function sql(strings: TemplateStringsArray, ...variables: unknown[]) {
   const str = zip(strings as unknown as unknown[], variables).join('');
   const lines = str.split(/\n/g);
   if (lines.length > 2) {
@@ -47,8 +62,16 @@ export function sql(strings: TemplateStringsArray, ...variables: any[]) {
   return lines.join('\n');
 }
 
+export async function encrypt(text: string) {
+  return bcrypt.hash(text, CONFIG.saltRounds);
+}
+
+export async function compareHash(plain: string, hashed: string) {
+  return bcrypt.compare(plain, hashed);
+}
+
 export const ERROR_CODES = {
   DUPLICATE_KEY: 23505
 };
 
-export type Model = Record<string, (...args: any[]) => Promise<unknown>>;
+export type Model = Record<string, (...args: unknown[]) => Promise<unknown>>;

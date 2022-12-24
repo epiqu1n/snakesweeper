@@ -13,7 +13,7 @@ root.render(<>
       <App />
       <ReactQueryDevtools
         initialIsOpen={true}
-        position={'top-right'}
+        position={'bottom-right'}
         panelPosition={'right'}
       />
     </QueryClientProvider>

@@ -19,11 +19,11 @@ export default function ScoresDisplay({ mode }: ScoresDisplayProps) {
         scores={scores}
         onScrollBottom={getNextPage}
       />
-      <Leaderboard
+      {/* <Leaderboard
         title={`Your scores`}
         scores={scores}
         onScrollBottom={getNextPage}
-      />
+      /> */}
     </section>
   );
 }

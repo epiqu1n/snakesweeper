@@ -24,24 +24,22 @@ export async function getScores(filters: ScoresFilters = {}) {
 }
 
 export interface NewScoreData {
-  username: string,
   score: number,
   modeId: number
 }
 export async function postScore(data: NewScoreData) {
-  const { username, score, modeId } = data;
+  const { score, modeId } = data;
   try {
     const response = await fetch('/api/scores', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ username, score, modeId })
+      body: JSON.stringify({ score, modeId })
     })
     .then(res => res.json());
 
     if (response.error) throw new Error(response.error);
-    return 2;
   } catch (err) {
     console.error(err);
     throw new Error('Uh oh, something went wrong submitting your score D:');

@@ -4,11 +4,14 @@ import { CustomError, error, warn } from './utils/utils';
 import scoreRouter from './routes/scores';
 import userRouter from './routes/users';
 import CONFIG from './server.config.json';
+import authRouter from './routes/auth';
+import cookieParser from 'cookie-parser';
 
 ///Initialization
 // Set up application
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use('/', express.static(path.join(__dirname, '../dist')));
 app.use('/assets', express.static(path.join(__dirname, '../client/assets')));
@@ -16,6 +19,7 @@ app.use('/assets', express.static(path.join(__dirname, '../client/assets')));
 /// API
 app.use('/api/scores', scoreRouter);
 app.use('/api/users', userRouter);
+app.use('/api/auth', authRouter);
 
 
 /// Routes
@@ -33,11 +37,12 @@ app.all('*', function(req, res) {
 // Global error handler
 type MiddlewareError = { msg: string, err?: Error | CustomError, code?: number };
 
-const globalErrorHandler: ErrorRequestHandler = (info: MiddlewareError, req, res, next) => {
+const globalErrorHandler: ErrorRequestHandler = (info: MiddlewareError | Error, req, res, next) => {
   const err = (info instanceof Error ? info : info.err);
   const message = (info instanceof Error ? 'An unknown server error occurred' : info.msg);
   const code = (
-    typeof info.code === 'number' ? info.code
+    info instanceof Error ? 500
+    : typeof info.code === 'number' ? info.code
     : info.err instanceof CustomError ? info.err.statusCode
     : 500
   );

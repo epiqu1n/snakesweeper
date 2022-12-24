@@ -3,9 +3,10 @@ import GameBoard from "./GameBoard";
 import { Gamemode } from '../../utils/gamemodes';
 import { MulticlickHandler, ClickTypeMulti, ClickTypeMulti as CTM } from '../../utils/eventUtils';
 import { GameState as GS, TileContent } from '../../types/GridTypes';
-import promptModal from '../shared/modalHelper';
-import { useEffect, useState, MouseEvent } from 'react';
+import showFormModal from '../shared/modalHelper';
+import { useEffect, useState, MouseEvent, useContext } from 'react';
 import { usePostScores } from '../../api/scores';
+import userContext from '../../contexts/userContext';
 
 export type GridSquareState = {
   content: TileContent,
@@ -33,6 +34,7 @@ export default function GameController({ onModeChange, difficulty, children }: G
   const [numFlags, setNumFlags] = useState(0);
   const [gameState, setGameState] = useState(GS.PRE_GAME);
   const [badRevealIndex, setBadRevealIndex] = useState(-1);
+  const user = useContext(userContext);
 
   const [ postScore ] = usePostScores();
 
@@ -178,13 +180,7 @@ export default function GameController({ onModeChange, difficulty, children }: G
       const totalTime = Math.floor((Date.now() - startTime) / 1000);
       setGameState(GS.POST_GAME_WIN);
 
-      promptModal(`You win! :D\nIt took you ${totalTime} seconds\nEnter your name:`)
-      .then(({ input: username, cancelled }) => {
-        // console.debug('Submitting score:', { username, totalTime, difficulty: difficulty.modeId });
-        if (username && typeof username === 'string') {
-          postScore({ username, score: totalTime, modeId: difficulty.modeId });
-        }
-      });
+      if (user.isLoggedIn) postScore({ score: totalTime, modeId: difficulty.modeId });
     }
   }, [remainingTiles]);
 

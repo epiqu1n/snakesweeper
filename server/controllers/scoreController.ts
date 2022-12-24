@@ -1,19 +1,24 @@
 import { RequestHandler } from 'express';
-import { query, queryOne, sql } from '../models/model'; 
 import Users from '../models/Users';
 import Scores from '../models/Scores';
 import { ClientError, extractBody, isNum, PropertyMap, ServerError } from '../utils/utils';
+import { getLocalsUser } from '../locals/users';
 
-enum ScoreMethod {
-  GET_TOP_SCORES = 'getTopScores',
-  GET_USER_SCORES = 'getUserScores',
-  ADD_SCORE = 'addScore',
-  REMOVE_SCORE = 'removeScore'
+interface ScoreController {
+  /** Retrieves all scores from database and stores into `res.locals.scores` */
+  getTopScores: RequestHandler,
+  /** Retrieves a user's scores from database and stores into `res.locals.scores` */
+  getUserScores: RequestHandler,
+  /** 
+   * Adds a score submission to the database and updates that user's high score.
+   * Depends on authorized user info stored in `res.locals.user`.
+   */
+  addScore: RequestHandler,
+  /** Clears a score for a user */
+  removeScore: RequestHandler
 };
-type ScoreController = Record<ScoreMethod, RequestHandler>;
 
 const scoreController: ScoreController = {
-  /** Retrieves all scores from database and stores into `res.locals.scores` */
   async getTopScores(req, res, next) {
     const modeId = parseInt(req.query.modeId as string) || undefined;
     const offset = parseInt(req.query.offset as string) || undefined;
@@ -35,7 +40,6 @@ const scoreController: ScoreController = {
     }
   },
 
-  /** Retrieves a user's scores from database and stores into `res.locals.scores` */
   async getUserScores(req, res, next) {
     const { username } = req.params;
 
@@ -58,9 +62,8 @@ const scoreController: ScoreController = {
     }
   },
 
-  /** Adds a score submission to the database and updates that user's high score if applicable */
   async addScore(req, res, next) {
-    const expProps = { score: 'number', username: 'string', modeId: 'number' } as const;
+    const expProps = { score: 'number', modeId: 'number' } as const;
     let body: PropertyMap<typeof expProps>;
     try {
       body = extractBody(req, expProps);
@@ -72,29 +75,28 @@ const scoreController: ScoreController = {
     }
 
     // Run queries
+    const user = getLocalsUser(res);
+    if (!user) return next({
+      msg: 'You must be logged in to submit a score',
+      code: 403
+    });
+
+    const userId = user.id;
     try {
-      const userId = await Users.getIdByName(body.username);
-      if (userId == null) return next({
-        msg: 'Failed to locate user for score submission',
-        err: `Could not locate user "${body.username}" for score submission`,
-        code: 400
-      });
-      
       await Promise.all([
         Scores.insertScore(userId, body.modeId, body.score),
         Users.updateHighScore(userId, body.score)
       ]);
-
-      return next();
     } catch (err) {
       return next({
         msg: 'An error occurred during score submission',
         err: err
       });
     }
+    
+    return next();
   },
 
-  /** Clears a score for a user */
   async removeScore(req, res, next) {
     const { username, scoreId } = req.params;
     if (typeof username !== 'string' || !isNum(scoreId)) return next({
