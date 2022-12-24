@@ -1,6 +1,7 @@
 import { ReactNode, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { postLogin } from '../../api/auth/methods';
+import { postNewUser } from '../../api/users/methods';
 import { UserInfo } from '../../contexts/userContext';
 import InputModal, { InputFields, InputValues } from './InputModal';
 
@@ -30,7 +31,7 @@ export default function showFormModal<TInputs extends InputFields, TResponse>(
 
 
 /// `showFormModal` method implementation
-export default function showFormModal<TInputs extends InputFields, TResponse>(
+export default function showFormModal<TInputs extends InputFields>(
   message: ReactNode,
   inputFields: TInputs = {} as TInputs,
   /**
@@ -58,7 +59,7 @@ export default function showFormModal<TInputs extends InputFields, TResponse>(
         }
         else {
           closeModal();
-          resolve({ values: inputs, cancelled: false })
+          resolve({ values: inputs, cancelled: false });
         }
       }
 
@@ -80,7 +81,7 @@ export default function showFormModal<TInputs extends InputFields, TResponse>(
   
     // Create a mini React app
     const container = document.createElement('div');
-    container.className = 'input-modal-container'
+    container.className = 'input-modal-container';
     const modalRoot = createRoot(container);
   
     /** Removes the modal */
@@ -98,10 +99,27 @@ export async function showLoginModal(): Promise<{ userInfo: UserInfo | undefined
   const { response: userInfo, cancelled } = await showFormModal(
     <h3>Log in</h3>,
     {
-    'username': {},
-    'password': { type: "password" }
+      'username': {},
+      'password': { type: 'password' }
     },
     postLogin
+  );
+  
+  return { userInfo, cancelled };
+}
+
+export async function showSignupModal(): Promise<{ userInfo: UserInfo | undefined, cancelled: boolean }> {
+  const { response: userInfo, cancelled } = await showFormModal(
+    <h3>Create an account</h3>,
+    {
+      'username': {},
+      'password': { type: 'password' },
+      'password_conf': {
+        type: 'password',
+        label: 'Confirm password'
+      }
+    },
+    postNewUser
   );
   
   return { userInfo, cancelled };

@@ -1,30 +1,40 @@
 import { useContext } from 'react';
 import { postLogout } from '../../api/auth/methods';
 import userContext from '../../contexts/userContext';
-import { showLoginModal } from './modalHelper';
+import { showLoginModal, showSignupModal } from './modalHelper';
 import styles from './NavBar.module.scss';
 
 export default function NavBar() {
   const { user, setUser } = useContext(userContext);
 
-  async function handleLogin() {
+  async function handleLoginClick() {
     showLoginModal().then(({ userInfo, cancelled }) => {
-      if (cancelled) return;
-      else setUser(userInfo!);
-    })
+      if (cancelled || !userInfo) return;
+      else setUser(userInfo);
+    });
   }
 
-  async function handleLogout() {
+  async function handleSignupClick() {
+    showSignupModal().then(({ userInfo, cancelled }) => {
+      if (cancelled || !userInfo) return;
+      else setUser(userInfo);
+    });
+  }
+
+  async function handleLogoutClick() {
     await postLogout();
     setUser(null);
   }
 
   const userOrLoginEl = (
     user ? <>
-        <b>Hi, {user.name}!</b>
-        <button onClick={handleLogout}>Logout</button>
-      </>
-      : <button onClick={handleLogin}>Log in</button>
+      <b>Hi, {user.name}!</b>
+      <button onClick={handleLogoutClick}>Logout</button>
+    </>
+    : <>
+      <button onClick={handleLoginClick}>Log in</button>
+      <button onClick={handleSignupClick}>Sign up</button>
+    </>
   );
 
   return (
