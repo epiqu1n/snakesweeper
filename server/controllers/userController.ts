@@ -1,16 +1,16 @@
 import { RequestHandler } from 'express';
 import Users from '../models/Users';
-import { extractBody, PropertyMap } from '../utils/utils';
+import { extractBody, PropertyMap, ServerError } from '../utils/utils';
 import { encrypt } from '../models/model';
-import { setLocalsUser } from '../locals/users';
+import { getLocalsUser, setLocalsUser } from '../locals/users';
 
 interface UserController {
   /** Creates a new user in the database and stores info into `res.locals.user` */
   addUser: RequestHandler,
   /** Retrieves a user from the database. User info is stored into `res.locals.user` */
   getUser: RequestHandler,
-  /** Updates the last login date for a user  */
-  // updateLastLogin: RequestHandler
+  /** Updates the last login date for a user. Depends on user info stored in `res.locals.user`  */
+  updateLastLogin: RequestHandler
 }
 
 const userController: UserController = {
@@ -75,6 +75,26 @@ const userController: UserController = {
         err: err
       });
     }
+  },
+
+  updateLastLogin: async (req, res, next) => {
+    const userInfo = getLocalsUser(res);
+    if (!userInfo) return next({
+      msg: 'An error occurred during login (login may still have been successful, code: uc-ull-1)',
+      err: new ServerError('User info is missing from locals')
+    }); 
+
+    const { id } = userInfo;
+    try {
+      await Users.updateLastLogin(id);
+    } catch (err) {
+      return next({
+        msg: 'An error occurred during login (login may still have been successful, code: uc-ull-2)',
+        err: err
+      });
+    }
+
+    return next();
   }
 };
 

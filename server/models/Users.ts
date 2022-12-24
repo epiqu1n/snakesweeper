@@ -8,6 +8,7 @@ interface UsersModel extends Model {
   checkPassword: (username: string, password: string) => Promise<{ user: UserInfo | null, isValid: boolean }>
   // Attempting to make it so the `isValid` property dictates whether or not `user` will be null
   // checkPassword: <TReturn>(username: string, password: string) => Promise<TReturn extends { user: UserInfo | null, isValid: boolean }>(username: string, password: string) => Promise<TReturn['isValid'] extends true ? { user: UserInfo, isValid: true } : { user: null, isValid: false }>
+  updateLastLogin: (userId: number) => ReturnType<typeof query>
 }
 
 const Users: UsersModel = {
@@ -65,8 +66,18 @@ const Users: UsersModel = {
       isValid,
       user: (isValid ? user : null)
     };
-  }
-}
+  },
+  updateLastLogin: async (userId) => {
+    const updQuery = sql`
+      UPDATE Users
+      SET last_login = NOW()
+      WHERE id = $1::int
+    `;
+    const updParams = [userId];
+
+    return await query(updQuery, updParams);
+  },
+};
 
 export interface UserInfo {
   name: string,
