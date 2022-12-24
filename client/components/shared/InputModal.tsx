@@ -1,5 +1,6 @@
-import { ChangeEventHandler, DetailedHTMLProps, FormEventHandler, InputHTMLAttributes, MouseEventHandler, ReactNode, useEffect, useRef, useState } from 'react';
+import { ChangeEventHandler, DetailedHTMLProps, FormEventHandler, InputHTMLAttributes, ReactNode, useEffect, useState } from 'react';
 import styles from './InputModal.module.scss';
+import Modal from './Modal';
 
 interface InputModalProps<TInputs extends InputFields> {
   message: ReactNode,
@@ -10,8 +11,6 @@ interface InputModalProps<TInputs extends InputFields> {
 }
 
 export default function InputModal<TInputs extends InputFields>({ message, onSubmit, onCancel, inputs, error }: InputModalProps<TInputs>) {
-  const dialogRef = useRef(null) as React.MutableRefObject<HTMLDialogElement | null>;
-
   const [ inputFields, setInputFields ] = useState<InputFields>({});
 
   /** Assigns state */
@@ -33,35 +32,29 @@ export default function InputModal<TInputs extends InputFields>({ message, onSub
     event.preventDefault();
     const outputs: Record<string, unknown> = {};
     for (const name in inputFields) {
-      outputs[name] = inputFields[name].type === 'checkbox' ? inputFields[name].checked : inputFields[name].value
+      outputs[name] = inputFields[name].type === 'checkbox' ? inputFields[name].checked : inputFields[name].value;
     }
     onSubmit(outputs as InputValues<TInputs>);
   };
 
-  /** Modal click handler -> cancels the modal if a click occurs outside of the modal */
-  const handleDialogClick: MouseEventHandler<HTMLDialogElement> = ({ target }) => {
-    if (!(target instanceof HTMLElement) || target.matches(`.${styles.content}, .${styles.content} *`)) return;
-    console.log('Clicky');
-    onCancel();
-  };
-
   /** Handle new or removed input fields */
   useEffect(() => {
-    const newInputFields: InputFields = {};
-    if (inputs) {
-      for (const name in inputs) {
-        newInputFields[name] = inputFields[name] || inputs[name];
-        // Force component to be controlled if no initial value was provided
-        if (inputs[name].type === 'checkbox') newInputFields[name].checked = newInputFields[name].checked || false;
-        else newInputFields[name].value = newInputFields[name].value || '';
+    setInputFields((prevFields) => {
+      const newInputFields: InputFields = {};
+      if (inputs) {
+        for (const name in inputs) {
+          newInputFields[name] = prevFields[name] || inputs[name];
+          // Force component to be controlled if no initial value was provided
+          if (inputs[name].type === 'checkbox') newInputFields[name].checked = newInputFields[name].checked || false;
+          else newInputFields[name].value = newInputFields[name].value || '';
+        }
       }
-    }
-    else {
-      // If there are no provided inputs, only show the "default" input
-      newInputFields['__default'] = { value: '' };
-    }
-
-    setInputFields(newInputFields);
+      else {
+        // If there are no provided inputs, only show the "default" input
+        newInputFields['__default'] = { value: '' };
+      }
+      return newInputFields;
+    });
   }, [inputs]);
 
   /** Map input fields to elements */
@@ -76,23 +69,15 @@ export default function InputModal<TInputs extends InputFields>({ message, onSub
     );
   });
 
-  useEffect(() => {
-    dialogRef.current?.showModal();
-  }, [dialogRef]);
-
   return (
-    <dialog ref={dialogRef} className={styles.dialog} onCancel={onCancel} onClick={handleDialogClick}>
-      <div className={styles.content}>
-        <div className={styles.closeButton} onClick={onCancel}>X</div>
-        <div className={styles.title}>{message}</div>
-        <form onSubmit={handleSubmit} method='dialog' className={styles.form}>
-          {/* <input value={input} onChange={(event) => setInput(event.target.value)} autoFocus /> */}
-          {inputEls}
-          {error && <p className={styles.errors}>{error}</p>}
-          <input type='submit' value='Submit' />
-        </form>
-      </div>
-    </dialog>
+    <Modal message={message} onCancel={onCancel}>
+      <form onSubmit={handleSubmit} method='dialog' className={styles.form}>
+        {/* <input value={input} onChange={(event) => setInput(event.target.value)} autoFocus /> */}
+        {inputEls}
+        {error && <p className={styles.errors}>{error}</p>}
+        <input type='submit' value='Submit' />
+      </form>
+    </Modal>
   );
 }
 
