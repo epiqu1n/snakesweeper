@@ -58,7 +58,6 @@ const Users: UsersModel = {
 
     // console.log()
     const user: UserInfo & { password?: string } = await queryOne(passQuery, passParams);
-    console.log(user);
 
     const isValid = (user ? await compareHash(password, user.password!) : false);
     delete user?.password;
