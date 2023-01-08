@@ -1,11 +1,14 @@
 import express, { ErrorRequestHandler } from 'express';
 import path from 'path';
-import { CustomError, error, warn } from './utils/utils';
+import { CustomError, error } from './utils/utils';
 import scoreRouter from './routes/scores';
 import userRouter from './routes/users';
-import CONFIG from './server.config.json';
 import authRouter from './routes/auth';
 import cookieParser from 'cookie-parser';
+import https, { ServerOptions } from 'https';
+import http from 'http';
+import fs from 'fs';
+import server_config from './server.config.json';
 
 ///Initialization
 // Set up application
@@ -13,6 +16,23 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+
+// Load SSL key/cert
+const sslOpts: ServerOptions = {
+  key: fs.readFileSync(path.join(__dirname, `./ssl/${server_config.sslKey}`)),
+  cert: fs.readFileSync(path.join(__dirname, `./ssl/${server_config.sslCert}`))
+};
+
+// Set up https redirection
+app.use('*', (req, res, next) => {
+  if (!req.secure) {
+    const newPath = 'https://' + req.hostname + `:${server_config.httpsPort}` + req.path/*  + port */;
+    return res.redirect(newPath);
+  }
+  else return next();
+});
+
+// Serve static files
 app.use('/', express.static(path.join(__dirname, '../dist')));
 app.use('/assets', express.static(path.join(__dirname, '../client/assets')));
 
@@ -23,18 +43,13 @@ app.use('/api/auth', authRouter);
 
 
 /// Routes
-app.get('/', function(req, res) {
-  res.status(200).sendFile(path.join(__dirname, '../dist/index.html'));
-});
-
-
 // Catch-all
 app.all('*', function(req, res) {
   return res.sendStatus(404);
 });
 
 
-// Global error handler
+/// Global error handler
 type MiddlewareError = { msg: string, err?: Error | CustomError, code?: number };
 
 const globalErrorHandler: ErrorRequestHandler = (info: MiddlewareError | Error, req, res, next) => {
@@ -49,19 +64,22 @@ const globalErrorHandler: ErrorRequestHandler = (info: MiddlewareError | Error, 
   error(message);
   error(err);
   return res.status(code).send({ error: message });
-}
+};
 app.use(globalErrorHandler);
 /*
-  next({
+  Example error info: {
     // Message for client
     msg: 'Sorry stuff\'s borked :(',
     // Error to log
-    err: new ServerError('apiController.exampleMiddleware: Error occurred in middleware I guess')
-  });
+    err: new ServerError('apiController.exampleMiddleware: Error occurred in middleware I guess'),
+    code: 9001
+  }
 */
 
 
-// Start server
-app.listen(CONFIG.port, () => {
-  console.log(`Listening on port ${CONFIG.port}`);
+https.createServer(sslOpts, app).listen(server_config.httpsPort, () => {
+  console.log(`HTTPS server listening on port ${server_config.httpsPort}`.green);
+});
+http.createServer(app).listen(server_config.httpPort, () => {
+  console.log(`HTTP server listening on port ${server_config.httpPort}`.green);
 });
