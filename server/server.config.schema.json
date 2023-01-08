@@ -1,0 +1,23 @@
+{
+  "properties": {
+    "httpPort": {
+      "type": "integer"
+    },
+    "httspPort": {
+      "type": "integer"
+    },
+    "sslCert": {
+      "type": "string",
+      "description": "The name and extension of the ssl certificate file (must be in the '/server/ssl' directory)"
+    },
+    "sslKey": {
+      "type": "string",
+      "description": "The name and extension of the ssl key file (must be in the '/server/ssl' directory)"
+    },
+    "authSecret": {
+      "type": "string",
+      "description": "The secret string to be used for JWTs"
+    }
+  },
+  "required": ["httpPort", "httpsPort", "sslCert", "sslKey", "authSecret"]
+}

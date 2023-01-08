@@ -11,7 +11,7 @@
     "start-dev": "docker-compose -f docker-compose-dev.yml up",
     "stop-dev": "docker-compose -f docker-compose-dev.yml down",
     "server-start": "NODE_ENV=production nodemon ./server/server.ts",
-    "server-start-dev": "concurrently \"cross-env NODE_ENV=development webpack-dev-server --progress --color\" \"nodemon ./server/server.ts\"",
+    "server-start-dev": "concurrently \"cross-env NODE_ENV=development webpack-dev-server --progress --color\" \"NODE_ENV=development nodemon ./server/server.ts\"",
     "webpack-build": "NODE_ENV=production webpack"
   },
   "repository": {
