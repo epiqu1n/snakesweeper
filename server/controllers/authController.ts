@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import Users, { UserInfo } from '../models/Users';
-import { ClientError, extractBody, PropertyMap } from '../utils/utils';
+import { extractBody, PropertyMap } from '../utils/utils';
 import { sign, verify } from 'jsonwebtoken';
 import config from '../server.config.json';
 import { getLocalsUser, setLocalsUser } from '../locals/users';
@@ -30,8 +30,8 @@ interface AuthController {
 const authController: AuthController = {
   validateNewUserInfo: async (req, res, next) => {
     const expProps = {
-      username: "string",
-      password: "string"
+      username: 'string',
+      password: 'string'
     } as const;
 
     // Validate body
@@ -69,8 +69,8 @@ const authController: AuthController = {
   },
   verifyLoginAttempt: async (req, res, next) => {
     const expProps = {
-      username: "string",
-      password: "string"
+      username: 'string',
+      password: 'string'
     } as const;
 
     // Validate body
@@ -111,12 +111,11 @@ const authController: AuthController = {
       code: 400
     });
 
-    const token = sign(userInfo, config.authSecret, { expiresIn: "2w" });
+    const token = sign(userInfo, config.authSecret, { expiresIn: '2w' });
     res.cookie(AUTH_COOKIE, token, {
       maxAge: Date.now() + 2 * 7 * 24 * 60 * 60 * 1000, // 2 weeks,
       httpOnly: true,
-      // TODO: Generate local SSL cert and use https; secure: true doesn't work over http
-      // secure: true
+      secure: true
     });
 
     return next();
@@ -149,7 +148,7 @@ const authController: AuthController = {
     res.clearCookie(AUTH_COOKIE);
     return next();
   }
-}
+};
 
 export default authController;
 
