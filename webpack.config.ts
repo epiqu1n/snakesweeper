@@ -6,6 +6,8 @@ import path from 'path';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 import ReactRefreshTypeScript from 'react-refresh-typescript';
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
+import server_config from './server/server.config.json';
+import fs from 'fs';
 
 const isDevEnv = process.env.NODE_ENV === 'development';
 
@@ -20,7 +22,14 @@ const config: Configuration = {
   mode: (process.env.NODE_ENV === 'development' ? 'development' : 'production'),
   devServer: {
     host: '0.0.0.0',
-    port: 8080,
+    port: 8443,
+    server: {
+      type: 'https',
+      options: {
+        key: fs.readFileSync(path.join(__dirname, `./server/ssl/${server_config.sslKey}`)),
+        cert: fs.readFileSync(path.join(__dirname, `./server/ssl/${server_config.sslCert}`))
+      }
+    },
     hot: true,
     open: false,
     // historyApiFallback: true,
@@ -31,11 +40,11 @@ const config: Configuration = {
     // headers: { 'Access-Control-Allow-Origin': '*' },
     proxy: {
       '/api/**': {
-        target: 'http://localhost:3000/',
+        target: `https://localhost:${server_config.httpsPort}/`,
         secure: false
       },
       '/assets/**': {
-        target: 'http://localhost:3000/',
+        target: `https://localhost:${server_config.httpsPort}/`,
         secure: false
       }
     }
@@ -84,12 +93,13 @@ const config: Configuration = {
     new HtmlWebpackPlugin({
       template: './client/index.html'
     }),
-    isDevEnv ? new ReactRefreshWebpackPlugin() : ({} as WebpackPluginInstance),
     new ForkTsCheckerWebpackPlugin()
-  ].filter(Boolean),
+  ],
   resolve: {
     extensions: ['.tsx', '.ts', '.jsx', '.js'],
   }
 };
+
+if (isDevEnv) config.plugins?.push(new ReactRefreshWebpackPlugin());
 
 export default config;
