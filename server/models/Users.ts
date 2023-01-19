@@ -2,7 +2,6 @@ import { compareHash, Model, query, queryOne, sql } from './model';
 
 interface UsersModel extends Model {
   getIdByName: (name: string) => Promise<number | null>,
-  updateHighScore: (userId: number, time: number) => ReturnType<typeof query>,
   createUser: (username: string, password: string) => Promise<UserInfo>,
   getUserByName: (username: string) => Promise<UserInfo | null>,
   checkPassword: (username: string, password: string) => Promise<{ user: UserInfo | null, isValid: boolean }>
@@ -20,16 +19,6 @@ const Users: UsersModel = {
     const params = [name];
 
     return await queryOne(queryStr, params).then((res) => res.id as number);
-  },
-  updateHighScore: async (userId, time) => {
-    const queryStr = sql`
-      UPDATE Users
-      SET best_time = LEAST(best_time, $1::int)
-      WHERE id = $2::int
-    `;
-    const params = [time, userId];
-    
-    return await query(queryStr, params);
   },
   createUser: async (username, password) => {
     const userInsQuery = sql`
