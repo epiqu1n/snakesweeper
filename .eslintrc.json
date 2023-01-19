@@ -28,7 +28,12 @@
       "MemberExpression": 0,
       "flatTernaryExpressions": true
     }],
-    "no-unused-vars": ["off", { "vars": "local" }],
+    "no-unused-vars": ["off", {
+      "vars": "local"
+    }],
+    "@typescript-eslint/no-unused-vars": ["warn", {
+      "varsIgnorePattern": "\\_.*"
+    }],
     "no-case-declarations": "off",
     "prefer-const": "warn",
     "quotes": ["warn", "single"],
