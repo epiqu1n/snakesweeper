@@ -9,6 +9,7 @@ import https, { ServerOptions } from 'https';
 import http from 'http';
 import fs from 'fs';
 import server_config from './server.config.json';
+import gameEventsRouter from './routes/game_events';
 
 ///Initialization
 // Set up application
@@ -40,6 +41,7 @@ app.use('/assets', express.static(path.join(__dirname, '../client/assets')));
 app.use('/api/scores', scoreRouter);
 app.use('/api/users', userRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/game_events', gameEventsRouter);
 
 
 /// Routes
