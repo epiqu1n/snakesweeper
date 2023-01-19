@@ -34,7 +34,7 @@
 
     // Table header cells
     & > tr > th {
-      padding: 0.25em 1.5rem;
+      padding: 0.25em 1rem;
       font-weight: bold;
       border-right: 1px solid black;
       border-bottom: 1px solid black;
@@ -48,10 +48,10 @@
         width: 10em;
       }
       &.score {
-        width: 5em;
+        width: 4em;
       }
       &.date {
-        width: 12em;
+        width: 14em;
       }
     }
   }

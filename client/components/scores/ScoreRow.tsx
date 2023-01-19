@@ -12,9 +12,9 @@ export default function ScoreRow(props: ScoreRowProps) {
 
   // Format date
   const month = date.toLocaleString('default', { month: 'short' });
-  const isCurrentYear = (date.getFullYear() === ((new Date()).getFullYear()));
-  const year = (isCurrentYear ? '' : `, ${date.getFullYear()}`);
-  const dateStr = `${month} ${date.getDate()}${year}`;
+  // const isCurrentYear = (date.getFullYear() === ((new Date()).getFullYear()));
+  const year = date.getFullYear();// (isCurrentYear ? '' : `, ${date.getFullYear()}`);
+  const dateStr = `${month} ${date.getDate()}, ${year}`;
 
   // Format time
   const rawHours = date.getHours(), rawMinutes = date.getMinutes();
