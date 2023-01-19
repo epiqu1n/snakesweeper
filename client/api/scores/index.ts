@@ -1,6 +1,8 @@
 import { createInfiniteQueryHook, createMutationHook, createQueryHook } from '../queryFactory';
 import { getScores, postScore } from './methods';
 
+export * from './methods';
+
 const SCORES = 'scores';
 
 export const useGetScores = createQueryHook(SCORES, getScores);
