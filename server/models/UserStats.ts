@@ -12,7 +12,7 @@ const UserStats: UserStatsModel = {
       (user_id, mode_id, games_played)
       VALUES ($1::int, $2::int, 1)
       ON CONFLICT (user_id, mode_id) DO UPDATE
-      SET games_played = games_played + 1
+      SET games_played = EXCLUDED.games_played + 1
     `;
     const statUpdParams = [userId, modeId];
 
