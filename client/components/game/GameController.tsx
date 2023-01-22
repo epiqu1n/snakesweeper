@@ -1,10 +1,10 @@
-import GameBar from "./GameBar";
-import GameBoard from "./GameBoard";
+import GameBar from './GameBar';
+import GameBoard from './GameBoard';
 import { Gamemode } from '../../utils/gamemodes';
 import { MulticlickHandler, ClickTypeMulti, ClickTypeMulti as CTM } from '../../utils/eventUtils';
 import { GameState as GS, TileContent } from '../../types/GridTypes';
-import showFormModal from '../shared/modalHelper';
-import { useEffect, useState, MouseEvent, useContext } from 'react';
+// import showFormModal from '../shared/modalHelper';
+import { useEffect, useState, MouseEvent, useContext, useCallback } from 'react';
 import { usePostScores } from '../../api/scores';
 import userContext from '../../contexts/userContext';
 import { usePostGameStart } from '../../api/game_events';
@@ -104,7 +104,7 @@ export default function GameController({ onModeChange, difficulty, children }: G
       if (newSquare.content === 'M') {
         console.log('Player lost');
         setGameState(GS.POST_GAME_LOSS);
-        setGrid((prevGrid) => revealMines(prevGrid, index))
+        setGrid((prevGrid) => revealMines(prevGrid));
         setBadRevealIndex(index);
       }
       else if (newSquare.content === '0') {
@@ -158,7 +158,7 @@ export default function GameController({ onModeChange, difficulty, children }: G
   /**
    * Resets the grid, remaining squares, and start time
    */
-  const startNewGame = () => {
+  const startNewGame = useCallback(() => {
     console.log('Starting new game');
     // Set grid here just to fill out spaces when awaiting to start new game
     setGrid(genGrid(...size, numMines));
@@ -166,13 +166,13 @@ export default function GameController({ onModeChange, difficulty, children }: G
     setStartTime(-1);
     setNumFlags(0);
     setGameState(GS.PRE_GAME);
-  }
+  }, [numMines, size]);
 
   /// Effects
   // Reset grid on grid size change
   useEffect(() => {
     startNewGame();
-  }, [size]);
+  }, [size, startNewGame]);
 
   // Check if player has won when remaining number of mines changes
   useEffect(() => {
@@ -185,7 +185,7 @@ export default function GameController({ onModeChange, difficulty, children }: G
 
       if (user.isLoggedIn) postScore({ score: totalTime, modeId: difficulty.modeId });
     }
-  }, [remainingTiles]);
+  }, [difficulty.modeId, numMines, postScore, remainingTiles, startTime, user.isLoggedIn]);
 
   const remainingFlags = numMines - numFlags;
 
@@ -250,33 +250,6 @@ function cascadeEmpties(grid: Grid, index: number, width: number, height: number
   return revealed;
 }
 
-interface ScoreFormData {
-  username: string,
-  time: number,
-  modeId: number
-}
-async function submitScore({ username, time, modeId }: ScoreFormData) {
-  try {
-    const response = await fetch('/api/scores', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        username: username,
-        score: time,
-        modeId: modeId
-      })
-    })
-    .then(res => res.json());
-
-    if (response.error) throw new Error(response.error);
-  } catch (err) {
-    console.error(err);
-    alert('Uh oh, something went wrong submitting your score D:');
-  }
-}
-
 function coordInBounds(row: number, col: number, gridWidth: number, gridHeight: number) {
   return (
     row < 0 || row >= gridHeight ? false
@@ -285,7 +258,7 @@ function coordInBounds(row: number, col: number, gridWidth: number, gridHeight: 
   );
 }
 
-function revealMines(grid: Grid, clickIndex?: number): Grid {
+function revealMines(grid: Grid): Grid {
   for (const tile of grid) {
     // Reveal all of both mines and falsely flagged non-mines
     if ((tile.content !== 'M' && tile.isFlagged) || tile.content === 'M') tile.isRevealed = true;

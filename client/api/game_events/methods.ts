@@ -8,6 +8,6 @@ export async function postGameStart({ modeId }: PostGameStartArgs): Promise<void
   try {
     await post('/api/events', { modeId });
   } catch (err) {
-    return alert('An error occurred submitting score (code: ge-m-1');
+    return alert('An error occurred reporting game start event (code: ge-m-1)');
   }
 }
