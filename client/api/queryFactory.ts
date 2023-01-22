@@ -1,4 +1,4 @@
-import { QueryClient, UseMutationOptions, UseMutationResult, UseQueryOptions, UseQueryResult, useQuery, useQueryClient, useMutation, UseInfiniteQueryOptions, UseInfiniteQueryResult, useInfiniteQuery } from '@tanstack/react-query';
+import { QueryClient, UseMutationOptions, UseMutationResult, UseQueryOptions, UseQueryResult, useQuery, useQueryClient, useMutation, UseInfiniteQueryOptions, UseInfiniteQueryResult, useInfiniteQuery, MutationKey } from '@tanstack/react-query';
 
 /// Query Hook
 export interface QueryApiMethod<TArgs, TReturn> {
@@ -112,21 +112,22 @@ export interface MutationHook<TBody = Object, TReturn = unknown> {
   ]
 }
 
+// TODO: Change so that queryKeyName can be an array?
 /**
  * Creates a wrapper for the useMutation hook for simpler implementation.
  * Returns the action method for triggering a mutation, the mutation result, and the query client.  
  * Defaults to invalidating the associated query on success, but can be overridden by providing an `onSuccess` method in the `options` parameter.
  */
 export function createMutationHook<TBody extends Object, TReturn>(
-  queryKeyName: string,
+  queryKey: MutationKey | string,
   mutationFn: MutationApiMethod<TBody, TReturn>
 ) {
   const mutationHook: MutationHook<TBody, TReturn> = (options) => {
     const queryClient = useQueryClient();
     const mutation = useMutation({
-      mutationKey: [queryKeyName],
+      mutationKey: (typeof queryKey === 'string' ? [queryKey] : queryKey),
       mutationFn: mutationFn,
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: [queryKeyName] }),
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: [queryKey] }),
       ...options
     });
   
