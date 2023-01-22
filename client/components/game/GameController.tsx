@@ -7,6 +7,7 @@ import showFormModal from '../shared/modalHelper';
 import { useEffect, useState, MouseEvent, useContext } from 'react';
 import { usePostScores } from '../../api/scores';
 import userContext from '../../contexts/userContext';
+import { usePostGameStart } from '../../api/game_events';
 
 export type GridSquareState = {
   content: TileContent,
@@ -25,7 +26,7 @@ type GameControllerProps = {
 const squareClickHandler = new MulticlickHandler();
 
 export default function GameController({ onModeChange, difficulty, children }: GameControllerProps) {
-  const { size, mines: numMines } = difficulty;
+  const { size, mines: numMines, modeId } = difficulty;
   
   const [grid, setGrid] = useState<Grid>([]);
   /** Number of unrevealed tiles */
@@ -37,6 +38,7 @@ export default function GameController({ onModeChange, difficulty, children }: G
   const user = useContext(userContext);
 
   const [ postScore ] = usePostScores();
+  const [ postGameStart ] = usePostGameStart();
 
 
   /// Event handlers
@@ -56,6 +58,7 @@ export default function GameController({ onModeChange, difficulty, children }: G
       setGameState(GS.IN_GAME);
       generatedGrid = genGrid(size[0], size[1], numMines, index);
       setGrid(generatedGrid);
+      postGameStart({ modeId });
     }
 
     // Update grid state
