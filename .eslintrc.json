@@ -32,7 +32,7 @@
       "vars": "local"
     }],
     "@typescript-eslint/no-unused-vars": ["warn", {
-      "varsIgnorePattern": "\\_.*"
+      "argsIgnorePattern": "^_.*"
     }],
     "no-case-declarations": "off",
     "prefer-const": "warn",
