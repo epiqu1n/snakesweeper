@@ -36,7 +36,7 @@ export interface ResponseBody<TData = unknown> {
   warning?: string,
   error?: string,
   data?: TData
-};
+}
 
 /**
  * Fetch request wrapper with built in response parsing and error handling
@@ -47,7 +47,8 @@ export default async function request<TResponse = unknown>(url: RequestInfo | UR
   let response, data: ResponseBody<TResponse>;
   try {
     response = await fetch(url, options);
-    data = await response.json();
+    const isJson = (response.headers.get('Content-Type') === 'application/json');
+    data = (isJson ? await response.json() : await response.text());
   } catch (err) {
     console.error(err);
     throw new Error('An unknown error occurred while contacting server');
@@ -75,7 +76,7 @@ export async function get<TResponse = unknown>(url: RequestInfo | URL, options?:
  * Fetch POST request wrapper with built in response parsing and error handling
  * @throws {ServerError | ClientError} with message that can be displayed to the client
  */
-export async function post<TResponse = unknown>(url: RequestInfo | URL, body: Object, options?: RequestInit) {
+export async function post<TResponse = unknown>(url: RequestInfo | URL, body: object, options?: RequestInit) {
   const defaultOpts: RequestInit = {
     method: 'POST',
     headers: {

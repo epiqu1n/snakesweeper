@@ -6,7 +6,7 @@ interface PostGameStartArgs {
 
 export async function postGameStart({ modeId }: PostGameStartArgs): Promise<void> {
   try {
-    await post('/api/events', { modeId });
+    await post('/api/events/start', { modeId });
   } catch (err) {
     return alert('An error occurred reporting game start event (code: ge-m-1)');
   }
