@@ -1,5 +1,6 @@
 import { compareHash, Model, query, queryOne, sql } from './model';
 
+// TODO: Refactor or remove extends so that nonexistent methods cannot be used
 interface UsersModel extends Model {
   getIdByName: (name: string) => Promise<number | null>,
   createUser: (username: string, password: string) => Promise<UserInfo>,

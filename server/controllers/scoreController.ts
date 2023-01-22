@@ -84,8 +84,7 @@ const scoreController: ScoreController = {
     const userId = user.id;
     try {
       await Promise.all([
-        Scores.insertScore(userId, body.modeId, body.score),
-        Users.updateHighScore(userId, body.score)
+        Scores.insertScore(userId, body.modeId, body.score)
       ]);
     } catch (err) {
       return next({

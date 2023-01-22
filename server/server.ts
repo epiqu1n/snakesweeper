@@ -41,7 +41,7 @@ app.use('/assets', express.static(path.join(__dirname, '../client/assets')));
 app.use('/api/scores', scoreRouter);
 app.use('/api/users', userRouter);
 app.use('/api/auth', authRouter);
-app.use('/api/game_events', gameEventsRouter);
+app.use('/api/events', gameEventsRouter);
 
 
 /// Routes
