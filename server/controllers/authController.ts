@@ -115,7 +115,8 @@ const authController: AuthController = {
     res.cookie(AUTH_COOKIE, token, {
       maxAge: Date.now() + 2 * 7 * 24 * 60 * 60 * 1000, // 2 weeks,
       httpOnly: true,
-      secure: true
+      secure: true,
+      sameSite: 'strict'
     });
 
     return next();

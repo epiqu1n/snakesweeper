@@ -47,7 +47,7 @@ export default async function request<TResponse = unknown>(url: RequestInfo | UR
   let response, data: ResponseBody<TResponse>;
   try {
     response = await fetch(url, options);
-    const isJson = (response.headers.get('Content-Type') === 'application/json');
+    const isJson = (response.headers.get('Content-Type')?.includes('application/json'));
     data = (isJson ? await response.json() : await response.text());
   } catch (err) {
     console.error(err);
