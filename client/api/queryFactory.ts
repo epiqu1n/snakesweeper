@@ -100,9 +100,9 @@ export function createInfiniteQueryHook<TArgs, TReturn>(
 
 
 /// Mutation Hook
-export type MutationApiMethod<TBody extends Object, TReturn> = (body: TBody) => Promise<TReturn>;
+export type MutationApiMethod<TBody extends object, TReturn> = (body: TBody) => Promise<TReturn>;
 
-export interface MutationHook<TBody = Object, TReturn = unknown> {
+export interface MutationHook<TBody = object, TReturn = unknown> {
   (
     options?: UseMutationOptions<TReturn, unknown, TBody, unknown>
   ): [
@@ -118,16 +118,16 @@ export interface MutationHook<TBody = Object, TReturn = unknown> {
  * Returns the action method for triggering a mutation, the mutation result, and the query client.  
  * Defaults to invalidating the associated query on success, but can be overridden by providing an `onSuccess` method in the `options` parameter.
  */
-export function createMutationHook<TBody extends Object, TReturn>(
-  queryKey: MutationKey | string,
+export function createMutationHook<TBody extends object, TReturn>(
+  queryKeyName: string,
   mutationFn: MutationApiMethod<TBody, TReturn>
 ) {
   const mutationHook: MutationHook<TBody, TReturn> = (options) => {
     const queryClient = useQueryClient();
     const mutation = useMutation({
-      mutationKey: (typeof queryKey === 'string' ? [queryKey] : queryKey),
+      mutationKey: [queryKeyName],
       mutationFn: mutationFn,
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: [queryKey] }),
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: [queryKeyName] }),
       ...options
     });
   
