@@ -1,6 +1,6 @@
 import express, { ErrorRequestHandler } from 'express';
 import path from 'path';
-import { CustomError, error } from './utils/utils';
+import { ClientError, CustomError, error } from './utils/utils';
 import scoreRouter from './routes/scores';
 import userRouter from './routes/users';
 import authRouter from './routes/auth';
@@ -10,6 +10,7 @@ import http from 'http';
 import fs from 'fs';
 import server_config from './server.config.json';
 import gameEventsRouter from './routes/game_events';
+import testRouter from './routes/test';
 
 ///Initialization
 // Set up application
@@ -42,6 +43,7 @@ app.use('/api/scores', scoreRouter);
 app.use('/api/users', userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/events', gameEventsRouter);
+app.use('/__test__', testRouter);
 
 
 /// Routes
@@ -52,19 +54,26 @@ app.all('*', function(req, res) {
 
 
 /// Global error handler
-type MiddlewareError = { msg: string, err?: Error | CustomError, code?: number };
+type MiddlewareError = { msg: string, err?: Error | CustomError, code?: number } | Error;
 
-const globalErrorHandler: ErrorRequestHandler = (info: MiddlewareError | Error, req, res, _) => {
+const globalErrorHandler: ErrorRequestHandler = (info: MiddlewareError, req, res, _) => {
   const err = (info instanceof Error ? info : info.err);
-  const message = (info instanceof Error ? 'An unknown server error occurred' : info.msg);
+  const message = (
+    info instanceof ClientError ? info.message
+    : info instanceof Error ? 'An unknown server error occurred'
+    : info.msg
+  );
   const code = (
-    info instanceof Error ? 500
+    info instanceof CustomError ? info.statusCode
+    : info instanceof Error ? 500
     : typeof info.code === 'number' ? info.code
     : info.err instanceof CustomError ? info.err.statusCode
     : 500
   );
-  error(message);
-  error(err);
+
+  // error(message);
+  if (err && !(err instanceof ClientError)) error(err);
+
   return res.status(code).send({ error: message });
 };
 app.use(globalErrorHandler);
