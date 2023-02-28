@@ -11,8 +11,8 @@ const pool = new pg.Pool({
 
 });
 
-pool.on('error', (err) => {
-  switch (err.name) {
+pool.on('error', (err: Error & Record<string, unknown>) => {
+  switch (err.code) {
     case 'ETIMEDOUT':
       warn('Database connection timed out');
       break;
