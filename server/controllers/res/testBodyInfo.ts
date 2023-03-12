@@ -1,10 +1,17 @@
 import { ArrayPropInfo, JsonPrimitive, ObjectPropInfo, PrimitivePropInfo, RequestBodyTypes } from '../../utils/SnakeRequestHandler';
 
-export const jsonPrimitive: RequestBodyTypes & { primitiveProp: JsonPrimitive } = {
+export const jsonPrimitive = {
   primitiveProp: 'number'
-};
+} satisfies RequestBodyTypes & { primitiveProp: JsonPrimitive };
 
-export const objectPropInfo: RequestBodyTypes & { objectProp: ObjectPropInfo } = {
+export const primitivePropInfo = {
+  primitiveProp: {
+    type: 'string',
+    required: true
+  }
+} satisfies RequestBodyTypes & { primitiveProp: PrimitivePropInfo };
+
+export const objectPropInfo = {
   objectProp: {
     type: 'object',
     properties: {
@@ -19,16 +26,9 @@ export const objectPropInfo: RequestBodyTypes & { objectProp: ObjectPropInfo } =
     },
     required: false
   }
-};
+} satisfies RequestBodyTypes & { objectProp: ObjectPropInfo };
 
-export const primitivePropInfo: RequestBodyTypes & { primitiveProp: PrimitivePropInfo } = {
-  primitiveProp: {
-    type: 'string',
-    required: true
-  }
-};
-
-export const arrayPropInfo: RequestBodyTypes & { arrayPropPrimitive: ArrayPropInfo, arrayPropObject: ArrayPropInfo } = {
+export const arrayPropInfo = {
   arrayPropPrimitive: {
     type: 'array',
     elementType: jsonPrimitive.primitiveProp
@@ -44,4 +44,4 @@ export const arrayPropInfo: RequestBodyTypes & { arrayPropPrimitive: ArrayPropIn
       elementType: jsonPrimitive.primitiveProp
     }
   }
-};
+} satisfies RequestBodyTypes & { arrayPropPrimitive: ArrayPropInfo, arrayPropObject: ArrayPropInfo };
