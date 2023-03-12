@@ -42,7 +42,8 @@
     "semi": ["warn", "always"],
     "space-infix-ops": "warn",
     "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/no-extra-semi": "warn"
+    "@typescript-eslint/no-extra-semi": "warn",
+    "@typescript-eslint/no-empty-interface": "warn"
   },
   "settings": {
     "react": { "version": "detect"}
