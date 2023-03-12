@@ -153,9 +153,20 @@ type SnakePropertyMap<ExpType extends PropertyInfo> = (
   : never
 );
 
+/** Creates a printable representation of the path to a key in an object, where the base is the current path so far. */
+function makeKeyPath(base: string | undefined, key: string | number): string {
+  if (!base) return `${key}`;
+
+  const newKeyPath = (
+    typeof key === 'number' || key.match(/^\d+$/) ? `${base}[${key}]`      // Array index
+    : key.match(/[.\s]|^\d/) ? `${base}['${key}']`  // Key that has period, whitespace, or starts with number
+    : `${base}.${key}`
+  );
+  return newKeyPath;
+}
 
 /**
- * Validates a JSON request body against the provided property:type structure.
+ * Validates a JSON request body against the provided structure.  
  * Assumes that all properties are required unless specified.
  * @throws {ClientError} if the body is malformed
  */
@@ -163,11 +174,11 @@ function validateJsonBody<EP extends RequestBodyTypes>(requestBody: Record<strin
   if (!expectedProps) return;
 
   for (const [key, expectedPropInfo] of Object.entries(expectedProps)) {
-    const newKeyPath = (keyPath ? `${keyPath}['${key}']` : key);
+    const newKeyPath = makeKeyPath(keyPath, key);
     // Check if property is in request body. If not, throw error if required, otherwise skip
     if (!(key in requestBody)) {
       if (typeof expectedPropInfo !== 'object' || expectedPropInfo.required !== false) {
-        throw new ClientError(`Property '${key}' is required`);
+        throw new ClientError(`Property '${newKeyPath}' is required`);
       }
       else continue;
     }
@@ -191,7 +202,7 @@ function validatePropertyInfo<PI extends PropertyInfo>(property: unknown, proper
     else {
       for (let i = 0; i < property.length; i++) {
         const element = property[i];
-        const newKeyPath = `${keyPath}[${i}]`;
+        const newKeyPath = makeKeyPath(keyPath, i);
         if (typeof propertyInfo.elementType === 'object') validatePropertyInfo(element as Record<string, unknown>, propertyInfo.elementType, newKeyPath);
         else validatePrimitiveProperty(element, propertyInfo.elementType, newKeyPath);
       }
