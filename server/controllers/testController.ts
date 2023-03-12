@@ -1,10 +1,10 @@
-import { RequestHandler } from 'express';
-import handleRequest from '../utils/SnakeRequestHandler';
-import { jsonPrimitive, objectPropInfo } from './res/testBodyInfo';
+import handleRequest, { SnakeRequestHandler } from '../utils/SnakeRequestHandler';
+import { arrayPropInfo, jsonPrimitive, objectPropInfo } from './res/testBodyInfo';
 
 export interface TestController {
-  postJsonPrimitive: RequestHandler,
-  postObjectPropInfo: RequestHandler
+  postJsonPrimitive: SnakeRequestHandler,
+  postObjectPropInfo: SnakeRequestHandler,
+  postArrayPropInfo: SnakeRequestHandler
 }
 
 const testController: TestController = {
@@ -18,6 +18,13 @@ const testController: TestController = {
   postObjectPropInfo: handleRequest(
     {
       body: objectPropInfo
+    },
+    (_, __, next) => next()
+  ),
+
+  postArrayPropInfo: handleRequest(
+    {
+      body: arrayPropInfo
     },
     (_, __, next) => next()
   )

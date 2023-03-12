@@ -31,17 +31,20 @@ export const objectPropInfo = {
 export const arrayPropInfo = {
   arrayPropPrimitive: {
     type: 'array',
-    elementType: jsonPrimitive.primitiveProp
+    elementType: jsonPrimitive.primitiveProp,
+    required: false
   },
   arrayPropObject: {
     type: 'array',
-    elementType: objectPropInfo.objectProp
+    elementType: objectPropInfo.objectProp,
+    required: false
   },
   arrayPropArray: {
     type: 'array',
     elementType: {
       type: 'array',
       elementType: jsonPrimitive.primitiveProp
-    }
+    },
+    required: false
   }
 } satisfies RequestBodyTypes & { arrayPropPrimitive: ArrayPropInfo, arrayPropObject: ArrayPropInfo };
