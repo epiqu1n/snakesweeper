@@ -1,8 +1,9 @@
 import handleRequest, { SnakeRequestHandler } from '../utils/SnakeRequestHandler';
-import { arrayPropInfo, jsonPrimitive, objectPropInfo } from './res/testBodyInfo';
+import { arrayPropInfo, jsonPrimitive, objectPropInfo, primitivePropInfo } from './res/testBodyInfo';
 
 export interface TestController {
   postJsonPrimitive: SnakeRequestHandler,
+  postPrimitivePropInfo: SnakeRequestHandler,
   postObjectPropInfo: SnakeRequestHandler,
   postArrayPropInfo: SnakeRequestHandler
 }
@@ -11,6 +12,13 @@ const testController: TestController = {
   postJsonPrimitive: handleRequest(
     {
       body: jsonPrimitive
+    },
+    (_, __, next) => next()
+  ),
+
+  postPrimitivePropInfo: handleRequest(
+    {
+      body: primitivePropInfo
     },
     (_, __, next) => next()
   ),
