@@ -214,7 +214,8 @@ function validatePropertyInfo<PI extends PropertyInfo>(property: unknown, proper
 /** Validates that a primitive property is of the correct type (and not empty if a string) */
 function validatePrimitiveProperty(property: unknown, expectedType: JsonPrimitive, keyPath: string): void {
   if (typeof property !== expectedType) {
-    throw new ClientError(`Type '${typeof property}' is invalid for property '${keyPath}': '${expectedType}'`);
+    const propertyType = (Array.isArray(property) ? 'array' : typeof property);
+    throw new ClientError(`Type '${propertyType}' is invalid for property '${keyPath}': '${expectedType}'`);
   }
   else if (property === '') {
     throw new ClientError(`Required property '${keyPath}' cannot be empty`);
