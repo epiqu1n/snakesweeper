@@ -13,7 +13,7 @@ export async function getScores(filters: ScoresFilters = {}) {
   const data = await fetch(url).then(res => res.json());
   if (data.error) {
     console.error(data.error);
-    throw new Error('An error occurred getting top scores:', data.error);
+    throw new Error('An error occurred getting top scores:' + data.error);
   }
 
   const scores: UserScore[] = data.scores.map((score: UserScore & { submitted_at: string }) => ({
