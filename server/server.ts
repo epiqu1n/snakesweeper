@@ -10,7 +10,7 @@ import http from 'http';
 import fs from 'fs';
 import server_config from './server.config.json';
 import gameEventsRouter from './routes/game_events';
-import testRouter from './routes/test';
+import requestTestRouter from './routes/request_test';
 
 ///Initialization
 // Set up application
@@ -43,7 +43,7 @@ app.use('/api/scores', scoreRouter);
 app.use('/api/users', userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/events', gameEventsRouter);
-app.use('/__test__', testRouter);
+app.use('/__test__', requestTestRouter);
 
 
 /// Routes
