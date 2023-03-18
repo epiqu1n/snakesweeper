@@ -1,5 +1,5 @@
-import { RequestHandler } from 'express';
-import { ClientError, CustomError } from './utils';
+import { Request, RequestHandler, Response } from 'express';
+import { ClientError, CustomError, getType } from './utils';
 
 export interface MiddlewareError {
   /** The message that will be sent to the client */
@@ -42,9 +42,9 @@ export interface RequestBodyTypes {
   [prop: string]: JsonPrimitive | PropertyInfo
 }
 
-export type RequestQueryTypes = qs.ParsedQs
+export type RequestQueryTypes = RequestBodyTypes;
 
-export interface RequestData<
+export interface RequestInputData<
   Body extends RequestBodyTypes | undefined = RequestBodyTypes,
   Query extends RequestQueryTypes | undefined = RequestQueryTypes,
   Params extends readonly string[] = readonly string[]
@@ -55,41 +55,44 @@ export interface RequestData<
 }
 
 export type SnakeRequestHandler<
-  Body extends RequestData['body'] = RequestData['body'],
-  Query extends RequestData['query'] = RequestData['query'],
-  Params extends RequestData['params'] = RequestData['params']
+  Body extends RequestInputData['body'] = RequestInputData['body'],
+  Query extends RequestInputData['query'] = RequestInputData['query'],
+  Params extends RequestInputData['params'] = RequestInputData['params']
 > = RequestHandler<
   { [Key in (Params extends readonly (infer U)[] ? U : never)]: string }, // This is some magic I got from SO to turn an array of strings to keys in an object
   never,
   PropertyMap<Body>, 
-  Query
+  PropertyMap<Query>
+>;
+
+export type SnakeRequest<
+  Body extends RequestInputData['body'] = RequestInputData['body'],
+  Query extends RequestInputData['query'] = RequestInputData['query'],
+  Params extends RequestInputData['params'] = RequestInputData['params']
+> = Request<
+  { [Key in (Params extends readonly (infer U)[] ? U : never)]: string }, // This is some magic I got from SO to turn an array of strings to keys in an object
+  never,
+  PropertyMap<Body>, 
+  PropertyMap<Query>
 >;
 
 export type SnakeRequestController<
-  Body extends RequestData['body'],
-  Query extends RequestData['query'],
-  Params extends RequestData['params']
+  Body extends RequestInputData['body'],
+  Query extends RequestInputData['query'],
+  Params extends RequestInputData['params']
 > = (
-  SnakeRequestHandler<Body, Query, Params> extends (
-    req: infer Req,
-    res: infer Res,
-    next: unknown
-  ) => void
-  ? (
-    req: Req,
-    res: Res,
-    next: <T>(err?: T extends Error ? T : MiddlewareError) => void
-  ) => void
-  : never
-);
+  req: SnakeRequest<Body, Query, Params>,
+  res: Response,
+  next: <T>(err?: T extends Error ? T : MiddlewareError) => void
+) => void
 
 /** Creates an Express RequestHandler with request typing and validation */
 export default function handleRequest<
-  Body extends RequestData['body'],
-  Query extends RequestData['query'],
+  Body extends RequestInputData['body'],
+  Query extends RequestInputData['query'],
   Params extends string[]
 > (
-  requestData: RequestData<Body, Query, readonly [...Params]> | undefined | null = {},
+  requestData: RequestInputData<Body, Query, readonly [...Params]> | undefined | null = {},
   controller: SnakeRequestController<Body, Query, Params>
 ): RequestHandler {
   const { body: bodyTypes, query: queryTypes } = requestData || {};
@@ -99,7 +102,7 @@ export default function handleRequest<
     if (bodyTypes || queryTypes) {
       try {
         if (bodyTypes) validateJsonBody(req.body, bodyTypes);
-        // if (queryTypes) validateUrlQuery(req.query, queryTypes); // TODO: Validate request query
+        if (queryTypes) req.query = validateAndCastQueryArgs(req.query, queryTypes) || {};
       } catch (err) {
         return next(err);
       }
@@ -108,7 +111,7 @@ export default function handleRequest<
     // Just to satisfy TypeScript since all props have been validated by this point
     type TypedRequest = typeof req & {
       body: PropertyMap<Body>,
-      query: Query,
+      query: PropertyMap<Query>,
       params: { [Key in (Params extends readonly (infer U)[] ? U : never)]: string }
     };
     controller(req as TypedRequest, res, next);
@@ -158,8 +161,8 @@ function makeKeyPath(base: string | undefined, key: string | number): string {
   if (!base) return `${key}`;
 
   const newKeyPath = (
-    typeof key === 'number' || key.match(/^\d+$/) ? `${base}[${key}]`      // Array index
-    : key.match(/[.\s]|^\d/) ? `${base}['${key}']`  // Key that has period, whitespace, or starts with number
+    typeof key === 'number' || key.match(/^\d+$/) ? `${base}[${key}]` // Array index
+    : key.match(/[.\s]|^\d/) ? `${base}['${key}']` // Key that has period, whitespace, or starts with number
     : `${base}.${key}`
   );
   return newKeyPath;
@@ -170,11 +173,13 @@ function makeKeyPath(base: string | undefined, key: string | number): string {
  * Assumes that all properties are required unless specified.
  * @throws {ClientError} if the body is malformed
  */
-function validateJsonBody<EP extends RequestBodyTypes>(requestBody: Record<string, unknown>, expectedProps: EP | undefined, keyPath?: string): void {
+function validateJsonBody<EP extends RequestBodyTypes>(requestBody: Request['body'], expectedProps: EP | undefined, keyPath?: string): void {
   if (!expectedProps) return;
 
   for (const [key, expectedPropInfo] of Object.entries(expectedProps)) {
     const newKeyPath = makeKeyPath(keyPath, key);
+    if (!requestBody) throw new ClientError(`Expected 'object' for property '${keyPath}', received '${getType(requestBody)}'`);
+
     // Check if property is in request body. If not, throw error if required, otherwise skip
     if (!(key in requestBody)) {
       if (typeof expectedPropInfo !== 'object' || expectedPropInfo.required !== false) {
@@ -182,6 +187,7 @@ function validateJsonBody<EP extends RequestBodyTypes>(requestBody: Record<strin
       }
       else continue;
     }
+
     if (typeof expectedPropInfo === 'object') validatePropertyInfo(requestBody[key], expectedPropInfo, newKeyPath);
     else validatePrimitiveProperty(requestBody[key], expectedPropInfo, newKeyPath);
   }
@@ -191,13 +197,13 @@ function validateJsonBody<EP extends RequestBodyTypes>(requestBody: Record<strin
 function validatePropertyInfo<PI extends PropertyInfo>(property: unknown, propertyInfo: PI, keyPath = 'object'): void {
   if (propertyInfo.type === 'object') {
     if (typeof property !== 'object' || Array.isArray(property)) {
-      throw new ClientError(`Expected 'object' for property '${keyPath}', received '${Array.isArray(property) ? 'array' : typeof property}'`);
+      throw new ClientError(`Expected 'object' for property '${keyPath}', received '${getType(property)}'`);
     }
     else validateJsonBody(property as Record<string, unknown>, propertyInfo.properties, keyPath);
   }
   else if (propertyInfo.type === 'array') {
     if (!Array.isArray(property)) {
-      throw new ClientError(`Expected 'array' for property '${keyPath}', received '${typeof property}'`);
+      throw new ClientError(`Expected 'array' for property '${keyPath}', received '${getType(property)}'`);
     }
     else {
       for (let i = 0; i < property.length; i++) {
@@ -214,92 +220,70 @@ function validatePropertyInfo<PI extends PropertyInfo>(property: unknown, proper
 /** Validates that a primitive property is of the correct type (and not empty if a string) */
 function validatePrimitiveProperty(property: unknown, expectedType: JsonPrimitive, keyPath: string): void {
   if (typeof property !== expectedType) {
-    const propertyType = (Array.isArray(property) ? 'array' : typeof property);
-    throw new ClientError(`Type '${propertyType}' is invalid for property '${keyPath}': '${expectedType}'`);
+    throw new ClientError(`Type '${getType(property)}' is invalid for property '${keyPath}': '${expectedType}'`);
   }
   else if (property === '') {
     throw new ClientError(`Required property '${keyPath}' cannot be empty`);
   }
 }
 
-// function validateAndCastQueryArgs<EP extends SnakeBodyTypes>(requestQuery: Request['query'], expectedProps: EP | undefined): void {
-//   if (!expectedProps) return;
+function validateAndCastQueryArgs<EP extends RequestBodyTypes>(requestQuery: Request['query'], expectedProps: EP | undefined): PropertyMap<EP> | null {
+  if (!expectedProps) return null;
 
-//   for (const [key, expectedPropInfo] of Object.entries(expectedProps)) {
-//     // Check if property is in request body and if not, throw error if required
-//     if (!(key in requestQuery)) {
-//       if (typeof expectedPropInfo !== 'object' || expectedPropInfo.required !== false)
-//         throw new ClientError(`Property '${key}' is required`);
-//       else continue;
-//     }
-//     // If property info is an object, check if the type is 'object' and recurse if so (parsing the value as JSON if necessary), otherwise validate property type
-//     else if (typeof expectedPropInfo === 'object') {
-//       if (expectedPropInfo.type === 'object') { // Checking if expected type is an object
-//         if (typeof requestQuery[key] !== 'object') {
-//           // Checking if actual property value is an object
-//           try {
-//             requestQuery[key] = JSON.parse(requestQuery[key]);
-//           } catch {
-//             throw new ClientError(`Expected 'object' for property '${key}', received '${typeof requestBody[key]}'`);
-//           }
-//         }
-//         else validateJsonBody(requestBody[key] as Record<string, unknown>, expectedPropInfo.properties);
-//       }
-//       else validatePropType(requestBody, key, expectedPropInfo.type);
-//     }
-//     // Property must be a primitive type so validate
-//     else validatePropType(requestBody, key, expectedPropInfo);
+  const castedQueryArgs: Record<string, unknown> = {};
+  for (const [key, expectedPropInfo] of Object.entries(expectedProps)) {
+    const keyPath = makeKeyPath('', key);
+    const value = requestQuery[key];
 
-// }
+    // Check if property is in request body. If not, throw error if required, otherwise skip
+    if (!(key in requestQuery)) {
+      if (typeof expectedPropInfo !== 'object' || expectedPropInfo.required !== false) {
+        throw new ClientError(`Query property '${keyPath}' is required`);
+      }
+      else continue;
+    }
 
-/* 
-// Debug / testing:
-const exampleBodyTypes = {
-  sample: {
-    type: 'object',
-    properties: {
-      level2s: {
-        type: 'object',
-        properties: {
-          level3: 'number'
-        }
-      },
-      level2b: {
-        type: 'null',
-        required: false
-      },
-      level2c: 'string'
-    },
-    required: false
-  },
-  bample: {
-    type: 'boolean',
-    required: false
-  },
-  cample: 'number'
-} as const;
+    if (typeof expectedPropInfo === 'string' || expectedPropInfo.type.match(/number|string|boolean|null/)) {
+      const expectedType = (typeof expectedPropInfo === 'string' ? expectedPropInfo : expectedPropInfo.type) as JsonPrimitive;
+      if (typeof value !== 'string') throw new ClientError(`Failed to cast non-string query value '${keyPath}'`);
+      castedQueryArgs[key] = castJsonPrimitive(value, expectedType, keyPath);
+    }
+    else {
+      if (typeof value !== 'string') throw new ClientError(`Query property '${keyPath}' must be a JSON string`);
+      try {
+        castedQueryArgs[key] = JSON.parse(value);
+      } catch (err) {
+        throw new ClientError(`Failed to parse '${keyPath}' as JSON`);
+      }
+      validatePropertyInfo(castedQueryArgs[key], expectedPropInfo, keyPath);
+    }
+  }
 
-import { Router } from 'express';
-const router = Router();
-router.get(
-  'test',
-  SnakeRequestHandler({
-    body: exampleBodyTypes,
-    query: {
-      bonko: 'string'
-    },
-    params: ['testerosa']
-  },
-  async (req, res, next) => {
-    req.body;
-    req.params;
-    req.query;
+  return castedQueryArgs as PropertyMap<EP>;
+}
 
-    return next({
-      msg: 'a',
-      code: 2,
-      err: new Error('bruh')
-    });
-  })
-);
+/**
+ * Attempts to cast a given value in the form of a string to its expected type.
+ * If the cast is not successful, throws a `ClientError`
+ * @throws {ClientError}
  */
+function castJsonPrimitive(value: string, expectedType: JsonPrimitive, keyPath: string) {
+  switch (expectedType) {
+    case 'boolean':
+      if (value.match(/true|false/i)) return (value.toLowerCase() === 'true');
+      else break;
+    case 'number':
+      const casted = parseFloat(value);
+      if (!Number.isNaN(casted)) return casted;
+      else break;
+    case 'string':
+      if (typeof value === 'string') return value;
+      else break;
+    case 'null':
+      if (value.toLowerCase() === 'null') return null;
+      else break;
+  }
+
+  // If it reaches here, casting failed
+  throw new ClientError(`Failed to cast query property '${keyPath}' to type '${expectedType}'`);
+}
