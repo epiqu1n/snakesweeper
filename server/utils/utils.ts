@@ -103,3 +103,8 @@ export function extractBody<EP extends Record<string, keyof TypeMap>>(req: Reque
 export function isNum(value: unknown) {
   return !isNaN(parseInt(value as string));
 }
+
+/** Gets the type of a variable, with support for "array" and "object" as well */
+export function getType(value: unknown) {
+  return ( value === null ? 'null' : value instanceof Array ? 'array' : typeof value  );
+}
