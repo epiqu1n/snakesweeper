@@ -1,5 +1,6 @@
-import { Request, RequestHandler, Response } from 'express';
+import { Request as ERequest, Response as EResponse, NextFunction as ENextFunction, RequestHandler as ERequestHandler } from 'express';
 import { ClientError, CustomError, getType } from './utils';
+import { UserInfo } from '../models/Users';
 
 export interface MiddlewareError {
   /** The message that will be sent to the client */
@@ -58,23 +59,33 @@ export type SnakeRequestHandler<
   Body extends RequestInputData['body'] = RequestInputData['body'],
   Query extends RequestInputData['query'] = RequestInputData['query'],
   Params extends RequestInputData['params'] = RequestInputData['params']
-> = RequestHandler<
+> = ERequestHandler<
   { [Key in (Params extends readonly (infer U)[] ? U : never)]: string }, // This is some magic I got from SO to turn an array of strings to keys in an object
   never,
   PropertyMap<Body>, 
   PropertyMap<Query>
 >;
 
-export type SnakeRequest<
+type SnakeRequestBase<
   Body extends RequestInputData['body'] = RequestInputData['body'],
   Query extends RequestInputData['query'] = RequestInputData['query'],
   Params extends RequestInputData['params'] = RequestInputData['params']
-> = Request<
+> = ERequest<
   { [Key in (Params extends readonly (infer U)[] ? U : never)]: string }, // This is some magic I got from SO to turn an array of strings to keys in an object
   never,
   PropertyMap<Body>, 
   PropertyMap<Query>
 >;
+
+export interface SnakeRequest<
+  Body extends RequestInputData['body'] = RequestInputData['body'],
+  Query extends RequestInputData['query'] = RequestInputData['query'],
+  Params extends RequestInputData['params'] = RequestInputData['params']
+> extends SnakeRequestBase<Body, Query, Params> {
+  locals: {
+    user: UserInfo
+  }
+}
 
 export type SnakeRequestController<
   Body extends RequestInputData['body'],
@@ -82,7 +93,7 @@ export type SnakeRequestController<
   Params extends RequestInputData['params']
 > = (
   req: SnakeRequest<Body, Query, Params>,
-  res: Response,
+  res: EResponse,
   next: <T>(err?: T extends Error ? T : MiddlewareError) => void
 ) => void
 
@@ -94,7 +105,7 @@ export default function handleRequest<
 > (
   requestData: RequestInputData<Body, Query, readonly [...Params]> | undefined | null = {},
   controller: SnakeRequestController<Body, Query, Params>
-): RequestHandler {
+): ERequestHandler {
   const { body: bodyTypes, query: queryTypes } = requestData || {};
 
   return ((req, res, next) => {
@@ -108,14 +119,63 @@ export default function handleRequest<
       }
     }
 
-    // Just to satisfy TypeScript since all props have been validated by this point
-    type TypedRequest = typeof req & {
-      body: PropertyMap<Body>,
-      query: PropertyMap<Query>,
-      params: { [Key in (Params extends readonly (infer U)[] ? U : never)]: string }
-    };
-    controller(req as TypedRequest, res, next);
+    // Parse user token
+
+    controller(req as SnakeRequest<Body, Query, Params>, res, next);
   });
+}
+
+/** A piece of middleware that will run before that main request handler. The return value of the function call should either be an object  */
+export type SnakeMiddleware<LocalData extends Record<string, unknown> = Record<string, unknown>> = (req: ERequest, res: EResponse, next: ENextFunction) => ( Promise<LocalData> | LocalData );
+
+export class SnakeHandler<
+  LocalData extends Record<string, unknown>
+> {
+  middleware: SnakeMiddleware<LocalData>[];
+
+  constructor(...middleware: SnakeMiddleware<LocalData>[]) {
+    this.middleware = middleware;
+  }
+
+  handleRequest<
+    Body extends RequestInputData['body'],
+    Query extends RequestInputData['query'],
+    Params extends string[]
+  > (
+    requestInput: RequestInputData<Body, Query, readonly [...Params]> | undefined | null = {},
+    controller: SnakeRequestController<Body, Query, Params>
+  ): ERequestHandler {
+    const { body: bodyTypes, query: queryTypes } = requestInput || {};
+
+    return (async (req, res, next) => {
+      // Validate request body
+      if (bodyTypes || queryTypes) {
+        try {
+          if (bodyTypes) validateJsonBody(req.body, bodyTypes);
+          if (queryTypes) req.query = validateAndCastQueryArgs(req.query, queryTypes) || {};
+        } catch (err) {
+          return next(err);
+        }
+      }
+
+      // Run user-defined middleware and merge result into locals object
+      for (const middleware of this.middleware) {
+        try {
+          const result = await middleware(req, res, next);
+          if (typeof result === 'object') Object.assign(res.locals, result);
+        } catch (err) {
+          return next(err);
+        }
+      }
+
+      // Run provided controller
+      try {
+        controller(req as SnakeRequest<Body, Query, Params>, res, next);
+      } catch (err) {
+        return next(err);
+      }
+    });
+  }
 }
 
 export interface JsonTypeMap extends Record<JsonPrimitive, unknown> {
@@ -142,7 +202,7 @@ export type PropertyMap<ExpTypes extends RequestBodyTypes | undefined> = (
 );
 
 /** Helper type for mapping property info */
-type SnakePropertyMap<ExpType extends PropertyInfo> = (
+export type SnakePropertyMap<ExpType extends PropertyInfo> = (
   ExpType extends PrimitivePropInfo
   ? JsonTypeMap[ExpType['type']] | undefined
   : ExpType extends ArrayPropInfo
@@ -173,7 +233,7 @@ function makeKeyPath(base: string | undefined, key: string | number): string {
  * Assumes that all properties are required unless specified.
  * @throws {ClientError} if the body is malformed
  */
-function validateJsonBody<EP extends RequestBodyTypes>(requestBody: Request['body'], expectedProps: EP | undefined, keyPath?: string): void {
+function validateJsonBody<EP extends RequestBodyTypes>(requestBody: ERequest['body'], expectedProps: EP | undefined, keyPath?: string): void {
   if (!expectedProps) return;
 
   for (const [key, expectedPropInfo] of Object.entries(expectedProps)) {
@@ -227,7 +287,7 @@ function validatePrimitiveProperty(property: unknown, expectedType: JsonPrimitiv
   }
 }
 
-function validateAndCastQueryArgs<EP extends RequestBodyTypes>(requestQuery: Request['query'], expectedProps: EP | undefined): PropertyMap<EP> | null {
+function validateAndCastQueryArgs<EP extends RequestBodyTypes>(requestQuery: ERequest['query'], expectedProps: EP | undefined): PropertyMap<EP> | null {
   if (!expectedProps) return null;
 
   const castedQueryArgs: Record<string, unknown> = {};
