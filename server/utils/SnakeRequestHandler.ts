@@ -222,7 +222,7 @@ function makeKeyPath(base: string | undefined, key: string | number): string {
 
   const newKeyPath = (
     typeof key === 'number' || key.match(/^\d+$/) ? `${base}[${key}]` // Array index
-    : key.match(/[.\s]|^\d/) ? `${base}['${key}']` // Key that has period, whitespace, or starts with number
+    : key.match(/(^[^a-zA-Z_$])|([^a-zA-Z0-9_$])/) ? `${base}['${key}']` // Any key that wouldn't be a valid variable
     : `${base}.${key}`
   );
   return newKeyPath;
